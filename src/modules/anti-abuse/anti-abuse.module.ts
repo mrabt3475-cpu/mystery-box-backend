@@ -1,8 +1,1 @@
-import { Module } from '@nestjs/common';
-import { AntiAbuseService } from './anti-abuse.service';
-
-@Module({
-  providers: [AntiAbuseService],
-  exports: [AntiAbuseService],
-})
-export class AntiAbuseModule {}
+aW1wb3J0IHsgTW9kdWxlIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwppbXBvcnQgeyBBbnRpQWJ1c2VDb250cm9sbGVyIH0gZnJvbSAnLi9hbnRpLWFidXNlLmNvbnRyb2xsZXInOwppbXBvcnQgeyBBbnRpQWJ1c2VTZXJ2aWNlIH0gZnJvbSAnLi9hbnRpLWFidXNlLnNlcnZpY2UnOwoKQE1vZHVsZSh7CiAgY29udHJvbGxlcnM6IFtBbnRpQWJ1c2VDb250cm9sbGVyXSwKICBwcm92aWRlcnM6IFtBbnRpQWJ1c2VTZXJ2aWNlXSwKICBleHBvcnRzOiBbQW50aUFidXNlU2VydmljZV0sCn0pCmV4cG9ydCBjbGFzcyBBbnRpQWJ1c2VNb2R1bGUge30KCi
