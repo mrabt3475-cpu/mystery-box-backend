@@ -1,6 +1,13 @@
-import { Module, Global } from '@nestjs/common';
-import { AppGateway } from './gateway.service';
+import { Module } from '@nestjs/common';
+import { GatewayModule } from '@nestjs/gateway';
+import { EventEmitterService } from './gateway.service';
+import { ChatGateway } from './gateway.gateway';
 
-@Global()
-@Module({ providers: [AppGateway], exports: [AppGateway] })
+@Module({
+  modules: [GatewayModule],
+  providers: [EventEmitterService],
+  controllers: [ChatGateway],
+  exports: [EventEmitterService],
+})
 export class GatewayModule {}
+
