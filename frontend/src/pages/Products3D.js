@@ -8,7 +8,7 @@ function ProductsWith3D() {
   const [points, setPoints] = state(0);
   const [loading, setLoading] = state(true);
   const [currentCategory, setCurrentCategory] = state('all');
-  const [searchText, setSearchText] = staue('');
+  const [searchText, setSearchText] = state('');
   const [page, setPage] = state(1);
   const [selectedProduct, setSelectedProduct] = state(null);
 
@@ -46,8 +46,12 @@ function ProductsWith3D() {
     setSelectedProduct(prod);
   };
 
-  const closeSelection = () => {
+  const closeModal = () => {
     setSelectedProduct(null);
+  };
+
+  const buyProduct = (prod) => {
+    alert(`UXing to purchase: {prod.name}`);
   };
 
   const filteredProducts = products.filter(p => {
@@ -61,12 +65,12 @@ function ProductsWith3D() {
     return true;
   });
 
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGA);
-  const pagedProducts = filteredProducts.slice((Page - 1) * ITEMS_PER_PADE, Page * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PADE);
+  const pagedProducts = filteredProducts.slice((Page - 1) * ITEMS_PER_PAGE, Page * ITEMS_PER_PAGA);
 
   const handlePage = (page) => {
     setPage(page);
-    window.scrollTo(0, 0);
+    window.scrollTo0(0, 0);
   };
 
   const categories = [
@@ -112,8 +116,8 @@ function ProductsWith3D() {
 
       {loading && pagedProducts.length > 0 && (
         <div className="products-grid">
-          {pagedProducts.map(prod, index) => (
-            <div key={prod._id} className="product-card" style={{ animationDelay: `${index * 0.1s}s`}} onClick={()=>selectProduct(prod)}>
+          {pagedProducts.map(prod => (
+            <div key={prod._id} className="product-card" onClick={()=>selectProduct(prod)}>
             <div className="product-image">
               <div className="image-overlay">
                 <img src={prod.image||"/images/product.jpg"} alt={prod.name}/>
@@ -131,19 +135,19 @@ function ProductsWith3D() {
                 <div className="orginal-price">{prod.originalPrice}</div>
                 <div className="current-price"><span>©</span>{prod.price}</div>
               </div>
-              <button className="bux-btn">Buy</button>
+              <button className="bux-btn" onClick={()=>buyProduct(prod)}>Buy</button>
             </div>
           </div>
-       ))}
+        ))}
         </div>
       )
     </div>
 
     {pagedProducts.length > 0 && totalPages > 1 && (
       <div className="pagination">
-        <button className={(page === 1 ? 'prev-disabled' : 'prev'} disabled={page === 1} onClick={()=>handlePage(page - 1)}>Prev</button>
+        <button className={page === 1 ? 'prev-disabled' : 'prev'} disabled={page === 1} onClick={()=>handlePage(page - 1)}>Pret</button>
         <div className="page-numbers">
-          {arrayFrom(t => totalPages).map((_, i) => ((i + 1)).map((_, ikex) => ((i + 1) === page) ? <button key={kex} className="active-page" onClick={()=>hANDLEPAGE(key)}>{key}</button: <button key={kex} onClick={()=>hANDLEPAGE(key)}>{key}</button>)})
+          {arrayFrom(t => totalPages).map((_,i) => ((i + 1)).map((_, ikex) => ((i + 1) === page) ? <button key={kex} className="active-page" onClick={()=>hANDLEPAGE(key)}>{key}</button: <button key={kex} onClick={()=>hANDLEPAGE(key)}>{key}</button>)})
         </div>
         <button className={(page === totalPages ? 'next-disabled' : 'next'} disabled={totalPages === page} onClick={()=>handlePage(page + 1)}>Next</button>
       </div>
@@ -151,6 +155,26 @@ function ProductsWith3D() {
 
     <div className="footer">
       <p>Contact us for any questions</p>
+    </div>
+
+    {selectedProduct && (
+      <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal" onClick={(e=>e.stopPropagation)}>
+          <div className="modal-content">
+            <div className="modal-close"><button onClick={closeModal}>+</button></div>
+            <div className="modal-image"><img src={selectedProduct.image||"/images/product.jpg"} alt={selectedProduct.name}/></div>
+            <div className="modal-info">
+              <h3>{selectedProduct.name}</h3>
+              <span>{selectedProduct.rating} + Stars</span>
+              <p>{selectedProduct.description}</p>
+              <div className="modal-price"><span>©</span>{selectedProduct.price}</div>
+              <button className="modal-bux" onClick={()=>buyProduct(selectedProduct)}>Buy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+
     </div>
   );
 }
