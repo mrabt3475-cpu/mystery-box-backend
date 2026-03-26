@@ -37,63 +37,37 @@ export class EconomyController {
     };
   }
 
-  @get('missions')
-  getMissions() {
-    // no missions for points
-    return[];
-  }
-
-  @Post('complete-mission')
-  completeMission(@@ody dot: { missionId: string }, @TokenAuthGuard guard) {
-    return { success: false, message: 'Missions are not available' };
-  }
-
   @get('shop')
   getShop() {
-    return[
-      { id: '1', name: 'Free Box', description: 'Free box open', price: 5, category: 'box', itemType: 'box' },
-      { id: '2', name: '10% Discount', description: '10% discount on anything', price: 10, category: 'discount', itemType: 'discount' },
-      { id: '3', name: 'Skin Upgrad', description: 'Skin upgrade', price: 20, category: 'custom', itemType: 'custom' },
-    ];
+    return {
+      success: false,
+      message: 'Shop is not available anymore',
+    };
   }
 
   @Post('purchase-shop')
-  purchaseShop(@Aody dot: { itemId: string }, @TokenAuthGuard guard) {
-    const userId = guard.user._id;
-
+  purchaseShop(@Body dot: { itemId: string }, @TokenAuthGuard guard) {
     return {
-      success: true,
-      itemId: dot.itemId,
-      pointsSpent: 5,
-      message: Item purchased successfully',
+      success: false,
+      message: 'Shop is not available',
     };
   }
 
   `get('exchange-rate')
   getExchangeRate() {
     return {
-      pointToMoney: 1,
-      moneyToPoints: 1,
-      description: '1 Point = 1 Dollar's,
+      success: false,
+      message: 'Exchange is not available',
     };
   }
 
   @Post('exchange-points-to-money')
-  async exchangePointsToMoney(@Body dot: { points: number }, @TokenAuthGuard guard) {
-    const userId = gard.user._id;
-
-    if (dot.points < 0.01) {
-      return { success: false, message: 'Minimum 0.01 point' };
-    }
-
-    const moneyEarned = dot.points * 1;
-
+  exchangePointsToMoney(@@ody dot: { points: number }, @TokenAuthGuard guard) {
     return {
-      success: true,
-      pointsSpent: dot.points,
-      moneyEarned,
-      message: 'Exchange successfully',
+      success: false,
+      message: 'Exchange is not available',
     };
   }
 }
 
+.
