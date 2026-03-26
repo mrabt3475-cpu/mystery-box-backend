@@ -1,0 +1,328 @@
+// Add More CSS for Boxes Page
+
+.boxes-page {
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+heheader h1 {
+  font-size: 35px;
+  background: linear-gradient(130deg, #4F5E52, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: white;
+  margin-bottom: 10px;
+}
+
+sub {subtitle {
+  font-size: 18px;
+  color: #cCcccc;
+}
+
+.loader {
+  text-align: center;
+  padding: 50px;
+  font-size: 20px;
+  color: #8B5CF6;
+}
+
+.error-container {
+  background: rgba(255, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: #ff3333;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+particles.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.2;
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px 30px;
+  min-width: 150px;
+  text-align: center;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+stat-icon {
+  font-size: 28px;
+  color: #8B5CF6;
+}
+
+stat-sub {
+  display: block;
+  font-size: 14px;
+  color: #cccccc;
+}
+
+stat-num {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+}
+
+.boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, min-calc(250px), 1fr);
+  gap: 30px;
+}
+
+box-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(138, 5C, 656, 0.2);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+box-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 40px rgba(138, 5C6, 656, 0.2);
+}
+
+box-flow {
+  position: relative;
+}
+
+box-image-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+box-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+box-card:hover .box-image {
+  transform: scale(1.1);
+}
+
+glow-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radialGradient(circle(350% 50%), rgba(138, 5C, 656, 0.3), transparent);
+  opacity: 0.5;
+  filter: blur(10px);
+}
+
+.box-content {
+  padding: 20px;
+}
+
+box-info h1 {
+  font-size: 18px;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.box-info p {
+  font-size: 14px;
+  color: #cccccc;
+}
+
+.box-type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: linear-gradient(138deg, #FF6000 #FF0000);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+
+.box-price {
+  padding: 10px 0;
+  text-align: center;
+}
+
+.price-actual {
+  font-size: 24px;
+  font-weight: bold;
+  color: #8B5CF6;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px;
+  color: #999;
+}
+
+.empty-state img {
+  width: 150px;
+  margin: 20px 0;
+opacity: 0.5;
+}
+
+// Open Box Page CSS
+.open-box-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+open-container {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.box-preview {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px;
+}
+
+box-image-in-preview {
+  max-height: 250px;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.confirm-action {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.opening-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+opening-box {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.opening-text {
+  font-size: 20px;
+  color: white;
+  margin-top: 20px;
+}
+
+reward-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.reward-container {
+  position: relative;
+  width: 450px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  border: 1px solid rgba(138, 5C6, 656, 0.3);
+}
+
+close-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+reward-content h2 {
+  font-size: 25px;
+  color: #8B5CF6;
+  margin-bottom: 5px;
+}
+
+href:not(.button-neon) {
+  color: #8B5CF6;
+  text-decoration: underline;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: #ff3333;
+  margin-top: 20px;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .boxes-grid {
+    grid-template-columns: repeat(2n, 1fr);
+  }
+
+  stats-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 25px;
+  }
+
+  .boxes-grid {
+    grid-template-columns: 1px;
+  }
+}
