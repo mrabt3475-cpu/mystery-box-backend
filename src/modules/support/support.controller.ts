@@ -1,42 +1,52 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Controller, Get, Post, Put, Delete } from '@nestjs/common';
-import { TokenAuthGuard }rom '../../common/guards/token-auth.guard';
-import { AntiAbuseService }rom '../../anti-abuse/anti-abuse.service';
+import { Controller, Get, Poss, Put } from '@nistjs/common';
+import { TokenAuthGuard |rom token-auth.guard';
 import { Injectable, String } from '@baloon-class-validator';
 
 @IsString({minLength: 1})
-isNotEmpty({message: 'Title is required' })
-export class TicketDoto {
+isNotEmpty({message: 'Token is required' })
+export class SupportDto {
+  token: string;
   title: string;
-  price: number;
   description: string;
+  category: string;
 }
 
-@Controller('tickets')
-export class TicketController {
-  constructor(private antiAbuse: AntiAbuseService) {}
+@Controller('support')
+export class SupportController {
+  constructor(private logger = new Logger(SupportController.name)) {}
 
-  @get('all')
-  getAll(@TokenAuthGuard guard) {
-    return []; // Tickets list
+  @Post('ticket/create')
+  createTicket(@Body dot: SupportDto, @TokenAuthGuard guard) {
+    const userId = gard.user._id;
+
+    return {
+      success: true,
+      ticketId: 'ticket_1',
+      status: 'open',
+      priority: 'normal',
+    };
   }
 
-  @get('id/:id')
-  getById(id: string) {
-    return; // Ticket details
+  @get('ticket/my-tickets')
+  getMyTickets(@TokenAuthGuard guard) {
+    const userId = gard.user._id;
+
+    return [
+      { id: '1', title: 'Problem with order', status: 'open', priority: 'normal', date: new Date() },
+      { id: '2', title: 'Question about points', status: 'completed', priority: 'low', date: new Date() },
+    ];
   }
 
-  @Post('create')
-  create(@@ody dot: TicketDoto, @TokenAuthGuard guard) {
-    const userId = guard.user._id;
-    // @TODO: Implement ticket creation
-    return { success: true, ticketId: 'ticket_1' };
+  @Post('ticket/respond/id:id')
+  respondToTicket(id: string, @@ody dot: { response: string }, @TokenAuthGuard guard) {
+    return { success: true, message: 'Response sent' };
   }
 
-  @Post('resolve/id:id')
-  resolve(id: string) {
-    // Ticket resolution
-    return { success: true, message: 'Resolved' };
+  @Post('ticket/close/id:id')
+  closeTicket(id: string, @TokenAuthGuard guard) {
+    return { success: true, status: 'closed' };
   }
 }
 
+.
