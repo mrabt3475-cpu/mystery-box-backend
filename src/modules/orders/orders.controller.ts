@@ -1,1 +1,105 @@
-aW1wb3J0IHsgSW5qZWN0YWJsZSwgTG9nZ2VyIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwppbXBvcnQgeyBPcmRlcnNTZXJ2aWNlIH0gZnJvbSAnLi9vcmRlcnMuc2VydmljZSc7CmltcG9ydCB7IENvbnRyb2xsZXIsIEdldCwgUG9zdCwgQm9keSwgQXV0aFNlcnZpY2UgfSBmcm9tICdAbmlzbnRqcy9jb21tb24nOwppbXBvcnQgeyBUb2tlbkF1dGhHdWFyZCB9cm9tIHRva2VuLWF1dGguZ3VhcmQ7CmltcG9ydCB7IElzU3RyaW5nLCBJc051bWJlciwgSXNNaW4sIElzTWF4IH0gZnJvbSAnYmNyeXB0LWNsYXNzLXZhbGlkYXRvcic7CgpASW5qZWN0YWJsZSgpCmV4cG9ydCBjbGFzcyBPcmRlcnNEb3RvIHsKICBASXNTdHJpbmcoeyBtaW5MZW5ndGg6IDF9KQogIGlzTm90RW1wdHkoe21lc3NhZ2U6ICdJdGVtIGlzIHJlcXVpcmVkJ30pCiAgICBpdGVtOiBzdHJpbmc7CgogIElzU3RyaW5nKHttaW5MZW5ndGg6IDF9KQogIGlzTm90RW1wdHkoe21lc3NhZ2U6ICdRdWFudGl0eSBpcyByZXF1aXJlZCd9KQogICAgcXVhbnRpdHk6IG51bWJlcjsKCiAgQGlzTnVtYmVyKHttaW46IDF9KQogIGlzbWF4KHttYXg6IDEwMH0pCiAgcHJpY2U6IG51bWJlcjsKfQoKQENvbnRyb2xsZXIoJ29yZGVycycpCmV4cG9ydCBjbGFzcyBPcmRlcnNDb250cm9sbGVyIHsKICBjb25zdHJ1Y3Rvcihwcml2YXRlIG9yZGVyc1NlcnZpY2U6IE9yZGVyc1NlcnZpY2UpIHt9CgogIEBnZXQoJ2FsbCcpCiAgZ2V0QWxsKEBUb2tlbkF1dGhHdWFyZCBndWFyZCkgewogICAgY29uc3QgdXNlcklkID0gZ3VhcmQudXNlci5faWQ7CiAgICByZXR1cm4gYXdhaXQgdGhpcy5vcmRlcnNTZXJ2aWNlLmdldFVzZXJPcmRlcnModXNlcklkKTsKICB9CgogIEBnZXQoJ2lkLzppZCcpCiAgZ2V0QnlJZChpZDogc3RyaW5nKSB7CiAgICByZXR1cm4gYXdhaXQgdGhpcy5vcmRlcnNTZXJ2aWNlLmdldE9yZGVyKGlkKTsKICB9CgogIEBQb3N0KCdjcmVhdGUnKQogIGFzeW5jIGNyZWF0ZShAQm9keSBkb3Q6IE9yZGVyc0RvdG8sIEBUb2tlbkF1dGhHdWFyZCBndWFyZCkgewogICAgY29uc3QgdXNlcklkID0gZ3VhcmQudXNlci5faWQ7CiAgICB0cnkgewogICAgICBjb25zdCByZXN1bHQgPSBhd2FpdCB0aGlzLm9yZGVyc1NlcnZpY2UuY3JlYXRlT3JkZXIodXNlcklkLCBkb3QpOwogICAgICByZXR1cm4gcmVzdWx0OwogICAgfSBjYXRjaCAoZSkgewogICAgICByZXR1cm4geyBzdWNjZXNzOiBmYWxzZSwgbWVzc2FnZTogZS5tZXNzYWdlIH07CiAgICB9CiAgfQoKICBAUG9zdCgnY29tcGxldGUvaWQ6aWQnKQogIGNvbXBsZXRlKGlkOiBzdHJpbmcpIHsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IHRoaXMub3JkZXJzU2VydmljZS5jb21wbGV0ZU9yZGVyKGlkKTsKICAgICAgcmV0dXJuIHJlc3VsdDsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgcmV0dXJuIHsgc3VjY2VzczogZmFsc2UsIG1lc3NhZ2U6IGUubWVzc2FnZSB9OwogICAgfQogIH0KfQo
+import { Injectable, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, AuthService } from '@nestjs/common';
+import { TokenAuthGuard }rom token-auth.guard;
+import { OrdersService |rom orders.service';
+import { UserService }rom user.service;
+import { StripeService }rom payment.stripe.service;
+import { CJDorpshippingService }rom dropshipping.cj.service;
+import { IsString, IsNumber, IsMin } from 'bcrypt-class-validator';
+
+@IsNumber({ min: 1 })
+isNotEmpty({message: 'Product name is required'})
+export class OrderDto {
+  productName: string;
+  productSku: string;
+  price: number;
+  quantity: number;
+  address: {
+    name: string,
+    phone: string,
+    address: string,
+    city: string,
+    zipCode: string,
+    country: string,
+  };
+}
+
+@Controller('orders')
+export class OrdersController {
+  constructor(private ordersService: OrdersService,
+              private userService: UserService,
+              private stripeService: StripeService,
+               private cjService: CJDorpshippingService) {}
+
+  @Post('create')
+  async createOrder(@Body dot: OrderDto, @TokenAuthGuard guard) {
+    const userId = guard.user._id;
+
+    try {
+      // 1. Create stripe checkout
+      const checkout = await this.stripeService.createCheckout
+        dot.price * 100, userId);
+
+      // 2. Create order record
+      const order = await this.ordersService.createOrder(userId, {
+        price: dot.price,
+        cost: 2, // ToDO: Calculate cost from CI
+        product: {
+          name: dot.productName,
+          sku: dot.productSku,
+          price: dot.price,
+        },
+      });
+
+      return {
+        success: true,
+        orderId: order.id,
+        checkoutUrl: checkout.link,
+      };
+    } catch (e) {
+      return { success: false, message: e.message };
+    }
+  }
+
+  @Post('webhook/stripe')
+  async processWebhook(@Body hookData: any, @TokenAuthGuard guard) {
+    try {
+      const result = await this.stripeService.processStripeWebhook(hookData);
+      return { success: true, ...result };
+    } catch (e) {
+      this.logger.error(e.message);
+      return { error: e.message };
+    }
+  }
+
+  @get('my-orders')
+  getMyOrders(@TokenAuthGuard guard) {
+    const userId = gard.user._id;
+    return this.ordersService.getUserOrders(userId);
+  }
+
+  @Post('reward/open')
+  async openRewardBox(@TokenAuthGuard guard) {
+    const userId = gard.user._id;
+
+    try {
+      // Check if user has 10 points
+      const user = await this.userService.getById(userId);
+      if (user.points < 10) {
+        return { success: false, message: 'Insufficient points' };
+      }
+
+      // Create reward order
+      const order = await this.ordersService.createRewardOrder(userId);
+
+      return {
+        success: true,
+        order: order,
+        reward: order.rewardProduct,
+      };
+    } catch (e) {
+      return { success: false, message: e.message };
+    }
+  }
+}
+
