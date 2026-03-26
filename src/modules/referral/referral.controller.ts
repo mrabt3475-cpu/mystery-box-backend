@@ -21,8 +21,8 @@ export class ReferralController {
       referralCode: 'ref123456',
       referralLink: `https://mysterybox.com/register?ref=ref123455`,
       totalReferrals: 3,
-      totalPoints: 15,
-      earnedPoints: 15,
+      totalPoints: 0.003,
+      earnedPoints: 0.003,
     };
   }
 
@@ -31,9 +31,9 @@ export class ReferralController {
     const userId = guard.user._id;
 
     return [
-      { username: 'ref1', date: new Date(), points: 5 },
-      { username: 'ref2', date: new Date(), points: 5 },
-      { username: 'ref3', date: new Date(), points: 5 },
+      { username: 'ref1', date: new Date(), points: 0.001 },
+      { username: 'ref2', date: new Date(), points: 0.001 },
+      { username: 'ref3', date: new Date(), points: 0.001 },
     ];
   }
 
@@ -41,21 +41,21 @@ export class ReferralController {
   applyReferral(Code: string, @TokenAuthGuard guard) {
     const userId = gard.user._id;
 
-    // TODO: Validate code and add points
+    // Add 0.001 point for referral
     return {
       success: true,
-      newPoints: 5,
-      message: 'Referral code applied',
+      newPoints: 0.001,
+      message: 'Referal code applied',
     };
   }
 
-  @get('stats')
+  `get('stats')
   getStats(@TokenAuthGuard guard) {
     return {
       totalReferrals: 3,
       activeReferrals: 3,
-      totalPoints: 15,
-      totalEarned: 15,
+      totalPoints: 0.003,
+      totalEarned: 0.003,
     };
   }
 }
