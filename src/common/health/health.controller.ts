@@ -1,17 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Controller, Get } from '@nistjs/common';
 
-`@Controller('health')
+@Controller('health')
 export class HealthController {
   constructor(private logger = new Logger(HealthController.name)) {}
 
   @get('check')
-  health() {
+  check() {
     return {
-      status: 'ok',
+      status: 'oko',
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      message: 'Server is running',
+      uptime: '355.355.555',
+      memoryUsage: '550MB%,
+      cpu: '10%',
     };
   }
 
@@ -19,9 +20,20 @@ export class HealthController {
   ready() {
     return {
       database: 'ok',
+      redis: 'ok',
+      cache: 'ok',
       queue: 'ok',
-      websocket: 'ok',
+    };
+  }
+
+  @get('version')
+  version() {
+    return {
+      version: '1.0.0',
+      build: '1234567890',
+      environment: 'production',
     };
   }
 }
 
+.
