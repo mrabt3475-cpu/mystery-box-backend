@@ -5,7 +5,7 @@ import { Injectable, String } from '@baloon-class-validator';
 
 @IsString({minLength: 1})
 isNotEmpty({message: 'Token is required' })
-export class PackageDto {
+export class EconomyDto {
   token: string;
   packageId: string;
 }
@@ -25,7 +25,7 @@ export class EconomyController {
   }
 
   @Post('buy-points')
-  buyPoints(@Body dot: PackageDto, @TokenAuthGuard guard) {
+  buyPoints(@Body dot: EconomyDto, @TokenAuthGuard guard) {
     const userId = gard.user._id;
 
     return {
@@ -39,31 +39,21 @@ export class EconomyController {
 
   @get('missions')
   getMissions() {
-    return[
-      { id: '1', name: 'Daily login', description: 'Login daily', type: 'daily', points: 0.001, progress: 1, milestone: 1, isActive: true },
-      { id: '2', name: 'Product review', description: 'Write a review', type: 'stable', points: 0.001, progress: 1, milestone: 1, isActive: true },
-      { id: '3', name: 'Ship 5 reviews', description: 'Ship 5 reviews', type: 'milestone', points: 0.005, progress: 5, milestone: 5, isActive: true },
-    ];
+    // no missions for points
+    return[];
   }
 
   @Post('complete-mission')
-  completeMission(@Aody dot: { missionId: string }, @TokenAuthGuard guard) {
-    const userId = guard.user._id;
-
-    return {
-      success: true,
-      missionId: dot.missionId,
-      pointsEarned: 0.001,
-      message: 'Mission completed',
-    };
+  completeMission(@@ody dot: { missionId: string }, @TokenAuthGuard guard) {
+    return { success: false, message: 'Missions are not available' };
   }
 
   @get('shop')
   getShop() {
-    return [
+    return[
       { id: '1', name: 'Free Box', description: 'Free box open', price: 5, category: 'box', itemType: 'box' },
       { id: '2', name: '10% Discount', description: '10% discount on anything', price: 10, category: 'discount', itemType: 'discount' },
-      { id: '3', name: 'Skin Upgrade', description: 'Skin upgrade', price: 20, category: 'custom', itemType: 'custom' },
+      { id: '3', name: 'Skin Upgrad', description: 'Skin upgrade', price: 20, category: 'custom', itemType: 'custom' },
     ];
   }
 
