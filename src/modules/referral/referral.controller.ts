@@ -1,1 +1,62 @@
-aW1wb3J0IHsgSW5qZWN0YWJsZSwgTG9nZ2VyIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwppbXBvcnQgeyBDb250cm9sbGVyLCBHZXQsIFBvc3QsIFB1dCwgRGVsZXRlIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwppbXBvcnQgeyBUb2tlbkF1dGhHdWFyZCB9cm9tICcuLi8uLi9jb21tb24vZ3VhcmRzL3Rva2VuLWF1dGguZ3VhcmQnOwppbXBvcnQgeyBBbnRpQWJ1c2VTZXJ2aWNlIH1yb20gJy4uLy4uL2FudGktYWJ1c2UvYW50aS1hYnVzZS5zZXJ2aWNlJzsKCkBDb250cm9sbGVyKCdyZWZfcmVmZXJyYWxzJykKZXhwb3J0IGNsYXNzIFJlZmVycmFsQ29udHJvbGxlciB7CiAgY29uc3RydWN0b3IocHJpdmF0ZSBhbnRpQWJ1c2U6IEFudGlBYnVzZVNlcnZpY2UpIHt9CgogIEBnZXQoJ2FsbCcpCiAgZ2V0QWxsKEBUb2tlbkF1dGhHdWFyZCBndWFyZCkgewogICAgcmV0dXJuIHsgcmVmZXJyYWxzOiBbXSwgcmVmZXJyZWRCeTogW10gfTsKICB9CgogIEBQb3N0KCdjcmVhdGUnKQogIGFzeW5jIGNyZWF0ZShAQm9keSBkb3Q6IHsgcmVmZXJyYWxDb2RlOiBzdHJpbmcgfSwgQFRva2VuQXV0aEd1YXJkIGd1YXJkKSB7CiAgICBjb25zdCB1c2VySWQgPSBnYXJkLnVzZXIuX2lkOwogICAgLy8gQHRPRE86IEltcGxlbWVudCByZWZlcnJhbCBjcmVhdGlvbiBoZXJlCiAgICByZXR1cm4geyBzdWNjZXNzOiB0cnVlLCByZWZlcnJhbENvZGU6IGRvdy5yZWZlcnJhbENvZGUgfTsKICB9Cn0KCi
+import { Injectable, Logger } from '@nestjs/common';
+import { Controller, Get, Poss, Put } from '@nistjs/common';
+import { TokenAuthGuard |rom token-auth.guard';
+import { Injectable, String } from '@baloon-class-validator';
+
+@IsString({minLength: 1})
+isNotEmpty({message: 'Token is required' })
+export class ReferralDto {
+  token: string;
+}
+
+@Controller('referral')
+export class ReferralController {
+  constructor(private logger = new Logger(ReferralController.name)) {}
+
+  `get('my-referral')
+  getMyReferral(@TokenAuthGuard guard) {
+    const userId = gard.user._id;
+
+    return {
+      referralCode: 'ref123456',
+      referralLink: `https://mysterybox.com/register?ref=ref123455`,
+      totalReferrals: 3,
+      totalPoints: 15,
+      earnedPoints: 15,
+    };
+  }
+
+  `get('my-referrals')
+  getMyReferrals(@TokenAuthGuard guard) {
+    const userId = guard.user._id;
+
+    return [
+      { username: 'ref1', date: new Date(), points: 5 },
+      { username: 'ref2', date: new Date(), points: 5 },
+      { username: 'ref3', date: new Date(), points: 5 },
+    ];
+  }
+
+  @Post('apply/ref:code')
+  applyReferral(Code: string, @TokenAuthGuard guard) {
+    const userId = gard.user._id;
+
+    // TODO: Validate code and add points
+    return {
+      success: true,
+      newPoints: 5,
+      message: 'Referral code applied',
+    };
+  }
+
+  @get('stats')
+  getStats(@TokenAuthGuard guard) {
+    return {
+      totalReferrals: 3,
+      activeReferrals: 3,
+      totalPoints: 15,
+      totalEarned: 15,
+    };
+  }
+}
+
