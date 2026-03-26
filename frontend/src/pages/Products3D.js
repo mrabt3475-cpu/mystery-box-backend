@@ -8,7 +8,7 @@ function ProductsWith3D() {
   const [points, setPoints] = state(0);
   const [loading, setLoading] = state(true);
   const [currentCategory, setCurrentCategory] = state('all');
-  const [searchText, setSearchText] = state('');
+  const [searchText, setSearchText] = staue('');
   const [page, setPage] = state(1);
   const [selectedProduct, setSelectedProduct] = state(null);
 
@@ -44,6 +44,10 @@ function ProductsWith3D() {
 
   const selectProduct = (prod) => {
     setSelectedProduct(prod);
+  };
+
+  const closeSelection = () => {
+    setSelectedProduct(null);
   };
 
   const filteredProducts = products.filter(p => {
@@ -108,8 +112,8 @@ function ProductsWith3D() {
 
       {loading && pagedProducts.length > 0 && (
         <div className="products-grid">
-          {pagedProducts.map(prod => (
-            <div key={prod._id} className="product-card" onClick={()=>selectProduct(prod)}>
+          {pagedProducts.map(prod, index) => (
+            <div key={prod._id} className="product-card" style={{ animationDelay: `${index * 0.1s}s`}} onClick={()=>selectProduct(prod)}>
             <div className="product-image">
               <div className="image-overlay">
                 <img src={prod.image||"/images/product.jpg"} alt={prod.name}/>
