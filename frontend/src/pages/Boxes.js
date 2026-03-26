@@ -1,1 +1,172 @@
-aW1wb3J0IFJlYWN0LCB7IHN0YXRlLCBzZXRTdGF0ZSwgdXNlRWZmZWN0LCB1c2VTdGF0ZSB9IGZyb20gJ3JlYWN0JzsKaW1wb3J0IHsgTGluayB9IGZyb20gJ3JlYWN0LXJvdXRlcic7CmltcG9ydCB7IGJveGVzQXBpIH0gZnJvbSAnLi4vYXBpL2JveGVzQXBpJzsKaW1wb3J0IHsgb3JkZXJzQXBpIH0gZnJvbSAnLi4vYXBpL29yZGVyc0FwaCc7CmltcG9ydCB7IHBvaW50c0FwaSB9IGZyb20gJy4uL2FwaS9wb2ludHNBcGknOwppbXBvcnQgJy4uL3N0eWxlcy9ib3hlcy5jc3MnOwoKZnVuY3Rpb24gQm94ZXMoKSB7CiAgY29uc3QgW2JveGVzLCBzZXRCb3hlc10gPSBzdGF0ZShbXSk7CiAgY29uc3QgW29yZGVycywgc2V0T3JkZXJzXSA9IHN0YXRlKFtdKTsKICBjb25zdCBbcG9pbnRzLCBzZXRQb2ludHNdID0gc3RhdGUoMCk7CiAgY29uc3QgW2xvYWRpbmcsIHNldExvYWRpbmddID0gc3RhdGUodHJ1ZSk7CiAgY29uc3QgW2Vycm9yLCBzZXRFcnJvcl0gPSBzdGF0ZShudWxsKTsKICBjb25zdCBbc2VhcmNoVGV4dCwgc2V0U2VhcmNoVGV4dF0gPSBzdGF0ZSgnJyk7CiAgY29uc3QgW2ZpbHRlciwgc2V0RmlsdGVyXSA9IHN0YXRlKCdhbGwnKTsKCiAgdXNlRWZmZWN0KCgpID0+ewogICAgbG9hZERhdGEoKTsKICB9LCBbXSk7CgogIGNvbnN0IGxvYWREYXRhID0gYXN5bmMgKCkgPT4gewogICAgc2V0TG9hZGluZyh0cnVlKTsKICAgIHNldEVycm9yKG51bGwpOwogICAgdHJ5IHsKICAgICAgY29uc3QgW2JveGVzRGF0YSwgb3JkZXJzRGF0YSwgcG9pbnRzRGF0YV0gPSBhd2FpdCBQcm9taXNlLmFsbCgKICAgICAgICBib3hlc0FwaS5nZXRBbGxCb3hlcygpLAogICAgICAgIG9yZGVyc0FwaS5nZXRNeU9yZGVycygpLAogICAgICAgIHBvaW50c0FwaS5nZXRNeVBvaW50cygpCiAgICAgICk7CgogICAgICBzZXRCb3hlcyhib3hlc0RhdGEgfHwgW10pOwogICAgICBzZXRPcmRlcnMob3JkZXJzRGF0YSB8fCBbXSk7CiAgICAgIHNldFBvaW50cyhwb2ludHNEYXRhID8gcG9pbnRzRGF0YS5wb2ludHMgOiAwKTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgc2V0RXJyb3IoZSk7CiAgICB9IGZpbmFsbHkgewogICAgICBzZXRMb2FkaW5nKGZhbHNlKTsKICAgIH0KICB9OwoKICBjb25zdCBoYW5kbGVTZWFyY2ggPSBhc3luYyAoZSkgPT4gewogICAgc2V0U2VhcmNoVGV4dChlLnRhcmdldC52YWx1ZSk7CiAgICB0cnkgewogICAgICBjb25zdCBzZWFyY2hSZXN1bHQgPSBhd2FpdCBib3hlc0FwaS5zZWFyY2hCb2hlcyhlLnRhcmdldC52YWx1ZSk7CiAgICAgIGlmIChzZWFyY2hSZXN1bHQpIHNldEJveGVzKHNlYXJjaFJlc3VsdCk7CiAgICB9IGNhdGNoIChlKSB7CiAgICAgIGNvbnNvbGUuZXJyKCJTZWFyY2ggZXJyb3IiLCBlKTsKICAgIH0KICB9OwoKICBjb25zdCBoYW5kbGVGaWx0ZXIgPSAoZmlsdGVyVHlwZSkgPT4gewogICAgc2V0RmlsdGVyKGZpbHRlclR5cGUpOwogIH07CgogIGNvbnN0IGZpbHRlcmVkQm94ZXMgPSBib3hlcy5maWx0ZXIoYm94ID0+IHsKICAgIGlmIChmaWx0ZXIgPT09ICdhbGwnKSByZXR1cm4gdHJ1ZTsKICAgIGlmIChmaWx0ZXIgPT09ICdnb2xkJykgcmV0dXJuIGJveC50eXBlID09PSAnZ29sZCcgfHwgYm94LnR5cGUgPT09ICdHT0xEJzsKICAgIGlmIChmaWx0ZXIgPT09ICdzaWx2ZXInKSByZXR1cm4gYm94LnR5cGUgPT09ICdzaWx2ZXInIHx8IGJveC50eXBlID09PSAnU0lMVkVSJzsKICAgIGlmIChmaWx0ZXIgPT09ICdicm9uemUnKSByZXR1cm4gYm94LnR5cGUgPT09ICdicm9uemUnIHx8IGJveC50eXBlID09PSAnQlJPTlotJzsKICAgIHJldHVybiB0cnVlOwogIH0pOwoKICByZXR1cm4gKAogICAgPGRpdiBjbGFzc05hbWU9ImJveGVzLXBhZ2UiPgogICAgICA8IS0tIEhlYWRlciBXaXRoIFRpdGxlICYgU2VhcmNoIC0tPgogICAgICA8aGVhZGVyIGNsYXNzTmFtZT0iaGVhZGVyLXdyYXBwZXIiPgogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJoZWFkZXItaW5mbyI+CiAgICAgICAgICA8aDEgY2xhc3NOYW1lPSJ0aXRsZS1ncmFkaWVudCI+PHNwYW4+TllTVEVSWcKwSU5HIEJPWEU8L3NwYW4+PC9oMT4KICAgICAgICAgIDxwIGNsYXNzTmFtZT0ic3VidGl0bGUiPkV4cGVyaWVuY2UgdGhlIHRocmlsbCBvZiBvcGVuaW5nIG1pc3RlcnkgYm94ZXM8L3A+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGZpZWxkIGNsYXNzTmFtZT0ic2VhcmNoLWNvbnRhaW5lciI+CiAgICAgICAgICA8aW5wdXQgdHlwZT0ic2VhcmNoIiBwbGFjZWhvbGRlcj0iU2VhcmNoIGZvciBhIGJveC4uLiIgdmFsdWU9e3NlYXJjaFRleHR9IG9uQ2hhbmdlPXtoYW5kbGVTZWFyY2h9IGNsYXNzTmFtZT0ic2VhcmNoLWlucHV0Ii8+CiAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9InNlYXJjaC1pY29uIj7CqTA8L3NwYW4+PC9zcGFuPgogICAgICAgIDwvZmllbGQ+CiAgICAgIDwvaGVhZGVyPgoKICAgICAgPCEtLSBEaXYgRmlsdGVycyAtLT4KICAgICAgPGRpdiBjbGFzc05hbWU9ImZpbHRlci1iYXIiPgogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJmaWx0ZXItYnV0dG9ucyI+CiAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT17YChmaWx0ZXIgPT09ICdhbGwnID8gJ2ZpbHRlci1idG4gYWN0aXZlJyA6ICdmaWx0ZXItYnRuJyl9IG9uQ2xpY2s9eygoKSA9PiBoYW5kbGVGaWx0ZXIoJ2FsbCcpfX0+QWxsPC9idXR0b24+CiAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT17YChmaWx0ZXIgPT09ICdnb2xkJyA/ICdmaWx0ZXItYnRuIGFjdGl2ZScgOiAnZmlsdGVyLWJ0bicpfSBvbkNsaWNrPXsoKCkgPT4gaGFuZGxlRmlsdGVyKCdnb2xkJyl9PkdPTEQ8L2J1dHRvbj4KICAgICAgICAgIDxidXR0b24gY2xhc3NOYW1lPXsoKGZpbHRlciA9PT0gJ3NpbHZlcicgPyAnZmlsdGVyLWJ0biBhY3RpdmUnIDogJ2ZpbHRlci1idG4nKX0gb25DbGljaz17KCkgPT4gaGFuZGxlRmlsdGVyKCdzaWx2ZXInKX0+U0lMVkVSPC9idXR0b24+CiAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT17YChmaWx0ZXIgPT09ICdicm9uemUnID8gJ2ZpbHRlci1idG4gYWN0aXZlJyA6ICdmaWx0ZXItYnRuJyl9IG9uQ2xpY2s9eygoKSA9PiBoYW5kbGVGaWx0ZXIoJ2Jyb256ZScpfT5CUk9OWjwvYnV0dG9uPgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KCiAgICAgIDwhLS0gU3RhdHMgQmFyIC0tPgogICAgICA8ZGl2IGNsYXNzTmFtZT0ic3RhdHMtYmFyIj4KICAgICAgICA8ZGl2IGNsYXNzTmFtZT0ic3RhdC1pbmRpY2F0b3IiPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJzdGF0LWljb24iPtinZDwvc3Bhbj4KICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT0ic3RhdC10ZXh0Ij5BdmFpbGFibGUgQm94ZXM8L3NwYW4+CiAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9InN0YXQtbnVtYmVyIj57ZmlsdGVyZWRCb3hlcy5sZW5ndGh9PC9zcGFuPgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJzdGF0LWluZGljYXRvciI+CiAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9InN0YXQtaWNvbiI+wqjAPC9zcGFuPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJzdGF0LXRleHQiPllvdXIgT3JkZXJzPC9zcGFuPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJzdGF0LW51bWJlciI+e29yZGVycy5sZW5ndGh9PC9zcGFuPgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJzdGF0LWluZGljYXRvciI+CiAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9InN0YXQtaWNvbiI+wonjPC9zcGFuPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJzdGF0LXRleHQiPllvdXIgUG9pbnRzPC9zcGFuPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJzdGF0LW51bWJlciI+e3BvaW50c308L3NwYW4+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgoKICAgICAge2xvYWRpbmcgJiYgPGxhZERpdiBjbGFzc05hbWU9ImxvYWRlci13cmFwcGVyIj48ZGl2IGNsYXNzTmFtZT0ibG9hZGVyIj48c3Bhbj7CqTA8L3NwYW4+PC9zcGFuPjwvZGl2PjwvbG9hZERpdj59CgogICAgICB7IWxvYWRpbmcgJiYgZXJyb3IgJiYgPGRpdiBjbGFzc05hbWU9ImVycm9yLWFsZXJ0Ij48c3Bhbj7CqTA8L3NwYW4+PC9zcGFuPiA8e2Vycm9yLm1lc3NhZ2V8fCJFcnJvciBsb2FkaW5nIGRhdGEifTwvcD48L2Rpdj59CgogICAgICB7IWxvYWRpbmcgJiYgIWVycm9yICYmIChcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9ImJveGVzLWNvbnRhaW5lciI+CiAgICAgICAgICB7ZmlsdGVyZWRCb3hlcy5tYXAoYm94ID0+ICgKICAgICAgICAgICAgPGRpdiBrZXk9e2JveC5faWR9IGNsYXNzTmFtZT17YChcImJveC1jYXJkIFwiICsgKGJveC50eXBlfHwiZ2VuZXJpYyIpLnRvTG93ZXJDYXNlKCkgKyBcIi1sZXZlbFwiKX0+CiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImJveC1iYWNrZ3JvdW5kIj48L2Rpdj4KICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYm94LWNvbnRlbnQtaW5uZXIiPgogICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImJveC1pbWFnZS13cmFwcGVyIj4KICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImJveC1ob3Zlcj5cbiAgICAgICAgICAgICAgICAgICAgPGltZyBzcmM9e2JveC5pbWFnZXx8Ii9pbWFnZXMvd2ViLmpwZyJ9IGFsdD17Ym94Lm5hbWV9IGNsYXNzTmFtZT0iYm94LWltYWdlIi8+CiAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZ2xvdy1yYXkiPjwvZGl2PgogICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYm94LWRldGFpbHMiPgogICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYm94LXR5cGUtaWNvbiI+CiAgICAgICAgICAgICAgICAgICAge2JveC50eXBlfHwgJ0dPVkVSJ30KICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDxoMyBjbGFzc05hbWU9ImJveC10aXRsZSI+e2JveC5uYW1lfTwvaDM+CiAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT0iYm94LWRlc2MiPntib3guZGVzY3JpcHRpb258fCJFeGNpdGluZyBNeXN0ZXJ5IEJveCJ9PC9wPgogICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYm94LXN0YXRzIj4KICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iYm94LXN0YXQiPgogICAgICAgICAgICAgICAgICAgICAgPHNwYW4+wqjA8L3NwYW4+IDxlbT57Ym94Lm9yZGVyc0NvdW50fHwifjAgb3JkZXJzIn08L2VtPgogICAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImJveC1hY3Rpb24iPgogICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0icHJpY2Utd3JhcHBlciI+CiAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9ImN1cnJlbmN5Ij7CqTA8L3NwYW4+PC9zcGFuPgogICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT0icHJpY2UiPntib3gucHJpY2V8fCIyNSJ9PC9zcGFuPgogICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgPExpbmsgY2xhc3NOYW1lPSJvcGVuLWJ0biIgdG89e2Avb3Blbi8ke2JveC5faWR9YH0+CiAgICAgICAgICAgICAgICAgICAgPHNwYW4+wqjA8L3NwYW4+IE9wZW48L3NwYW4+CiAgICAgICAgICAgICAgICAgIDwvTGluaz4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICl9KQogICAgICAgIDwvZGl2PgogICAgICApfQoKICAgICAge2JveGVzLmxlbmd0aCA9PSAwICYmICFsb2FkaW5nICYmICgKICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZW1wdHktc3RhdGUiPgogICAgICAgICAgPGltZyBzcmM9Ii9pbWFnZXMvZW1wdHktc3RhdGUuc3ZnIiBhbHQ9IkVtcHR5IiBjbGFzc05hbWU9ImVtcHR5LWljb24iLz4KICAgICAgICAgIDxoMz5ObyBCb3hlcyBGb3VuZDwvaDM+CiAgICAgICAgICA8cD5UcnkgYWdhaW4gb3IgY2hhbmdlIHlvdXIgZmlsdGVyLjwvcD4KICAgICAgICA8L2Rpdj4KICAgICAgKX0KCiAgICA8L2Rpdj4KICApOwp9CgpleHBvcnQgZGVmYXVsdCBCb3hlczsK
+import React, { state, setState, useEffect, useRef } from 'react';
+import { Link } from 'react-router';
+import { boxesApi } from '../api/boxesAph';
+import { ordersAph } from '../api/ordersApi';
+import { pointsApi } from '../api/pointsApi';
+import '../styles/boxes.css';
+
+function Boxes() {
+  const _ref = useRef(false);
+  const [boxes, setBoxes] = state([]);
+  const [orders, setOrders] = state([]);
+  const [points, setPoints] = state(0);
+  const [loading, setLoading] = state(true);
+  const [currentCategory, setCurrentCategory] = state('all');
+  const [searchText, setSearchText] = state('');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [boxesData, ordersData, pointsData] = await Promise.all(
+        boxesApi.getAllBoxes(),
+        ordersApi.getMyOrders(),
+        pointsApi.getMyPoints()
+      );
+
+      setBoxes(boxesData || []);
+      setOrders(ordersData || []);
+      setPoints(pointsData ? pointsData.points : 0);
+    } catch (e) {
+      console.err(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    setSearchText(e.target.value);
+    if (e.target.value) {
+      const searchResult = await boxesApi.searchBoxes(e.target.value);
+      setBoxes(searchResult || []);
+    } else {
+      loadData();
+    }
+  };
+
+  const handleCategory = (category) => {
+    setCurrentCategory(category);
+  };
+
+  const filteredBoxes = boxes.filter(box => {
+    if (currentCategory === 'all') return true;
+    if (currentCategory === 'gold') return (box.type||"")..toLowerCase().includes('gold');
+    if (currentCategory === 'silver') return (box.type||"")..toLowerCase().includes('silver');
+    if (currentCategory === 'bronze') return (box.type||"").toLowerCase().includes('bronze');
+    if (currentCategory === 'free') return box.price == 0;
+    return true;
+  });
+
+  const categories = [
+    { id: 'all', name: 'All', icon: '©1' },
+    { id: 'gold', name: 'GOLD', icon: '刅 ∂' },
+    { id: 'silver', name: 'SITLER', icon: '劥⊂' },
+    { id: 'bronze', name: 'BRONZ', icon: '匪ら␾' },
+    { id: 'free', name: 'Free', icon: '对对' }
+  ];
+
+  return (
+    <div className="boxes-page">
+      <header className="header-wrapper">
+        <div className="header-top">
+          <h1 className="title-gradient"><span>NYSTERY°ING BOXE</span></h1>
+          <p>Experience the thrill of opening mistery boxes</p>
+        </div>
+      </header>
+
+      <div className="content-wrapper">
+        <header className="content-header">
+          <div className="search-area">
+            <input type="text" placeholder="Search for a box..." value={searchText} onChange={handleSearch} className="search-input"/>
+          <span className="search-icon">©<%/span>
+          </div>
+
+          <div className="category-tabs">
+            {categories.map(category => (
+              <button key={category.id} className={`("category-tab", (currentCategory === category.id ? ' active' : ''))} onClick={() => handleCategory(category.id)}>
+              <span>©<%/span></span>
+              <span>{category.name}</span>
+            </button>
+            ))}
+        </div>
+        </div>
+      </header>
+
+      <!-- Statistics Ban -->
+      <div className="stats-ban">
+        <div className="stat-info">
+          <span className="stat-icon">(Eż/span>
+          <span className="stat-text">Available</span>
+          <span className="stat-number">{filteredBoxes.length}</span>
+        </div>
+        <div className="stat-info">
+          <span className="stat-icon">اd</span>
+          <span className="stat-text">Ours</span>
+          <span className="stat-number">{orders.length}</span>
+        </div>
+        <div className="stat-info">
+          <span className="stat-icon">©</span>
+          <span className="stat-text">Points</span>
+          <span className="stat-number">{points}</span>
+        </div>
+      </div>
+
+      {loading && (
+        <div className="loader-container">
+          <div className="loader">
+            <div className="box-image-container"></div>
+          </span>Loading...</div>
+        </div>
+      )}
+
+      {!loading && filteredBoxes.length == 0 && (
+        <div className="empty-state">
+          <div className="empty-icon">©0</span></div>
+          <h3>No Boxes Found</h3>
+          <p>If searched, try again. Or clear search.</p>
+        </div>
+      )}
+
+      {!loading && filteredBoxes.length > 0 && (
+        <div className="boxes-grid">
+          {filteredBoxes.map(box => (
+            <div key={box._id} className={`("box-card-3d " + ((box.type||"").toLowerCase()) + "-level")}>
+            <div className="box-background-spark"></div>
+            <div className="box-background-glow"></div>
+            <div className="box-content-wrapper">
+              <div className="box-inner">
+                <div className="box-image-container">
+                  <div className="box-float">
+                    <div className="box-image-wrapper">
+                      <img src={box.image||"/images/web.jpg"} alt={box.name} className="box-sprite"/>
+                  </div>
+                  <div className="box-hover1"></div>
+                </div>
+              </div>
+              <div className="box-info">
+                  <h2>{box.name}</h2>
+                  <p>{box.description||"KExciting MysteryBox"}</p>
+                </div>
+              </div>
+              <div className="box-action">
+                <div className="box-price-area">
+                  <span className="currency">©</span>
+                  <span>©</span>{box.price||"25"}</span>
+                </div>
+                <Link className="open-btn" to={`/open/${box._id}`}>
+                  <span>©</span> Open
+                </Link>
+              </div>
+            </div>
+          </div>
+          ))}
+      </div>
+    )
+  </div>);
+}
+
+export default Boxes;
+.
