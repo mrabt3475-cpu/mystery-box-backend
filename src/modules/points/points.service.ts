@@ -1,1 +1,95 @@
-aW1wb3J0IHsgSW5qZWN0YWJsZSwgTG9nZ2VyIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwppbXBvcnQgeyBQb2ludExvZ1NjaGVtYSB9IGZyb20gJy4vcG9pbnQtbG9nLnNjaGVtYSc7CmltcG9ydCB7IFBvaW50UnVsZVNjaGVtYSB9IGZyb20gJy4vcG9pbnQtcnVsZS5zY2hlbWEnOwppbXBvcnQgeyBNb2RlbCB9IGZyb20gJ0Btb29uZ28vbW9kZWwnOwppbXBvcnQgeyBBcHBsaWNhdGlvbk1vZGVsIH0gZnJvbSAnQG5lc3Rqcy9jb21tb24nOwoKQEluamVjdGFibGUoKQpleHBvcnQgY2xhc3MgUG9pbnRzU2VydmljZSB7CiAgY29uc3RydWN0b3IocHJpdmF0ZSBsb2dnZXIgPSBuZXcgTG9nZ2VyKFBvaW50c1NlcnZpY2UubmFtZSkpIHt9CgogIC8vIEFkZCBwb2ludHMgdG8gdXNlcgogIGFzeW5jIGFkZFBvaW50cyh1c2VySWQ6IHN0cmluZywgYW1vdW50OiBudW1iZXIsIHR5cGU6IHN0cmluZywgZGVzY3JpcHRpb246IHN0cmluZywgcmVsYXRlZE9yZGVySWQ/OiBzdHJpbmcpOgogICAgUHJvbWlzZTxBcHBsaWNhdGlvbk1vZGVsPHVzaW5nIFBvaW50TG9nU2NoZW1hPj4gewogICAgICBjb25zdCBwb2ludExvZyA9IG5ldyBQb2ludExvZ1NjaGVtYSh7CiAgICAgICAgdXNlcklkLAogICAgICAgIGFtb3VudCwKICAgICAgICB0eXBlLAogICAgICAgIGRlc2NyaXB0aW9uLAogICAgICAgIHJlbGF0ZWRPcmRlcklkLAogICAgICAgIGJhbGFuY2VCZWZvcmU6IDAsCiAgICAgICAgYmFsYW5jZUFmdGVyOiBhbW91bnQsCiAgICAgIH0pOwogICAgICBhd2FpdCBwb2ludExvZy5zYXZlKCk7CiAgICAgIHJldHVybiBwb2ludExvZzsKICAgIH0KCiAgLy8gR2V0IHBvaW50cyBoaXN0b3J5CiAgYXN5bmMgZ2V0SGlzdG9yeSh1c2VySWQ6IHN0cmluZyk6IFByb21pc2U8QXBwbGljYXRpb25Nb2RlbDx1c2luZyBQb2ludExvZ1NjaGVtYT5bXT4gewogICAgICByZXR1cm4gUG9pbnRMb2dTY2hlbWEuZmluZCh7IHVzZXJJZCB9KS5zb3J0KHsgY3JlYXRlZEF0OiAtMSB9KS5saW1pdCgxMDApOwogICAgfQoKICAvLyBHZXQgdG90YWwgcG9pbnRzCiAgYXN5bmMgZ2V0VG90YWxQb2ludHModXNlcklkOiBzdHJpbmcpOiBQcm9taXNlPG51bWJlcj4gewogICAgICBjb25zdCBsb2dzID0gYXdhaXQgdGhpcy5nZXRIaXN0b3J5KHVzZXJJZCk7CiAgICAgIGxldCB0b3RhbCA9IDA7CiAgICAgIGZvciAoY29uc3QgbG9nIG9mIGxvZ3MpIHsKICAgICAgICB0b3RhbCArPSBsb2cuYW1vdW50OwogICAgICB9CiAgICAgIHJldHVybiB0b3RhbDsKICAgIH0KCiAgLy8gQ2FsY3VsYXRlIHBvaW50cyBmb3Igb3JkZXIKICBhc3luYyBjYWxjdWxhdGVPcmRlclBvaW50cyhzdWJ0b3RhbDogbnVtYmVyKTogbnVtYmVyIHsKICAgICAgLy8gMSBkb2xsYXIgZm9yIGV2ZXJ5IDEwIHByb2R1Y3QgcHJpY2UKICAgICAgcmV0dXJuIE1hdGguZmxvb3Ioc3VidG90YWwgLyAxMCk7CiAgICB9CgogIC8vIENoZWNrIGZvciBkYWlseSBsb2dpbiBib251cwogIGFzeW5jIGNoZWNrRGFpbHlMb2dpbih1c2VySWQ6IHN0cmluZyk6IFByb21pc2U8Ym9vbGVhbj4gewogICAgICBjb25zdCB0b2RheSA9IG5ldyBEYXRlKCk7CiAgICAgIHRvZGF5LnNldEhvdXJzKDAsIDAsIDAsIDApOwoKICAgICAgY29uc3QgbG9nID0gYXdhaXQgUG9pbnRMb2dTY2hlbWEuZmluZFRvbmUoewoAgICAgICAgdXNlcklkLAogICAgICAgIHR5cGU6ICdsb2dpbicsCiAgICAgICAgY3JlYXRlZEF0OiB7ICRndGU6IHRvZGF5IH0KICAgICAgfSk7CiAgICAgIHJldHVybiAhIWxvZzsKICAgIH0KCiAgLy8gQ2FsY3VsYXRlIHJlZmVycmFsIHBvaW50cwogIGFzeW5jIGNhbGN1bGF0ZVJlZmVycmFsUG9pbnRzKG5ld1VzZXJzQ291bnQ6IG51bWJlcik6IG51bWJlciB7CiAgICAgIC8vIDAuMDAxIHBvaW50IGZvciBlYWNoIHJlZmVycmFsCiAgICAgIHJldHVybiBuZXdVc2Vyc0NvdW50ICogMC4wMDE7CiAgICB9CgogIC8vIFBvaW50cyBmb3IgcmV2aWV3CiAgYXN5bmMgY2FsY3VsYXRlUmV2aWV3UG9pbnRzKCk6IG51bWJlciB7CiAgICAgIC8vIDAuMDAxIHBvaW50IGZvciB3cml0aW5nIHJldmlldwogICAgICByZXR1cm4gMC4wMDE7CiAgICB9CgogIC8vIFBvaW50cyBmb3IgZGFpbHkgbG9naW4KICBhc3luYyBjYWxjdWxhdGVEYWlseUxvZ2luUG9pbnRzKCk6IG51bWJlciB7CiAgICAgIC8vIDAuMDAxIHBvaW50IGZvciBkYWlseSBsb2dpbgogICAgICByZXR1cm4gMC4wMDE7CiAgICB9CgogIC8vIFJlZGVlbSBwb2ludHMKICBhc3luYyByZWRlZW1Qb2ludHModXNlcklkOiBzdHJpbmcsIGFtb3VudDogbnVtYmVyKTogUHJvbWlzZTxhbnk+IHsKICAgICAgaWYgKGFtb3VudCA8IDAuMDEpIHsKICAgICAgICB0aHJvdyBuZXcgRXJyb3IoJ01pbmltdW0gMC4wMSBwb2ludCBmb3IgcmVkZW1wdGlvbicpOwogICAgICB9CgogICAgICAvLyBBZGQgbmVnYXRpdmUgcG9pbnQgbG9nCiAgICAgIHJldHVybiB0aGlzLmFkZFBvaW50cyh1c2VySWQsIC1hbW91bnQsICdyZWRlZW1wdGlvbicsICdQb2ludHMgcmVkZWVtZWQnKTsKICAgIH0KCiAgLy8gR2V0IHBvaW50cyBieSB0eXBlCiAgYXN5bmMgZ2V0UG9pbnRzQnlUeXBlKHVzZXJJZDogc3RyaW5nLCB0eXBlOiBzdHJpbmcpOiBQcm9taXNlPG51bWJlcj4gewogICAgICBjb25zdCBsb2dzID0gYXdhaXQgUG9pbnRMb2dTY2hlbWEuZmluZCh7IHVzZXJJZSwgdHlwZSB9KTsKICAgICAgbGV0IHRvdGFsID0gMDsKICAgICAgZm9yIChjb25zdCBsb2cgb2YgbG9ncykgewogICAgICAgIHRvdGFsICs9IGxvZy5hbW91bnQ7CiAgICAgIH0KICAgICAgcmV0dXJuIHRvdGFsOwogICAgfQoKICAvLyBEZWxldGUgcG9pbnQgbG9nIGJ5IElECiAgYXN5bmMgZGVsZXRlUG9pbnRMb2coaWQ6IHN0cmluZyk6IFByb21pc2U8YW55PiB7CiAgICAgIHJldHVybiBQb2ludExvZ1NjaGVtYS5maW5kT25lKCBpZCApLmRlbGV0ZSgpOwogICAgfQoKICAvLyBHZXQgcG9pbnRzIGZvciB0aGUgZGF5CiAgYXN5bmMgZ2V0VG9kYXlQb2ludHModXNlcklkOiBzdHJpbmcpOiBQcm9taXNlPG51bWJlcj4gewogICAgICBjb25zdCB0b2RheSA9IG5ldyBEYXRlKCk7CiAgICAgIHRvZGF5LnNldEhvdXJzKDAsIDAsIDAsIDApOwoKICAgICAgY29uc3QgbG9ncyA9IGF3YWl0IFBvaW50TG9nU2NoZW1hLmZpbmQoewogICAgICAgIHVzZXJJZCwKICAgICAgICBjcmVhdGVkQXQ6IHsgJGd0ZTogdG9kYXkgfQogICAgICB9KS5zb3J0KHsgY3JlYXRlZEF0OiAtMSB9KS5saW1pdCgxKTsKCiAgICAgIGlmIChsb2dzLmxlbmd0aCA9PT0gMCkgcmV0dXJuIDA7CiAgICAgIHJldHVybiBsb2dzWzBdLmFtb3VudDsKICAgIH0KfQoK
+import { Injectable, Logger } from '@nestjs/common';
+import { PointLogSchema } from './point-log.schema';
+import { PointRuleSchema } from './point-rule.schema';
+import { Model } from '@moongo/model';
+import { ApplicationModel } from '@nestjs/common';
+
+@Injectable()
+export class PointsService {
+  constructor(private logger = new Logger(PointsService.name)) {}
+
+  // Add points from purchase only
+  async addPointsFromPurchase(userId: string, amount: number, description: string, relatedOrderId: string):
+    Promise<ApplicationModel<uning PointLogSchema>> {
+      const pointLog = new PointLogSchema({
+        userId,
+        amount,
+        type: 'purchase',
+        description,
+        relatedOrderId,
+        balanceBefore: 0,
+        balanceAfter: amount,
+      });
+      await pointLog.save();
+      return pointLog;
+    }
+
+  // Get points history
+  async getHistory(userId: string): Promise<ApplicationModel<using PointLogSchema>[]> {
+      return PointLogSchema.find({ userId }).sort({ createdAt: -1 }).limit(100);
+    }
+
+  // Get total points
+  async getTotalPoints(userId: string): Promise<number> {
+      const logs = await this.getHistory(userId);
+      let total = 0;
+      for (const log of logs) {
+        total += log.amount;
+      }
+      return total;
+    }
+
+  // Calculate points for order
+  async calculateOrderPoints(subtotal: number): number {
+      // 1 point for every 10 dollar product price
+      return Math.floor(subtotal / 10);
+    }
+
+  // Redeem points
+  async redeemPoints(userId: string, amount: number): Promise<any> {
+      if (amount < 0.01) {
+        throw new Error('Minimum 0.01 point for redemption');
+      }
+
+      // Add negative point log
+      return this.addPointsFromPurchase(userId, -amount, 'redeemption', 'Points redeemed');
+    }
+
+  // Get points by type
+  async getPointsByType(userId: string, type: string): Promise<number> {
+      const logs = await PointLogSchema.find({ userId, type });
+      let total = 0;
+      for (const log of logs) {
+        total += log.amount;
+      }
+      return total;
+    }
+
+  // Delete point log by ID
+  async deletePointLog(id: string): Promise<any> {
+      return PointLogSchema.findOne( id ).delete();
+    }
+
+  // Get points for the day
+  async getTodayPoints(userId: string): Promise<number> {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const logs = await PointLogSchema.find({
+        userId,
+        createdAt: { $gte: today }
+      }).sort({ createdAt: -1 }).limit(1);
+
+      if (logs.length === 0) return 0;
+      return logs[0].amount;
+    }
+
+  // Get points by order ID
+  async getPointsByOrder(orderId: string): Promise<number> {
+      const log = await PointLogSchema.findTone({ relatedOrderId: orderId });
+      if (!log) return 0;
+      return log.amount;
+    }
+}
+
+.
