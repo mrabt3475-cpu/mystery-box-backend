@@ -1,0 +1,131 @@
+/* Level Progress Styles */
+/* ==================== */
+
+.level-progress {
+  padding: 20px;
+  background: rgba(20, 20, 30, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.level-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border-radius: 12px;
+  border: 2px solid;
+}
+
+.level-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.level-title {
+  font-size: 12px;
+  color: #888;
+}
+
+.level-xp {
+  text-align: right;
+}
+
+.xp-current {
+  font-size: 24px;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.xp-divider {
+  color: #666;
+  margin: 0 4px;
+}
+
+.xp-next {
+  color: #888;
+}
+
+.xp-label {
+  font-size: 12px;
+  color: #666;
+  margin-left: 4px;
+}
+
+.progress-container {
+  margin-bottom: 16px;
+}
+
+.xp-progress-bar {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.xp-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.level-benefits {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #22c55e;
+}
+
+.level-tiers {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.tier.unlocked {
+  opacity: 1;
+}
+
+.tier-level {
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+}
+
+.tier.unlocked .tier-level {
+  color: #d4af37;
+}
+
+.tier-title {
+  font-size: 10px;
+  color: #666;
+}
