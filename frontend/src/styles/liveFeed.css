@@ -1,0 +1,149 @@
+/* Live Feed Styles */
+/* ================= */
+
+.live-feed {
+  background: rgba(20, 20, 30, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.feed-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #666;
+}
+
+.pulse.active {
+  background: #22c55e;
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.feed-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.feed-empty {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+.feed-empty span {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.feed-item:last-child {
+  border-bottom: none;
+}
+
+.feed-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.feed-content {
+  flex: 1;
+}
+
+.feed-user {
+  font-weight: 600;
+  color: #fff;
+  font-size: 14px;
+}
+
+.feed-prize {
+  font-size: 12px;
+  color: #888;
+}
+
+.feed-meta {
+  text-align: right;
+}
+
+.feed-value {
+  display: block;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.feed-time {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Rarity colors */
+.feed-item.rarity-legendary .feed-avatar {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+}
+
+.feed-item.rarity-legendary .feed-value {
+  color: #ffd700;
+}
+
+.feed-item.rarity-epic .feed-avatar {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+.feed-item.rarity-epic .feed-value {
+  color: #a855f7;
+}
+
+.feed-item.rarity-rare .feed-avatar {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.feed-item.rarity-rare .feed-value {
+  color: #3b82f6;
+}
