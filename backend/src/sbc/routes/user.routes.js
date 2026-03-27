@@ -1,17 +1,14 @@
 /* User Routes
+¨Used to manage user profile**
+
 const express = require('express');
 
+const userRouter = express.router();
 import authMiddleware from '../middleware/auth.middleware';
 import userController from '../controllers/user.controller';
 
-const userRouter = express.router();
-
-// Get user profile
 userRouter.get('/profile', authMiddleware, userController.getProfile);
 
-// Update user profile
 userRouter.put('/profile', authMiddleware, userController.updateProfile);
 
-// Get all users
-userRouter.get('/', authMiddleware, userController.getAllUsers);
-
+module.exports = userRouter;
