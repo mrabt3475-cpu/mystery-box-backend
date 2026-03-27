@@ -1,56 +1,60 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 
+// Modules
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { ProductsModule } from './modules/products/products.module';
 import { BoxesModule } from './modules/boxes/boxes.module';
 import { RewardsModule } from './modules/rewards/rewards.module';
-import { EconomyModule } from './modules/economy/economy.module';
 import { OrdersModule } from './modules/orders/orders.module';
-import { AntiAbuseModule } from './modules/anti-abuse/anti-abuse.module';
+import { WalletModule } from './modules/wallet/wallet.module';
+import { PointsModule } from './modules/points/points.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { DeveloperModule } from './modules/developer/developer.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { ReferralModule } from './modules/referral/referral.module';
+import { EventsModule } from './modules/developer/events.module';
+import { AnalyticsModule } from './modules/developer/analytics.module';
+
+// Shared
+import { DatabaseModule } from './modules/shared/database.module';
+import { LoggingModule } from './modules/shared/logging.module';
+import { ValidationModule } from './modules/shared/validation.module';
 
 @Module({
   imports: [
+    // Config
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+
     // Database
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/puzzlechain'),
+    DatabaseModule,
 
-    // Rate Limiting
-    ThrottlerModule.forRoot([
-      {
-        name: 'short',
-        ttl: 1000,
-        limit: 10,
-      },
-      {
-        name: 'medium',
-        ttl: 10000,
-        limit: 50,
-      },
-      {
-        name: 'long',
-        ttl: 60000,
-        limit: 200,
-      },
-    ]),
+    // Shared
+    LoggingModule,
+    ValidationModule,
 
-    // Modules
+    // Core Modules
     AuthModule,
     UsersModule,
-    ProductsModule,
     BoxesModule,
     RewardsModule,
-    EconomyModule,
     OrdersModule,
-    AntiAbuseModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    WalletModule,
+    PointsModule,
+    NotificationsModule,
+    AdminModule,
+
+    // Developer & API
+    DeveloperModule,
+    SubscriptionModule,
+    ReferralModule,
+    EventsModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
