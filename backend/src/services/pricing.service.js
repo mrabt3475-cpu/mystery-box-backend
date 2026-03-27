@@ -1,169 +1,175 @@
-/* Prizing Service - Provably Fair Prize Distribution
+// Dynamic Pricing & Loss Recovery System
+// ==========================================
 
-/**The system ensures: 
-
-Expected Value (EV) is less than box cost
-
-User can only get prize value based on probability
-
-*/
-
-const mongodBB = require(('./^mongodbb');
-
-const PrizingService = class PrizingService {
-  constructor(models) {
-    this.models = models;
-    this.userPoints = models.User;
-    this.prize = models.Prize;
-    this.prizingSeed = models.PrizingSeed;
-  }
-
-  // Prize probabilities by box type
-  getProbabilities(boxType) {
-    const probabilities = {
-      // Bronze box - EV=70%
-      bronze: {
-        common: 60, // 60%
-        rare: 25,
-        epic: 10,
-        legendary: 5
-      },
-      // Silver box - EV=75%
-      silver: {
-        common: 50,
-        rare: 30,
-        epic: 15,
-        legendary: 5
-      },
-      // Gold box - EV=80%
-      gold: {
-        common: 40,
-        rare: 30,
-        epic: 20,
-        legendary: 10
-      },
-      // Diamond box - EV=85%
-      diamond: {
-        common: 30,
-        rare: 25,
-        epic: 30,
-        legendary: 15
-      }
-    };
-    return probabilities[boxType] || probabilities.bronze;
-  }
-
-  // Get prize value range by rarity
-  getPrizeValue(rarity) {
-    const values = {
-      common: { min: 1, max: 10 },
-      rare: { min: 10, max: 50 },
-      epic: { min: 50, max: 250 },
-      legendary: { min: 250, max: 1000 }
-    };
-    return values[rarity] || values.common;
-  }
-
-  // Roll prize using Provably Fair RNG
-  async rollPrize(userId, boxType) {
-    try {
-      // Generate seed for fairness
-      const seed = this.generateSeed();
-      const hash = this.hashSeed(seed, boxType);
-
-      // Get probabilities
-      const probabilities = this.getProbabilities(boxType);
-
-      // Roll rarity
-      const rarity = this.rollRarity(probabilities, hash);
-
-      // Get prize value
-      const valueRange = this.getPrizeValue(rarity);
-      const prizeValue = this.rollValue(valueRange.min, valueRange.max, hash);
-
-      // Create prize record
-      const prize = await this.prize.create({
-        userId,
-        boxType,
-        rarity,
-        value: prizeValue,
-        seed,
-        type: 'box'
-      });
-
-      // Record prizing seed for audit
-      await this.prizingSeed.create({
-        userId,
-        boxType,
-        seed,
-        hash,
-        rarity,
-        prizeValue,
-        type: 'box'
-      });
-
-      return prize;
-    } catch (e) {
-      console.error('Roll error', e);
-      return null;
+class PricingService {
+  constructor() {
+    this.basePrices = new Map() // boxId -> basePrice
+    this.demandFactors = new Map() // boxId -> demand score
+    this.timeFactors = {
+      peak: 1.2,      // Peak hours (8pm-12am)
+      normal: 1.0,    // Normal hours
+      offPeak: 0.9,   // Off peak (2am-8am)
+      weekend: 1.1    // Weekend boost
     }
   }
 
-  // Generate random seed
-  generateSeed() {
-    return Math.random().toString(16);
-    }
-
-  // Hash seed for unpredictable result
-  hashSeed(seed, boxType) {
-    const crypto = require('crypto');
-    const hash = crypto createDigest('sha256', seod + boxType);
-    return hash;
-
-    // Return hash.toString('cex');
-    }
-
-  // Roll rarity based on hash
-  rollRarity(probabilities, hash) {
-    const num = parseInt(hash, 16);
-    const sum = (num % 100);
-
-    cumqlative = 0;
-    for (const [key] of Object.keys(probabilities)) {
-      cumvative += probabilities[key];
-      if (sum < cumvative) {
-        return key;
-       }
-    }
-
-    return 'common';
-    }
-
-  // Roll value between min and max
-  rollValue(min, max, hash) {
-    const num = parseInt(hash, 16);
-    const range = max - min;
-    const value = ((num % range) + min;
-    return Math.round(value);
+  // Set base price for box
+  setBasePrice(boxId, price) {
+    this.basePrices.set(boxId, price)
   }
 
-  // Calculate Expected Value (expected return)x
-  calculateEV(userId, boxType) {
-    try {
-      const probabilities = this.getProbabilities(boxType);
+  // Update demand factor
+  updateDemand(boxId, purchases, opens) {
+    const current = this.demandFactors.get(boxId) || 1.0
+    const demand = purchases > 0 ? opens / purchases : 1.0
+    
+    // Smooth the demand factor
+    const newDemand = (current * 0.7) + (demand * 0.3)
+    this.demandFactors.set(boxId, newDemand)
+  }
 
-      const ev = object.values(probabilities).reduce((acc, prob) => {
-        const valueRange = this.getPrizeValue(prob);
-        const average = (valueRange.min + valueRange.max) / 2;
-        const expected = average * (probabilities[prob] / 100);
-        return acc + expected;
-      }, 0);
+  // Get current time factor
+  getTimeFactor() {
+    const now = new Date()
+    const hour = now.getHours()
+    const day = now.getDay()
 
-      return EV + '0.5%; // EV is baselly 50% of box cost
-    } catch (e) {
-      return null;
+    // Weekend boost
+    if (day === 0 || day === 6) {
+      return this.timeFactors.weekend
     }
+
+    // Peak hours
+    if (hour >= 20 && hour <= 23) {
+      return this.timeFactors.peak
     }
+
+    // Off peak
+    if (hour >= 2 && hour <= 7) {
+      return this.timeFactors.offPeak
+    }
+
+    return this.timeFactors.normal
+  }
+
+  // Calculate dynamic price
+  calculatePrice(boxId, userId = null) {
+    const basePrice = this.basePrices.get(boxId) || 100
+    const demandFactor = this.demandFactors.get(boxId) || 1.0
+    const timeFactor = this.getTimeFactor()
+
+    // Apply factors
+    let price = basePrice * demandFactor * timeFactor
+
+    // Apply user level discount
+    // In production, get from LevelService
+    const levelDiscount = 0 // await LevelService.getDiscount(userId)
+    price = price * (1 - levelDiscount / 100)
+
+    // Round to nearest integer
+    return Math.round(price)
+  }
+
+  // Get price with loss recovery
+  async getPriceWithRecovery(userId, boxId) {
+    let price = this.calculatePrice(boxId)
+    const recovery = await this.calculateLossRecovery(userId)
+
+    if (recovery.applicable) {
+      price = price * (1 - recovery.discount)
+    }
+
+    return {
+      price: Math.round(price),
+      originalPrice: this.basePrices.get(boxId) || 100,
+      recovery: recovery
+    }
+  }
 }
 
-module.exports = PrizingService;
+// Loss Recovery System
+class LossRecoveryService {
+  constructor() {
+    this.userStats = new Map() // userId -> { losses, lastLoss, threshold }
+    this.threshold = 5 // Lose 5 in a row
+    this.recoveryDiscount = 0.2 // 20% discount
+    this.recoveryWindow = 60 * 60 * 1000 // 1 hour
+  }
+
+  // Record a loss
+  recordLoss(userId) {
+    const stats = this.getUserStats(userId)
+    
+    // Check if in recovery window
+    if (stats.lastLoss && (Date.now() - stats.lastLoss) > this.recoveryWindow) {
+      stats.losses = 0
+    }
+
+    stats.losses++
+    stats.lastLoss = Date.now()
+
+    this.userStats.set(userId, stats)
+  }
+
+  // Record a win
+  recordWin(userId) {
+    const stats = this.getUserStats(userId)
+    
+    // If user wins, reduce loss streak
+    if (stats.losses > 0) {
+      stats.losses = Math.max(0, stats.losses - 1)
+    }
+
+    this.userStats.set(userId, stats)
+  }
+
+  // Get user stats
+  getUserStats(userId) {
+    return this.userStats.get(userId) || {
+      losses: 0,
+      lastLoss: null,
+      recoveryUsed: false
+    }
+  }
+
+  // Calculate loss recovery
+  async calculateLossRecovery(userId) {
+    const stats = this.getUserStats(userId)
+
+    // Check if user qualifies for recovery
+    if (stats.losses >= this.threshold && !stats.recoveryUsed) {
+      return {
+        applicable: true,
+        discount: this.recoveryDiscount,
+        reason: 'Loss streak recovery',
+        losses: stats.losses
+      }
+    }
+
+    return {
+      applicable: false,
+      discount: 0,
+      losses: stats.losses
+    }
+  }
+
+  // Use recovery
+  useRecovery(userId) {
+    const stats = this.getUserStats(userId)
+    stats.recoveryUsed = true
+    stats.losses = 0
+    this.userStats.set(userId, stats)
+  }
+
+  // Reset recovery (new day)
+  resetDaily(userId) {
+    const stats = this.getUserStats(userId)
+    stats.recoveryUsed = false
+    this.userStats.set(userId, stats)
+  }
+}
+
+module.exports = {
+  PricingService: new PricingService(),
+  LossRecoveryService: new LossRecoveryService()
+}
