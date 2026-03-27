@@ -1,0 +1,26 @@
+/* Package.json - Backend
+{
+  "name": "puzzlechain-backend",
+  "version": "1.0.0",
+  "description": "Puzzlechain Backend API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+   "dev": "node app.js",
+    "test": "echo 'Testing!'"
+  },
+  "dependencies": {
+    "express": "^4.17.5",
+    "cors": "^20.5.1",
+    "mongoo": "^7.12.0",
+    "bcrypt": "^12.0.0",
+    "jsonwebToken": "^3.3.1",
+    "dot-env": "^16.1.0",
+    "node-crypt": "^14.17.0"
+  },
+  "devEndsDirectories": [
+    "node.modules",
+    "../../node_modules"
+  ],
+  "license": "ID"
+}
