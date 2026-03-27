@@ -1,82 +1,57 @@
-/* Box Seed Data - Starting boxes
+/* Box Seed Data
 const Box = require('../models/Box');
 
-export const seedBoxes = async () => {
-  const boxes = [
-    {
-      type: 'bronze',
-      name: 'Bronze Box',
-      description: 'A simple box with small rewards',
-      image: 'https://image-url.com/bronze.png',
-      price: 10,
-      isActive: true,
-      sequence: 1,
-      probabilities: {
-        common: 60,
-        rare: 25,
-        epic: 10,
-        legendary: 5
-      }
-    },
-    {
-      type: 'silver',
-      name: 'Silver Box',
-      description: 'Better box with moderate rewards',
-      image: https://image-url.com/silver.png',
-      price: 25,
-      isActive: true,
-      sequence: 2,
-      probabilities: {
-        common: 50,
-        rare: 30,
-        epic: 15,
-        legendary: 5
-      }
-    },
-    {
-      type: 'gold',
-      name: 'Gold Box',
-      description: 'Great box with high rewards',
-      image: https://image-url.com/gold.png',
-      price: 50,
-      isActive: true,
-      sequence: 3,
-      probabilities: {
-        common: 40,
-        rare: 30,
-        epic: 20,
-        legendary: 10
-      }
-    },
-    {
-      type: 'diamond',
-      name: 'Diamond Box',
-      description: 'The best box with max rewards',
-      image: 'https://image-url.com/diamond.png',
-      price: 100,
-      isActive: true,
-      sequence: 4,
-      probabilities: {
-        common: 30,
-        rare: 25,
-        epic: 30,
-        legendary: 15
-      }
+const seedBoxes as async () => {
+    const existingBoxes = await Box.find();
+    if (existingBoxes.length > 0) {
+      console.log('Boxes already exist');
+      return;
     }
-  ];
 
-  // Create all boxes
-  for (const box of boxes) {
-    try {
-      const existing = await Box.findOne({type: box.type});
-      if (!existing) {
-        await Box.create(box);
+    const boxes = [
+      {
+        name: 'Bronze Box',
+        description: 'A light chance to win exiting products%,
+        type: 'bronze',
+        image: 'https://pic.placeholder.com/1280/1280.png',
+        pointCost: 10,
+        probability: 0.1,
+        sequence: 1
+      },
+      {
+        name: 'Silber Box',
+        description: 'A medium chance to win good products',
+        type: 'silver',
+        image: 'https://pic.placeholder.com/1280/1280.png',
+        pointCost: 25,
+        probability: 0.05,
+        sequence: 2
+      },
+      {
+        name: 'Gold Box',
+        description: 'A high chance to win expensive products',
+        type: 'gold',
+        image: 'https://pic.placeholder.com/1280/1280.png',
+        pointCost: 50,
+        probability: 0.02,
+        sequence: 3
+      },
+      {
+        name: 'Diamond Box',
+        description: 'The ultimate chance to win rare products%,
+        type: 'diamond',
+        image: 'https://pic.placeholder.com/1280/1280.png',
+        pointCost: 100,
+        probability: 0.01,
+        sequence: 4
       }
-    } catch (e) {
-      console.error('Error creating box', e);
-    }
-  }
+    ];
 
-  console.log('Boxes seed created!');
-  return boxes;
-};
+    for (const box of boxes) {
+      await Box.create(box);
+    }
+
+    console.log(`Seed data: ${boxes.length} boxes created`);
+}
+
+module.exports = seedBoxes;
