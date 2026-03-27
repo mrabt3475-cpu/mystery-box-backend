@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❓ المساعدة - PuzzleChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981; --gold: #f59e0b; --danger: #ef4444; --dark: #0f172a; --dark-secondary: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--dark); color: var(--text); min-height: 100vh; }
+
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .bg-animation::before { content: ''; position: absolute; width: 200%; height: 200%; background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%); animation: bgMove 20s ease-in-out infinite; }
+        @keyframes bgMove { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10%, -10%); } }
+
+        .navbar { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .navbar-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; border-radius: 10px; transition: all 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--text); background: rgba(99, 102, 241, 0.2); }
+        .balance-badge { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 6rem 2rem 2rem; }
+
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .page-title i { color: var(--primary); }
+        .page-subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+        .search-box { max-width: 600px; margin: 0 auto 3rem; position: relative; }
+        .search-input { width: 100%; padding: 1.25rem 1.5rem 1.25rem 3.5rem; background: var(--dark-secondary); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: var(--text); font-size: 1.1rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .search-icon { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.25rem; }
+
+        .faq-section { margin-bottom: 3rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-title i { color: var(--gold); }
+
+        .faq-list { display: flex; flex-direction: column; gap: 1rem; }
+        .faq-item { background: var(--dark-secondary); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; transition: all 0.3s; }
+        .faq-item:hover { border-color: var(--primary); }
+        .faq-question { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; cursor: pointer; font-weight: 600; font-size: 1.1rem; }
+        .faq-question i { transition: transform 0.3s; }
+        .faq-item.open .faq-question i { transform: rotate(180deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .faq-item.open .faq-answer { max-height: 500px; }
+        .faq-answer-content { padding: 0 1.5rem 1.5rem; color: var(--text-muted); line-height: 1.8; }
+
+        .contact-section { background: var(--dark-secondary); border-radius: 24px; padding: 3rem; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .contact-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem; }
+        .contact-subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+
+        .contact-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .contact-option { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 16px; cursor: pointer; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+        .contact-option:hover { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); transform: translateY(-3px); }
+        .contact-option i { font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary); }
+        .contact-option h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .contact-option p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .contact-form { max-width: 500px; margin: 0 auto; }
+        .form-group { margin-bottom: 1.5rem; text-align: right; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-input, .form-textarea { width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: var(--text); font-size: 1rem; transition: all 0.3s; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+        .form-textarea { min-height: 150px; resize: vertical; }
+
+        .submit-btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 12px; color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); }
+
+        .rules-section { background: var(--dark-secondary); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-top: 3rem; }
+        .rules-list { display: flex; flex-direction: column; gap: 1rem; }
+        .rule-item { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; }
+        .rule-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); color: var(--danger); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .rule-text { font-size: 0.95rem; line-height: 1.6; }
+
+        @media (max-width: 768px) { .navbar-content { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo"><i class="fas fa-gift"></i> PuzzleChain</div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/products" class="nav-link">المنتجات</a>
+                <a href="/support" class="nav-link active">المساعدة</a>
+                <div class="balance-badge"><i class="fas fa-coins"></i> <span id="userPoints">0</span> نقطة</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-question-circle"></i> كيف يمكننا مساعدتك؟</h1>
+            <p class="page-subtitle">ابحث عن إجابة أو تواصل معنا مباشرة</p>
+        </div>
+
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="ابحث في الأسئلة الشائعة...">
+        </div>
+
+        <div class="faq-section">
+            <h2 class="section-title"><i class="fas fa-lightbulb"></i> الأسئلة الشائعة</h2>
+            <div class="faq-list">
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>كيف أحصل على نقاط مجانية؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            بكل بساطة! عند شراء أي منتج من متجرنا، ستحصل على 5% من قيمة المنتج كنقاط مجانية. مثال: إذا اشتريت منتج بسعر 100$， ستحصل على 5 نقاط مجانية يمكنك استخدامها لفتح صناديق Mystery!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>ما هي صناديق Mystery المتاحة؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            لدينا 4 أنواع من الصناديق:
+                            <br>📦 <strong>صندوق البرونز</strong> - 10 نقاط - للفوز بجوائز قيمة $5-50
+                            <br>✨ <strong>صندوق الفضة</strong> - 25 نقاط - للفوز بجوائز $50-500
+                            <br>🏆 <strong>صندوق الذهب</strong> - 50 نقاط - للفوز بجوائز $500-5K
+                            <br>💎 <strong>صندوق الماس</strong> - 100 نقاط - للفوز بجوائز خيالية!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>هل الصناديق مجانية 100%؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            نعم! الصناديق مجانية تماماً لكن تحتاج لنقاط. النقاط تحصل عليها مجاناً عند شراء المنتجات (5% من قيمة كل منتج). لذا كل ما تشتري منتجاً، تحصل على نقاط مجانية تفتح بها الصناديق!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>كيف يتم تحديد الفائزين؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            نستخدم نظام Provably Fair الذي يضمن عدالة كل عملية سحب. يتم استخدام مزيج من معرف المستخدم وعامل عشوائي وخوارزمية تشفير لتحديد النتائج بشكل عشوائي وم fair تماماً.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>متى أستلم جوائزي؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            بعد الفوز، ستتلقى إشعاراً على بريدك الإلكتروني. يتم تسليم الجوائز الرقمية (بطاقات الهدايا، الرموز) خلال 24 ساعة. أما الجوائز المادية فستكون خلال 3-7 أيام عمل.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>هل يمكنني استعادة نقاطي؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            لا، النقاط غير قابلة للاسترداد نقداً. يمكن استخدام النقاط فقط لفتح صناديق Mystery على المنصة. تأكد من استخدام نقاطك قبل انتهاء صلاحية حسابك.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h2 class="contact-title"><i class="fas fa-headset"></i> تواصل معنا</h2>
+            <p class="contact-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+
+            <div class="contact-options">
+                <div class="contact-option" onclick="window.open('mailto:support@puzzlechain.com')">
+                    <i class="fas fa-envelope"></i>
+                    <h3>البريد الإلكتروني</h3>
+                    <p>support@puzzlechain.com</p>
+                </div>
+                <div class="contact-option" onclick="window.open('https://t.me/puzzlechain')">
+                    <i class="fab fa-telegram"></i>
+                    <h3>تيليجرام</h3>
+                    <p>@puzzlechain</p>
+                </div>
+                <div class="contact-option" onclick="window.open('https://twitter.com/puzzlechain')">
+                    <i class="fab fa-twitter"></i>
+                    <h3>تويتر</h3>
+                    @puzzlechain
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <div class="form-group">
+                    <label class="form-label">اسمك</label>
+                    <input type="text" class="form-input" placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">بريدك الإلكتروني</label>
+                    <input type="email" class="form-input" placeholder="أدخل بريدك">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رسالتك</label>
+                    <textarea class="form-textarea" placeholder="كيف يمكننا مساعدتك؟"></textarea>
+                </div>
+                <button class="submit-btn" onclick="submitContact()">
+                    <i class="fas fa-paper-plane"></i> إرسال الرسالة
+                </button>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h2 class="section-title"><i class="fas fa-gavel"></i> القواعد والشروط</h2>
+            <div class="rules-list">
+                <div class="rule-item">
+                    <div class="rule-icon"><i class="fas fa-times"></i></div>
+                    <div class="rule-text">
+                        <strong>لا للتلاعب:</strong> أي محاولة للتلاعب في نتائج الصناديق أو استغلال ثغرات ستؤدي إلى حظر الحساب نهائياً.
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon"><i class="fas fa-times"></i></div>
+                    <div class="rule-text">
+                        <strong>حساب واحد:</strong> يُسمح بحساب واحد فقط لكل مستخدم. الحسابات المتعددة سيتم تعليقها.
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon"><i class="fas fa-times"></i></div>
+                    <div class="rule-text">
+                        <strong>العمر:</strong> يجب أن يكون عمرك 18 عاماً أو أكثر لاستخدام المنصة.
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon"><i class="fas fa-times"></i></div>
+                    <div class="rule-text">
+                        <strong>المسؤولية:</strong> المنصة ليست مسؤولة عن أي خسائر مالية. العب بمسؤولية.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(item) {
+            item.classList.toggle('open');
+        }
+
+        function submitContact() {
+            alert('شكراً لتواصلك! سنرد عليك في أقرب وقت ممكن.');
+        }
+
+        async function loadUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const res = await fetch('http://localhost:3000/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('userPoints').textContent = user.points || 0;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        loadUserData();
+    </script>
+</body>
+</html>
