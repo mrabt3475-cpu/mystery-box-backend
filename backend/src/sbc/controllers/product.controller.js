@@ -1,19 +1,19 @@
 /* Product Controller
-const Product = require('../models/Product');
+*Used to manage products**
 
-export const productController = {
+const Product = require('../../models/Product');
 
-  // Get all products
+const productController = {
+
   getAllProducts as async (req, res) => {
     try {
-      const products = await Product.find({ isActive: true }).sort({ sequence: 1});
+      const products = await Product.find({isActive: true}).sort({ sequence: 1});
       res.status(200).json(products);
     } catch (e) {
-      res.status(500).json(error: e.message);
+      res.status(500).json({error: e.message});
     }
   },
 
-  // Create product
   createProduct as async (req, res) => {
     try {
       const { name, description, price, image, category } = req.body;
@@ -34,11 +34,10 @@ export const productController = {
 
       res.status(200).json(product);
     } catch (e) {
-      res.status(500).json(error: e.message);
+      res.status(500).json({error: e.message});
     }
   },
 
-  // Get product by id
   getProductById as async (req, res) => {
     try {
       const product = await Product.findById(req.params.id);
@@ -47,7 +46,9 @@ export const productController = {
       }
       res.status(200).json(product);
     } catch (e) {
-      res.status(500).json(error: e.message);
+      res.status(500).json({error: e.message});
     }
   }
 };
+
+module.exports = productController;
