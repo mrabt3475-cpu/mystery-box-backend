@@ -4,6 +4,7 @@ import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
 import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Boxes() {
   const [boxes, setBoxes] = useState([])
@@ -12,6 +13,7 @@ export default function Boxes() {
   const [result, setResult] = useState(null)
   const [userPoints, setUserPoints] = useState(0)
   const { onHover, onClick, onOpenBox, onWin, onCoin, onWhoosh } = useSoundEffects()
+  const { openBox: triggerOpenBox, winPrize, celebrate } = useVFX()
 
   useEffect(() => {
     fetchBoxes()
@@ -35,25 +37,34 @@ export default function Boxes() {
     }
   }
 
-  const openBox = async (boxId) => {
+  const openBox = async (boxId, rarity) => {
     setOpening(true)
     setResult(null)
     onOpenBox()
+    triggerOpenBox()
 
-    // Simulate opening animation with sounds
     await new Promise(resolve => setTimeout(resolve, 1000))
     onWhoosh()
     await new Promise(resolve => setTimeout(resolve, 1000))
 
+    const prize = {
+      name: 'آيفون 15 برو',
+      rarity: rarity,
+      value: 999,
+    }
+    
     setResult({
-      prize: {
-        name: 'آيفون 15 برو',
-        rarity: 'legendary',
-        value: 999,
-      },
+      prize,
       remainingPoints: userPoints - 500,
     })
+    
     onWin()
+    winPrize(rarity)
+    
+    if (rarity === 'legendary') {
+      celebrate()
+    }
+    
     setOpening(false)
   }
 
@@ -167,7 +178,7 @@ export default function Boxes() {
                     <span className="text-4xl font-bold shimmer-text">{box.cost}</span>
                     <span className="text-2xl">🪙</span>
                   </div>
-                  <button onClick={() => openBox(box._id)} disabled={opening} onMouseEnter={onHover} className={`btn-3d px-8 py-4 rounded-xl font-bold text-lg ${opening ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400'}`}>
+                  <button onClick={() => openBox(box._id, box.rarity)} disabled={opening} onMouseEnter={onHover} className={`btn-3d px-8 py-4 rounded-xl font-bold text-lg ${opening ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400'}`}>
                     {opening ? 'جاري الفتح...' : '🎁 فتح'}
                   </button>
                 </div>
