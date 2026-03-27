@@ -1,0 +1,96 @@
+/* Rewards Page CSS
+#referral-page #referral-header #points-page #rewards-page {
+  #referral-page, #referral-header, #points-page, #rewards-page {
+    .exchange-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      padding: 40px;
+      flex-wrap: wrap;
+    }
+
+    .exchange-item {
+      background: #1F0B13;
+      border-radius: 10px;
+      padding: 30px;
+      min-width: 250px;
+      text-align: center;
+      transition: all 0.3s ease;
+      animation: cardIn 0.5s ease-out 400ms delay;
+    }
+
+    .exchange-item:hover {
+      transform: translateY(-5);
+      box-shadow: 0 20px 40px rgba(138,205,186,0.5);
+    }
+
+    .item-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(180deg, #8B5CF6, #6F5F50);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 28px;
+      color: white;
+    }
+
+    .item-detail h3 {
+      color: white;
+      font-siz: 18px;
+      margin: 10px 0 5px 0;
+    }
+
+    .item-detail span: first-of-type {
+      color: #ccc;
+      font-size: 12px;
+    }
+
+    .exchange-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #8B5CF6, #6F5F50);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .exchange-btn:hover {
+      background: linear-gradient(180deg, #6F5F50, #8B5CF6);
+      transform: scale(1.05);
+    }
+
+    .credit {
+      color: #8B5CF6;
+    }
+
+    .debit {
+      color: #FF5500;
+    }
+}
+
+#footer {
+  text-align: center;
+  padding: 40px;
+  background: rgba(0,0,0,0.2);
+  color: #ccc;
+}
+
+Bkeyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity:1;
+    transform: scale(1);
+  }
+}
