@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import '../styles/premium.css'
 
 export default function Shop() {
   const [products, setProducts] = useState([])
@@ -42,35 +43,62 @@ export default function Shop() {
     : products.filter(p => p.category === selectedCategory)
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    <div className="premium-bg min-h-screen flex items-center justify-center">
+      <div className="spinner-luxury"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">🛒 المتجر</h1>
-          <p className="text-gray-400">اشترِ منتجات واكسب نقاط!</p>
-        </div>
-        <Link to="/" className="bg-gray-700 px-6 py-2 rounded-lg hover:bg-gray-600 transition">
-          ← رجوع
-        </Link>
+    <div className="premium-bg min-h-screen p-6 pt-24">
+      {/* Particles */}
+      <div className="particles">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 15}s`,
+              animationDuration: `${15 + Math.random() * 10}s`,
+            }}
+          />
+        ))}
       </div>
 
+      {/* Header */}
+      <header className="flex justify-between items-center mb-12" style={{ position: 'relative' }}>
+        <div>
+          <h1 className="text-5xl font-bold mb-2">
+            <span className="gold-gradient">المتجر</span>
+          </h1>
+          <p className="text-xl text-gray-400">اشترِ منتجات واكسب نقاط!</p>
+        </div>
+        <Link to="/" className="glass-card px-6 py-3 hover:bg-white/10 transition">
+          ← رجوع
+        </Link>
+      </header>
+
       {/* Points Banner */}
-      <div className="bg-gradient-to-r from-green-900 to-emerald-900 rounded-2xl p-6 mb-8">
+      <div className="glass-card p-6 mb-8 glow-pulse">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-green-200">عند شرائك بقيمة</p>
-            <p className="text-3xl font-bold">${totalPrice}</p>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-3xl">
+              🛒
+            </div>
+            <div>
+              <p className="text-gray-400">عند شرائك بقيمة</p>
+              <p className="text-4xl font-bold">${totalPrice}</p>
+            </div>
           </div>
-          <div className="text-4xl">⬅️</div>
-          <div className="text-center">
-            <p className="text-green-200">ستحصل على</p>
-            <p className="text-3xl font-bold text-yellow-400">+{totalPoints} نقطة</p>
+          <div className="text-4xl text-gray-500">⬅️</div>
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-gray-400">ستحصل على</p>
+              <p className="text-4xl font-bold gold-gradient">+{totalPoints} 🪙</p>
+            </div>
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-3xl float">
+              🪙
+            </div>
           </div>
         </div>
       </div>
@@ -79,15 +107,15 @@ export default function Shop() {
         {/* Products Grid */}
         <div className="flex-1">
           {/* Categories */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-3 mb-8 flex-wrap">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
+                className={`px-6 py-3 rounded-full font-bold transition ${
                   selectedCategory === cat
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black'
+                    : 'glass-card text-gray-400 hover:text-white'
                 }`}
               >
                 {cat === 'all' ? 'الكل' : cat}
@@ -96,24 +124,31 @@ export default function Shop() {
           </div>
 
           {/* Products */}
-          <div className="grid grid-cols-3 gap-4">
-            {filteredProducts.map(product => (
-              <div key={product._id} className="bg-gray-800 rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all">
-                <div className="h-40 bg-gray-700 flex items-center justify-center">
-                  <span className="text-5xl">{product.image || '📦'}</span>
+          <div className="grid grid-cols-3 gap-6">
+            {filteredProducts.map((product, i) => (
+              <div
+                key={product._id}
+                className="product-card fade-in-up"
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
+                <div className="product-image relative">
+                  <span className="text-6xl">{product.image || '📦'}</span>
+                  {product.pointsReward > 50 && (
+                    <div className="product-badge">🎁 +{product.pointsReward}</div>
+                  )}
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold mb-1">{product.name}</h3>
-                  <p className="text-gray-400 text-sm mb-3">{product.description}</p>
+                <div className="p-5">
+                  <h3 className="text-lg font-bold mb-2">{product.name}</h3>
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
                   
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xl font-bold">${product.price}</span>
-                    <span className="text-green-400 text-sm">+{product.pointsReward} نقطة</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-2xl font-bold">${product.price}</span>
+                    <span className="text-emerald-400 text-sm font-bold">+{product.pointsReward} 🪙</span>
                   </div>
 
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-full bg-purple-600 py-2 rounded-lg hover:bg-purple-500 transition"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 font-bold hover:from-emerald-400 hover:to-teal-500 transition transform hover:scale-105"
                   >
                     إضافة للسلة
                   </button>
@@ -124,27 +159,32 @@ export default function Shop() {
         </div>
 
         {/* Cart Sidebar */}
-        <div className="w-80 bg-gray-800 rounded-2xl p-6 h-fit sticky top-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <span>🛒</span> السلة
-            <span className="bg-purple-600 px-2 py-0.5 rounded-full text-sm">{cart.length}</span>
-          </h2>
+        <div className={`cart-sidebar ${cart.length > 0 ? 'open' : ''}`} style={{ position: 'sticky', top: 100, right: 0, height: 'fit-content' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">
+              <span className="gold-gradient">السلة</span>
+            </h2>
+            <span className="glass-card px-4 py-1 rounded-full">{cart.length}</span>
+          </div>
 
           {cart.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">السلة فارغة</p>
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4 float">🛒</div>
+              <p className="text-gray-400">السلة فارغة</p>
+            </div>
           ) : (
             <>
-              <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
+              <div className="space-y-3 mb-6 max-h-80 overflow-y-auto">
                 {cart.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-gray-700 p-3 rounded-lg">
-                    <span className="text-2xl">{item.image || '📦'}</span>
+                  <div key={i} className="glass-card p-3 flex items-center gap-3">
+                    <span className="text-3xl">{item.image || '📦'}</span>
                     <div className="flex-1">
                       <div className="font-bold text-sm">{item.name}</div>
-                      <div className="text-green-400 text-xs">+{item.pointsReward} نقطة</div>
+                      <div className="text-emerald-400 text-xs">+{item.pointsReward} 🪙</div>
                     </div>
                     <button
                       onClick={() => removeFromCart(i)}
-                      className="text-red-400 hover:text-red-300"
+                      className="text-red-400 hover:text-red-300 p-2"
                     >
                       ✕
                     </button>
@@ -152,18 +192,18 @@ export default function Shop() {
                 ))}
               </div>
 
-              <div className="border-t border-gray-700 pt-4 mb-4">
+              <div className="glass-card p-4 mb-4">
                 <div className="flex justify-between mb-2">
                   <span>المجموع:</span>
                   <span className="font-bold">${totalPrice}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-green-400">النقاط المكتسبة:</span>
-                  <span className="font-bold text-yellow-400">+{totalPoints}</span>
+                  <span className="text-emerald-400">النقاط المكتسبة:</span>
+                  <span className="font-bold gold-gradient">+{totalPoints} 🪙</span>
                 </div>
               </div>
 
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 py-3 rounded-xl font-bold hover:from-green-500 hover:to-emerald-500 transition">
+              <button className="btn-premium w-full">
                 إتمام الشراء
               </button>
             </>
