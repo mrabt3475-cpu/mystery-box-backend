@@ -2,26 +2,29 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import { NotificationsProvider } from './context/NotificationsContext'
 import { SoundProvider } from './context/SoundContext'
+import { VFXProvider } from './context/VFXContext'
 import AppRoutes from './routes'
 import VideoBackground from './components/VideoBackground'
 import MobileNav from './components/MobileNav'
-import SoundController from './components/SoundController'
+import VisualEffects from './components/VisualEffects'
 
 export default function App() {
   return (
-    <SoundProvider>
-      <ThemeProvider>
-        <NotificationsProvider>
-          <BrowserRouter>
-            <VideoBackground />
-            <SoundController />
-            <div className="mobile-container">
-              <AppRoutes />
-              <MobileNav />
-            </div>
-          </BrowserRouter>
-        </NotificationsProvider>
-      </ThemeProvider>
-    </SoundProvider>
+    <VFXProvider>
+      <SoundProvider>
+        <ThemeProvider>
+          <NotificationsProvider>
+            <BrowserRouter>
+              <VideoBackground />
+              <VisualEffects />
+              <div className="mobile-container">
+                <AppRoutes />
+                <MobileNav />
+              </div>
+            </BrowserRouter>
+          </NotificationsProvider>
+        </ThemeProvider>
+      </SoundProvider>
+    </VFXProvider>
   )
 }
