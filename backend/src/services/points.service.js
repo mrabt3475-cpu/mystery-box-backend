@@ -1,1 +1,139 @@
-LyogUG9pbnRzIFNlcnZpY2UgLSBDb3JyZWN0ZWQgVmVyc2lvbiB3aXRoIFJlZmVyYWwgcG9pbnRzCmNvbnN0IG1vbmdvZEJCID0gcmVxdWlyZSgnLi4vbW9kZWxzJyk7CgpcbmNvbnN0IFBvaW50c1NlcnZpY2UgPSBjbGFzcyBQb2ludHNTZXJ2aWNlIHsKICBjb25zdHJ1Y3Rvcihtb2RlbHMpIHsKICAgIHRoaXMubW9kZWxzID0gbW9kZWxzOwogIH0KCiAgLy8gRXhjaGFuZ2UgcmF0ZTogMSBvaW50ID0gMC4wMSBkb2xsYXIgKDEgY2VudCkKICBnZXRFeGNoYW5nZVJhdGUoKSB7CiAgICByZXR1cm4gMC4wMTsKICB9CgogIC8vIE9ubHkgcG9pbnRzIGZvciBwdXJjaGFzZXMKICBhc3luYyBhZGRQdXJjaGFzZVBvaW50cyh1c2VySWQsIGFtb3VudCkgewogICAgaWYgKGFtb3VudCA8IDEwKSB7CiAgICAgIHJldHVybiBudWxsOyAvLyBubyBwb2ludHMgZm9yIHNtYWxsIHB1cmNoYXNlcwogICAgfQoKICAgIGNvbnN0IHBvaW50cyA9IE1hdGguZmxvb3IoYW1vdW50ICogMC4wNSk7IC8vIDUlIG9ubHkhCiAgICBpZiAocG9pbnRzIDwgMSkgcmV0dXJuIG51bGw7CgogICAgcmV0dXJuIHRoaXMuYWRkUG9pbnRzKHVzZXJJZCwgcG9pbnRzLCAncHVyY2hhc2UnKTsKICB9CgogIC8vIFJlZmVyYWwgcG9pbnRzIC0gT05MWeCkoCAwLjAxIHBvaW50CiAgYXN5bmMgYWRkUmVmZXJhbFBvaW50cyh1c2VySWQpIHsKICAgIGNvbnN0IHBvaW50cyA9IDE7IC8vIDFlLXBvaW50IG9ubHkhCiAgICByZXR1cm4gdGhpcy5hZGRQb2ludHModXNlcklkLCBwb2ludHMsICdyZWZlcmFsJyk7CiAgfQoKICAvLyBQb2ludHMgZm9yIGdhbWVzIC0gT05MWeCkoICAwLjAxIHBvaW50CiAgYXN5bmMgYWRkR2FtZVBvaW50cyh1c2VySWQpIHsKICAgIGNvbnN0IHBvaW50cyA9IDE7IC8vIDFlLXBvaW50IG9ubHkhCiAgICByZXR1cm4gdGhpcy5hZGRQb2ludHModXNlcklkLCBwb2ludHMsICdnYW1lJyk7CiAgfQoKICAvLyBEYWlseSBsb2dpbiBib251cyAtIE9OTF4oICAwLjAxIHBvaW50CiAgYXN5bmMgYWRkRGFpbHlMb2dpblBvaW50cyh1c2VySWQpIHsKICAgIGNvbnN0IHBvaW50cyA9IDE7IC8vIDFlLXBvaW50IG9ubHkhCiAgICByZXR1cm4gdGhpcy5hZGRQb2ludHModXNlcklkLCBwb2ludHMsICdkYWlseScpOwogIH0KCiAgLy8gQWRkIHBvaW50cyBhbmQgcmVjb3JkIGhpc3RvcnkKICBhc3luYyBhZGRQb2ludHModXNlcklkLCBhbW91bnQsIHR5cGUpIHsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHVzZXIgPSBhd2FpdCB0aGlzLm1vZGVscy5Vc2VyLmZpbmRCeUlkKHVzZXJJZCk7CiAgICAgIGlmICghdXNlcikgewogICAgICAgIHJldHVybiB7ZXJyb3I6ICdVc2VyIG5vdCBmb3VuZCd9OwogICAgICAgfQoKICAgICAgLy8gQ2FsY3VsYXRlIGxldmVsCiAgICAgIGNvbnN0IGxldmVsID0gdGhpcy5jYWxjdWxhdGVMZXZlbCh1c2VyLnBvaW50cyArIGFtb3VudCk7CgogICAgICAvLyBBZGQgYm9udXMgYmFzZWQgb24gbGV2ZWwKICAgICAgY29uc3QgYm9udXMgPSB0aGlzLmdldExldmVsQm9udXMobGV2ZWwpOwogICAgICBjb25zdCB0b3RhbFBvaW50cyA9IGFtb3VudCArIChhbW91bnQgKiBib251cyk7CgogICAgICB1c2VyLnBvaW50cyArPSB0b3RhbFBvaW50czsKICAgICAgdXNlci5sZXZlbCA9IGxldmVsOwogICAgICBhd2FpdCB1c2VyLnNhdmUoKTsKCiAgICAgIC8vIFJlY29yZCBoaXN0b3J5CiAgICAgIGF3YWl0IHRoaXMubW9kZWxzLlBvaW50c0hpc3RvcnkuY3JlYXRlKHsKICAgICAgICB1c2VySWQsCiAgICAgICAgYW1vdW50OiB0b3RhbFBvaW50cywKICAgICAgICB0eXBlLAogICAgICAgIGJhbGFuY2U6IHVzZXIucG9pbnRzLAogICAgICAgIGRlc2NyaXB0aW9uOiB0aGlzLmdldFR5cGVEZXNjcmlwdGlvbih0eXBlKQogICAgICB9KTsKCiAgICAgIHJldHVybiB7CiAgICAgICAgcG9pbnRzOiB0b3RhbFBvaW50cywKICAgICAgICBiYWxhbmNlOiB1c2VyLnBvaW50cywKICAgICAgICBsZXZlbDogbGV2ZWwKICAgICAgfTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgcmV0dXJuIHtlcnJvcjogZS5tZXNzYWdlfTsKICAgIH0KICB9CgogIC8vIEV4Y2hhbmdlIHBvaW50cyAoZXhwZW5zaXZlKQogIGFzeW5jIGV4Y2hhbmdlUG9lbnRzKHVzZXJJZCwgcmV3YXJkSWQpIHt0cnkgewogICAgICBjb25zdCByZXdhcmQgPSBhd2FpdCB0aGlzLm1vZGVscy5SZXdhcmQuZmluZEJ5SWQocmV3YXJkSWQpOwogICAgICBpZiAoIXJld2FyZCkgewogICAgICAgIHJldHVybiB7ZXJyb3I6ICdSZXdhcmQgbm90IGZvdW5kJ307CiAgICAgIH0KCiAgICAgIGNvbnN0IHVzZXIgPSBhd2FpdCB0aGlzLm1vZGVscy5Vc2VyLmZpbmRCeUlkKHVzZXJJZCk7CiAgICAgIGlmICghdXNlcikgewogICAgICAgIHJldHVybiB7ZXJyb3I6ICdVc2VyIG5vdCBmb3VuZCd9OwogICAgICB9CgogICAgICBpZiAodXNlci5wb2ludHMgPCByZXdhcmQuY29zdCkgewogICAgICAgIHJldHVybiB7ZXJyb3I6IEluc3VmZmljaWVudCBwb2ludHN9OwogICAgICB9CgogICAgICBpZiAocmV3YXJkLnN0b2NrIDw9IDApIHsKICAgICAgICByZXR1cm4ge2Vycm9yOiAnT3V0IG9mIHN0b2NrJ307CiAgICAgIH0KCiAgICAgIC8vIERlZHVjdCBwb2ludHMKICAgICAgdXNlci5wb2ludHMgLT0gcmV3YXJkLmNvc3Q7CiAgICAgIGF3YWl0IHVzZXIuc2F2ZSgpOwoKICAgICAgLy8gQWxsaWNhdGUgcmV3YXJkCiAgICAgIGF3YWl0IHRoaXMubW9kZWxzLlVzZXJSZXdhcmRzLmNyZWF0ZSh7CiAgICAgICAgdXNlcklkLAogICAgICAgIHJld2FyZElkLAogICAgICAgIHN0YXR1czogJ3VzZWQnCiAgICAgIH0pOwoKICAgICAgLy8gRGVjcmVhc2Ugc3RvY2sKICAgICAgcmV3YXJkLnN0b2NrIC09IDE7CiAgICAgIGF3YWl0IHJlY3dhcmQuc2F2ZSgpOwoKICAgICAgLy8gUmVjb3JkIGhpc3RvcnkKICAgICAgYXdhaXQgdGhpcy5tb2RlbHMuUG9pbnRzSGlzdG9yeS5jcmVhdGUoewogICAgICAgIHVzZXJJZCwKICAgICAgICBhbW91bnQ6IC1yZXdhcmQuY29zdCwKICAgICAgICB0eXBlOiAnZXhjaGFuZ2UnLAogICAgICAgIGJhbGFuY2U6IHVzZXIucG9pbnRzLAogICAgICAgIGRlc2NyaXB0aW9uOiBgRXhjaGFuZ2VkIHtSZXdhcmQubmFtZX1gCiAgICAgIH0pOwoKICAgICAgcmV0dXJuIHsKICAgICAgICBzdWNjZXNzOiB0cnVlLAogICAgICAgIHJld2FyZDogcmV3YXJkLAogICAgICAgIGJhbGFuY2U6IHVzZXIucG9pbnRzCiAgICAgIH07CiAgICB9IGNhdGNoIChlKSB7CiAgICAgIHJldHVybiB7ZXJyb3I6IGUubWVzc2FnZX07CiAgICB9CiAgfQoKIC8vIENhbGN1bGF0ZSBsZXZlbAogIGNhbGN1bGF0ZUxldmVsKHBvaW50cykgewogICAgaWYgKHBvaW50cyA+PSAxMDAwKSByZXR1cm4gJ2RhbW9uZCc7CiAgICBpZiAocG9pbnRzID49IDUwMCkgcmV0dXJuICdnb2xkJzsKICAgIGlmIChwb2ludHMgPj0gMjAwKSByZXR1cm4gJ3NpbHZlcic7CiAgICByZXR1cm4gJ2Jyb256ZSc7CiAgfQoKIC8vIEdldCBib251cyBiYXNlZCBvbiBsZXZlbAogIGdldExldmVsQm9udXMobGV2ZWwpIHsKICAgIHN3aXRjaCAobGV2ZWwpIHsKICAgICAgY2FzZSAnZGFtb25kJzogcmV0dXJuIDAuMjA7CiAgICAgIGNhc2UgJ29sZCc6IHJldHVybiAwLjE1OwogICAgICBjYXNlICdzaWx2ZXInOiByZXR1cm4gMC4xMDsKICAgICAgZGVmYXVsdDogcmV0dXJuIDA7CiAgICB9CiAgfQoKIC8vIEdldCB0eXBlIGRlc2NyaXB0aW9uCiAgZ2V0VHlwZURlc2NyaXB0aW9uKHR5cGUpIHsKICAgIHN3aXRjaCAodHlwZSkgewogICAgICBjYXNlICdwdXJjaGFzZSc6IHJldHVybiAnUG9pbnRzIGZvciBwdXJjaGFzZSc7CiAgICAgIGNhc2UgJ3JlZmVyYWwnOiByZXR1cm4gJ1BvaW50cyBmcm9tIHJlZmVyYWwnOwogICAgICBjYXNlICdnYW1lJzogcmV0dXJuICdQb2ludHMgZm9yIGdhbWUnOwogICAgICBjYXNlICdkYWlseSc6IHJldHVybiAnRGFpbHkgbG9naW4gYm9udXMnOwogICAgICBjYXNlICdleGNoYW5nZSc6IHJldHVybiAnRXhjaGFuZ2VkIHJld2FyZCc7CiAgICAgIGRlZmF1bHQ6IHJldHVybiB0eXBlOwogICAgfQogIH0KCiAgLy8gR2V0IHVzZXIgcG9pbnRzCiAgYXN5bmMgZ2V0VXNlclBvaW50cyh1c2VySWQpIHt0cnkgewogICAgICBjb25zdCB1c2VyID0gYXdhaXQgdGhpcy5tb2RlbHMuVXNlci5maW5kQnlJZCh1c2VySWQpOwogICAgICBpZiAoIXVzZXIpIHsKICAgICAgICByZXR1cm4ge2Vycm9yOiAnVXNlciBub3QgZm91bmQnfTsKICAgICAgfQoKICAgICAgcmV0dXJuIHsKICAgICAgICBwb2ludHM6IHVzZXIucG9pbnRzLAogICAgICAgIGxldmVsOiB1c2VyLmxldmVsLAogICAgICAgIGV4Y2hhbmdlUmF0ZTogdGhpcy5nZXRFeGNoYW5nZVJhdGUoKQogICAgICB9OwogICAgfSBjYXRjaCAoZSkgewogICAgICByZXR1cm4ge2Vycm9yOiBlLm1lc3NhZ2V9OwogICAgfQogIH0KCiAgLy8gR2V0IHBvaW50cyBoaXN0b3J5CiAgYXN5bmMgZ2V0UG9pbnRzSGlzdG9yeSh1c2VySWQsIGxpbWl0ID0gMTApIHt0cnkgewogICAgICBjb25zdCBoaXN0b3J5ID0gYXdhaXQgdGhpcy5tb2RlbHMuUG9pbnRzSGlzdG9yeS5maW5kKHsKICAgICAgICB1c2VySWQ6IHVzZXJJZAogICAgICB9KS5zb3J0KHsgY3JlYXRlZEF0OiAtMX0pCiAgICAgIC5saW1pdChsaW1pdCk7CgogICAgICByZXR1cm4gaGlzdG9yeTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgcmV0dXJuIFtdOwogICAgfQogIH0KCiAgLy8gR2V0IGxlYWRlcmJvYXJkCiAgYXN5bmMgZ2V0TGVhZGVyYm9hcmQobGltaXQgPSAxMCkgewogICAgdHJ5IHsKICAgICAgY29uc3QgdXNlcnMgPSBhd2FpdCB0aGlzLm1vZGVscy5Vc2VyLmZpbmQoewogICAgICAgIHBvaW50czogeyAkZ3Q6IDB9CiAgICAgIH0pCiAgICAgIC5zb3J0KHsgcG9pbnRzOiAtMX0pCiAgICAgIC5saW1pdChsaW1pdCk7CgogICAgICByZXR1cm4gdXNlcnMubWFwKCh1c2VyLCBpKSA9PiAoCiAgICAgICAgewogICAgICAgICAgaW5kZXg6IGkgKyAxLAogICAgICAgICAgdXNlcklkOiB1c2VyLl9pZCwKICAgICAgICAgIHVzZXJuYW1lOiB1c2VyLnVzZXJuYW1lLAogICAgICAgICAgcG9pbnRzOiB1c2VyLnBvaW50cywKICAgICAgICAgIGxldmVsOiB1c2VyLmxldmVsCiAgICAgICAgfSkKICAgICAgKTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgcmV0dXJuIFtdOwogICAgfQogIH0KfQoKbW9kdWxlLmV4cG9ydHMgPSBQb2ludHNTZXJ2aWNlOwo=
+/* Points Service - Points management
+
+/**
+Instead of keeping points in user document,
+separate record for better reporting.
+*/
+
+const mongoo = require('mongo');
+
+const PointsSchema = new mongo/.Schema({
+  userIb: {
+    type: mongo.ObjectId,
+    ref: 'users',
+    required: true
+  },
+    points: {
+    type: Number,
+    default: 0
+  },
+    buyPoints: {
+
+    type: Number,
+    defalt: 0
+    },
+    refuralPoints: {
+      type: Number,
+      default: 0
+    },
+    dailyLoginPoints: {
+      type: Number,
+      default: 0
+    },
+    type: {
+    type: String,
+    enum: ['purchase', 'refural', 'daily', 'box']
+    },
+    description: {
+
+    type: String
+    }
+  }, {
+  timestamps: true
+  });
+
+\nconst Points = mongoo.model('Point', PointsSchema);
+
+const PointsService = class PointsService {
+  constructor(models) {
+    this.models = models;
+    this.points = models.Points || points;
+    this.user = models.User;
+  }
+
+  // Add points for purchase
+  async addPurchasePoints(userId, amount) {
+    try {
+      // Calculate points (MIN 1 point per 20)
+      const points = Math.floor(amount / 20);
+
+      if (points < 1) return null;
+
+      // Add to points record
+      const record = await this.points.create({
+        userId,
+        points,
+        buyPoints: points,
+        type: 'purchase',
+        description: `Want ${amount} of points`
+      });
+
+      // Add to user balance
+      const user = await this.user.findById(userId);
+      if (user) {
+        user.points += points;
+        await user.save();
+      }
+
+      return record;
+    } catch (e) {
+      console.error('Error adding purchase points', e);
+      return null;
+    }
+  }
+
+  // Deduct points (for opening boxes)
+  async deductPoints(userId, amount, description) {
+    try {
+      const user = await this.user.findById(userId);
+      if (!user || user.points < amount) {
+        return null;
+      }
+
+      user.points -= amount;
+      await user.save();
+
+      const record = await this.points.create({
+        userId,
+        points: -amount, // negative
+        type: 'box',
+        description: description || 'Opened box'
+      });
+
+      return record;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Get user points history
+  asyng getPointsHistory(userId, limit = 10) {
+    try {
+      const history = await this.points.find({
+        userId: userId
+      }).sort({ createdAt: -1})
+      .limit(limit);
+
+      return history;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Calculate total points from purchases
+  async calculateTotalPoints(userId) {
+    try {
+      const records = await this.points.find({
+        userId,
+        type: 'purchase'
+      });
+
+      const total = records.reduce((acc, r) => acc + r.points, 0);
+      return total;
+    } catch (e) {
+      return 0;
+    }
+  }
+}
+
+module.exports = PointsService;
