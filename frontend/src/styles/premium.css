@@ -1,7 +1,8 @@
-/* Athena Premium Styles */
+/* Athena Premium Styles - Dark & Light Theme */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
+  /* Dark Theme (Default) */
   --athena-gold: #d4af37;
   --athena-gold-light: #f4d775;
   --athena-gold-dark: #b8962e;
@@ -16,6 +17,20 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --glow-gold: 0 0 30px rgba(212, 175, 55, 0.3);
   --glow-purple: 0 0 30px rgba(139, 92, 246, 0.3);
+  --card-bg: #12121a;
+  --input-bg: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] {
+  --athena-dark: #f8fafc;
+  --athena-dark-secondary: #ffffff;
+  --athena-dark-tertiary: #f1f5f9;
+  --athena-text: #0f172a;
+  --athena-text-muted: #64748b;
+  --glass-bg: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --input-bg: rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -29,6 +44,47 @@ body {
   background: var(--athena-dark);
   color: var(--athena-text);
   overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Video Background */
+.video-bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-bg-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 15, 0.7) 0%,
+    rgba(10, 10, 15, 0.5) 50%,
+    rgba(10, 10, 15, 0.8) 100%
+  );
+}
+
+[data-theme="light"] .video-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.7) 0%,
+    rgba(248, 250, 252, 0.5) 50%,
+    rgba(248, 250, 252, 0.8) 100%
+  );
 }
 
 /* Premium Background */
@@ -36,7 +92,7 @@ body {
   background: 
     radial-gradient(ellipse at 20% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 100%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
-    linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+    linear-gradient(180deg, var(--athena-dark) 0%, var(--athena-dark-secondary) 50%, var(--athena-dark) 100%);
   min-height: 100vh;
 }
 
@@ -54,6 +110,10 @@ body {
   border-color: rgba(212, 175, 55, 0.3);
   transform: translateY(-8px);
   box-shadow: var(--glow-gold);
+}
+
+[data-theme="light"] .glass-card:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Gold Gradient Text */
@@ -150,7 +210,7 @@ body {
   padding: 16px 32px;
   font-size: 16px;
   font-weight: 700;
-  color: var(--athena-dark);
+  color: #0a0a0f;
   background: linear-gradient(135deg, var(--athena-gold-light) 0%, var(--athena-gold) 100%);
   border: none;
   border-radius: 16px;
@@ -181,10 +241,10 @@ body {
   box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
 }
 
-/* Card Hover Effects */
+/* Card Luxury */
 .card-luxury {
   position: relative;
-  background: var(--athena-dark-secondary);
+  background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
   overflow: hidden;
@@ -217,44 +277,21 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: 20px;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.stat-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
-  transition: all 0.5s ease;
-}
-
-.stat-card:hover::after {
-  top: -30%;
-  right: -30%;
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--glow-gold);
 }
 
 /* Box Card */
 .box-card {
   position: relative;
-  background: var(--athena-dark-secondary);
+  background: var(--card-bg);
   border-radius: 24px;
   overflow: hidden;
   transition: all 0.5s ease;
-}
-
-.box-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.box-card:hover::before {
-  opacity: 1;
 }
 
 .box-card:hover {
@@ -269,16 +306,6 @@ body {
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, var(--athena-dark-tertiary), var(--athena-dark-secondary));
-}
-
-.box-image::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100px;
-  background: linear-gradient(to top, var(--athena-dark-secondary), transparent);
 }
 
 /* Prize Reveal Animation */
@@ -328,7 +355,7 @@ body {
   animation: spin 1s linear infinite;
 }
 
-/* Navbar */
+/* Navbar Premium */
 .navbar-premium {
   position: fixed;
   top: 0;
@@ -342,6 +369,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .navbar-premium {
+  background: rgba(248, 250, 252, 0.8);
 }
 
 .logo-premium {
@@ -410,24 +442,10 @@ body {
   to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-/* Confetti */
-@keyframes confetti {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  animation: confetti 3s ease-out forwards;
-  z-index: 9999;
-}
-
 /* Product Card */
 .product-card {
   position: relative;
-  background: var(--athena-dark-secondary);
+  background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
   overflow: hidden;
@@ -448,24 +466,13 @@ body {
   justify-content: center;
 }
 
-.product-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, var(--athena-gold), var(--athena-gold-dark));
-  color: var(--athena-dark);
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 20px;
-}
-
 /* Cart Sidebar */
 .cart-sidebar {
   position: fixed;
   top: 0;
   right: -400px;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: 100vh;
   background: var(--athena-dark-secondary);
   border-left: 1px solid var(--glass-border);
@@ -522,7 +529,7 @@ body {
   color: #fff;
 }
 
-/* Referral Code */
+/* Referral Box */
 .referral-box {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(139, 92, 246, 0.1));
   border: 2px solid var(--athena-gold);
@@ -539,7 +546,7 @@ body {
   font-family: 'Outfit', monospace;
 }
 
-/* Animations for sections */
+/* Animations */
 .fade-in-up {
   opacity: 0;
   transform: translateY(30px);
@@ -558,3 +565,224 @@ body {
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  background: var(--athena-dark-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background: var(--athena-gold);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+  left: calc(100% - 28px);
+}
+
+[data-theme="dark"] .theme-toggle-thumb {
+  left: 2px;
+}
+
+/* Notification Bell */
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background: #ef4444;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Notification Dropdown */
+.notification-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 380px;
+  max-height: 500px;
+  background: var(--athena-dark-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 1000;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-item {
+  padding: 16px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  gap: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: var(--glass-bg);
+}
+
+.notification-item.unread {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+/* ============ MOBILE RESPONSIVE ============ */
+
+/* Mobile Container */
+.mobile-container {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--athena-dark);
+}
+
+/* Mobile Navbar */
+.mobile-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--athena-dark-secondary);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  z-index: 100;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--athena-text-muted);
+  font-size: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mobile-nav-item.active {
+  color: var(--athena-gold);
+}
+
+.mobile-nav-item span:first-child {
+  font-size: 24px;
+}
+
+/* Mobile Cards */
+.mobile-card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Mobile Buttons */
+.mobile-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+/* Hide Desktop Nav on Mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .p-6 {
+    padding: 16px;
+  }
+  
+  .text-5xl,
+  .text-4xl,
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+  
+  .navbar-premium {
+    padding: 12px 16px;
+  }
+  
+  .glass-card,
+  .stat-card,
+  .box-card {
+    border-radius: 16px;
+  }
+}
+
+/* Safe Area for Notched Phones */
+@supports (padding: max(0px)) {
+  .mobile-navbar {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
