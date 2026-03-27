@@ -1,0 +1,270 @@
+/* Frontend Security Styles */
+/* ========================= */
+
+/* Secure Input Fields */
+.secure-input {
+  position: relative;
+}
+
+.secure-input::after {
+  content: '🔒';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+/* Password Strength Indicator */
+.password-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.password-strength-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.password-strength-bar.weak {
+  background: #ef4444;
+}
+
+.password-strength-bar.medium {
+  background: #f59e0b;
+}
+
+.password-strength-bar.strong {
+  background: #22c55e;
+}
+
+.password-strength-bar.very-strong {
+  background: #10b981;
+}
+
+/* Security Badge */
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.security-badge.verified {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.security-badge.pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.security-badge.warning {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Secure Connection Indicator */
+.secure-connection {
+  position: relative;
+}
+
+.secure-connection::before {
+  content: '🛡️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 16px;
+  animation: pulse 2s infinite;
+}
+
+/* Input Validation States */
+.input-valid {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.input-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.input-warning {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* Loading Security Check */
+.security-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #a78bfa;
+}
+
+.security-check::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a78bfa;
+  animation: pulse 1.5s infinite;
+}
+
+/* OTP Input Styles */
+.otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  outline: none;
+}
+
+.otp-input.filled {
+  border-color: #22c55e;
+}
+
+/* 2FA Setup Card */
+.two-factor-setup {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(212, 175, 55, 0.1));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* Session Indicator */
+.session-active {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #22c55e;
+}
+
+.session-active::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s infinite;
+}
+
+/* Login Attempts Warning */
+.login-attempts-warning {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  color: #ef4444;
+}
+
+/* Backup Codes Display */
+.backup-codes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.backup-code {
+  font-family: monospace;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.backup-code.used {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* Encryption Status */
+.encryption-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.encryption-status.encrypted {
+  color: #22c55e;
+}
+
+.encryption-status::before {
+  content: '🔐';
+}
+
+/* API Key Display */
+.api-key-display {
+  font-family: monospace;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+
+.api-key-masked {
+  filter: blur(8px);
+  transition: filter 0.3s ease;
+}
+
+.api-key-masked:hover {
+  filter: blur(0);
+}
+
+/* Security Tips */
+.security-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.security-tip-icon {
+  font-size: 20px;
+}
+
+.security-tip-text {
+  flex: 1;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.security-tip-text strong {
+  color: #f8fafc;
+  display: block;
+  margin-bottom: 4px;
+}
