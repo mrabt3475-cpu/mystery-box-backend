@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import '../styles/premium.css'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
@@ -30,77 +31,71 @@ export default function AdminDashboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    <div className="premium-bg min-h-screen flex items-center justify-center">
+      <div className="spinner-luxury"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="premium-bg min-h-screen p-6 pt-24">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <header className="flex justify-between items-center mb-8" style={{ position: 'relative' }}>
         <div>
-          <h1 className="text-3xl font-bold">⚙️ لوحة الإدارة</h1>
-          <p className="text-gray-400">إدارة المنصة</p>
+          <h1 className="text-4xl font-bold gold-gradient">⚙️ لوحة الإدارة</h1>
+          <p className="text-xl text-gray-400">إدارة المنصة</p>
         </div>
         <div className="flex gap-4">
-          <Link to="/admin/users" className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600">
-            👥 المستخدمين
-          </Link>
-          <Link to="/admin/boxes" className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600">
-            🎁 الصناديق
-          </Link>
-          <Link to="/admin/products" className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600">
-            📦 المنتجات
-          </Link>
+          <Link to="/admin/users" className="glass-card px-4 py-2 hover:bg-white/10 transition">👥 المستخدمين</Link>
+          <Link to="/admin/boxes" className="glass-card px-4 py-2 hover:bg-white/10 transition">🎁 الصناديق</Link>
+          <Link to="/admin/products" className="glass-card px-4 py-2 hover:bg-white/10 transition">📦 المنتجات</Link>
         </div>
-      </div>
+      </header>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6">
-          <div className="text-blue-200">المستخدمين</div>
-          <div className="text-4xl font-bold">{stats?.totalUsers?.toLocaleString() || 0}</div>
-          <div className="text-blue-200 text-sm">+{stats?.newUsersToday || 0} اليوم</div>
+        <div className="stat-card fade-in-up stagger-1">
+          <div className="text-blue-200 mb-2">👥 المستخدمين</div>
+          <div className="text-4xl font-bold text-blue-400">{stats?.totalUsers?.toLocaleString() || 0}</div>
+          <div className="text-blue-200/60 text-sm mt-2">+{stats?.newUsersToday || 0} اليوم</div>
         </div>
-        <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-2xl p-6">
-          <div className="text-green-200">الطلبات</div>
-          <div className="text-4xl font-bold">{stats?.totalOrders?.toLocaleString() || 0}</div>
-          <div className="text-green-200 text-sm">+{stats?.ordersToday || 0} اليوم</div>
+        <div className="stat-card fade-in-up stagger-2">
+          <div className="text-emerald-200 mb-2">📦 الطلبات</div>
+          <div className="text-4xl font-bold text-emerald-400">{stats?.totalOrders?.toLocaleString() || 0}</div>
+          <div className="text-emerald-200/60 text-sm mt-2">+{stats?.ordersToday || 0} اليوم</div>
         </div>
-        <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-6">
-          <div className="text-purple-200">الصناديق المفتوحة</div>
-          <div className="text-4xl font-bold">{stats?.totalBoxesOpened?.toLocaleString() || 0}</div>
-          <div className="text-purple-200 text-sm">+{stats?.boxesToday || 0} اليوم</div>
+        <div className="stat-card fade-in-up stagger-3">
+          <div className="text-purple-200 mb-2">🎁 الصناديق</div>
+          <div className="text-4xl font-bold text-purple-400">{stats?.totalBoxesOpened?.toLocaleString() || 0}</div>
+          <div className="text-purple-200/60 text-sm mt-2">+{stats?.boxesToday || 0} اليوم</div>
         </div>
-        <div className="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-2xl p-6">
-          <div className="text-yellow-200">الإيرادات</div>
-          <div className="text-4xl font-bold">${stats?.totalRevenue?.toFixed(2) || 0}</div>
-          <div className="text-yellow-200 text-sm">+${stats?.revenueToday?.toFixed(2) || 0} اليوم</div>
+        <div className="stat-card fade-in-up stagger-4 glow-pulse">
+          <div className="text-amber-200 mb-2">💰 الإيرادات</div>
+          <div className="text-4xl font-bold gold-gradient">${stats?.totalRevenue?.toFixed(2) || 0}</div>
+          <div className="text-amber-200/60 text-sm mt-2">+${stats?.revenueToday?.toFixed(2) || 0} اليوم</div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
         {/* Recent Orders */}
-        <div className="bg-gray-800 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">📦 أحدث الطلبات</h2>
-            <Link to="/admin/orders" className="text-purple-400 hover:text-purple-300">→ عرض الكل</Link>
+        <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">📦 أحدث الطلبات</h2>
+            <Link to="/admin/orders" className="text-amber-400 hover:text-amber-300 transition">→ عرض الكل</Link>
           </div>
           <div className="space-y-3">
             {recentOrders.map((order, i) => (
-              <div key={i} className="flex items-center gap-4 bg-gray-700 p-3 rounded-xl">
-                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
+              <div key={i} className="glass-card p-3 flex items-center gap-4 hover:bg-white/5 transition">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                   👤
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-sm">{order.user?.username || 'مستخدم'}</div>
+                  <div className="font-bold">{order.user?.username || 'مستخدم'}</div>
                   <div className="text-xs text-gray-400">#{order.orderNumber}</div>
                 </div>
                 <div className="text-right">
                   <div className="font-bold">${order.total}</div>
                   <div className={`text-xs ${
-                    order.status === 'delivered' ? 'text-green-400' :
+                    order.status === 'delivered' ? 'text-emerald-400' :
                     order.status === 'shipped' ? 'text-blue-400' : 'text-yellow-400'
                   }`}>
                     {order.status}
@@ -112,24 +107,24 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Users */}
-        <div className="bg-gray-800 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">👥 أحدث المستخدمين</h2>
-            <Link to="/admin/users" className="text-purple-400 hover:text-purple-300">→ عرض الكل</Link>
+        <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">👥 أحدث المستخدمين</h2>
+            <Link to="/admin/users" className="text-amber-400 hover:text-amber-300 transition">→ عرض الكل</Link>
           </div>
           <div className="space-y-3">
             {recentUsers.map((user, i) => (
-              <div key={i} className="flex items-center gap-4 bg-gray-700 p-3 rounded-xl">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-bold">
+              <div key={i} className="glass-card p-3 flex items-center gap-4 hover:bg-white/5 transition">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center font-bold text-amber-900">
                   {user.username?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1">
-                  <div className="font-bold text-sm">{user.username}</div>
+                  <div className="font-bold">{user.username}</div>
                   <div className="text-xs text-gray-400">{user.email}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm">{user.points} نقطة</div>
-                  <div className={`text-xs ${user.isVerified ? 'text-green-400' : 'text-yellow-400'}`}>
+                  <div className="text-sm">{user.points} 🪙</div>
+                  <div className={`text-xs ${user.isVerified ? 'text-emerald-400' : 'text-yellow-400'}`}>
                     {user.isVerified ? 'موثق' : 'غير موثق'}
                   </div>
                 </div>
@@ -141,20 +136,20 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-4 gap-4 mt-6">
-        <Link to="/admin/boxes/new" className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl text-center hover:scale-105 transition">
-          <div className="text-2xl mb-2">➕</div>
+        <Link to="/admin/boxes/new" className="glass-card p-6 text-center hover:bg-purple-500/20 transition group fade-in-up" style={{ animationDelay: '0.5s' }}>
+          <div className="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition">➕</div>
           <div className="font-bold">إضافة صندوق</div>
         </Link>
-        <Link to="/admin/products/new" className="bg-gradient-to-r from-green-600 to-teal-600 p-4 rounded-xl text-center hover:scale-105 transition">
-          <div className="text-2xl mb-2">📦</div>
+        <Link to="/admin/products/new" className="glass-card p-6 text-center hover:bg-emerald-500/20 transition group fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition">📦</div>
           <div className="font-bold">إضافة منتج</div>
         </Link>
-        <Link to="/admin/prizes/new" className="bg-gradient-to-r from-yellow-600 to-orange-600 p-4 rounded-xl text-center hover:scale-105 transition">
-          <div className="text-2xl mb-2">🎁</div>
+        <Link to="/admin/prizes/new" className="glass-card p-6 text-center hover:bg-amber-500/20 transition group fade-in-up" style={{ animationDelay: '0.7s' }}>
+          <div className="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition">🎁</div>
           <div className="font-bold">إضافة جائزة</div>
         </Link>
-        <Link to="/admin/settings" className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 rounded-xl text-center hover:scale-105 transition">
-          <div className="text-2xl mb-2">⚙️</div>
+        <Link to="/admin/settings" className="glass-card p-6 text-center hover:bg-blue-500/20 transition group fade-in-up" style={{ animationDelay: '0.8s' }}>
+          <div className="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition">⚙️</div>
           <div className="font-bold">الإعدادات</div>
         </Link>
       </div>
