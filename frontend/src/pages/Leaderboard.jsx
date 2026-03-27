@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import '../styles/premium.css'
 
 export default function Leaderboard() {
   const [leaders, setLeaders] = useState([])
@@ -23,40 +24,43 @@ export default function Leaderboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    <div className="premium-bg min-h-screen flex items-center justify-center">
+      <div className="spinner-luxury"></div>
     </div>
   )
 
-  const getMedal = (index) => {
-    if (index === 0) return '🥇'
-    if (index === 1) return '🥈'
-    if (index === 2) return '🥉'
-    return `#${index + 1}`
-  }
-
-  const getCardStyle = (index) => {
-    if (index === 0) return 'bg-gradient-to-r from-yellow-600 to-yellow-800 border-2 border-yellow-400'
-    if (index === 1) return 'bg-gradient-to-r from-gray-500 to-gray-700 border-2 border-gray-400'
-    if (index === 2) return 'bg-gradient-to-r from-amber-700 to-amber-900 border-2 border-amber-600'
-    return 'bg-gray-800'
-  }
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">🏆 الترتيب</h1>
-          <p className="text-gray-400">أفضل اللاعبين</p>
-        </div>
-        <Link to="/" className="bg-gray-700 px-6 py-2 rounded-lg hover:bg-gray-600 transition">
-          ← رجوع
-        </Link>
+    <div className="premium-bg min-h-screen p-6 pt-24">
+      {/* Particles */}
+      <div className="particles">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 15}s`,
+              animationDuration: `${15 + Math.random() * 10}s`,
+            }}
+          />
+        ))}
       </div>
 
+      {/* Header */}
+      <header className="flex justify-between items-center mb-12" style={{ position: 'relative' }}>
+        <div>
+          <h1 className="text-5xl font-bold mb-2">
+            <span className="gold-gradient">الترتيب</span>
+          </h1>
+          <p className="text-xl text-gray-400">أفضل اللاعبين</p>
+        </div>
+        <Link to="/" className="glass-card px-6 py-3 hover:bg-white/10 transition">
+          ← رجوع
+        </Link>
+      </header>
+
       {/* Period Filter */}
-      <div className="flex gap-2 mb-8">
+      <div className="flex justify-center gap-4 mb-12">
         {[
           { id: 'daily', label: 'اليوم' },
           { id: 'weekly', label: 'الأسبوع' },
@@ -66,10 +70,10 @@ export default function Leaderboard() {
           <button
             key={p.id}
             onClick={() => setPeriod(p.id)}
-            className={`px-6 py-2 rounded-xl font-bold transition ${
+            className={`px-8 py-3 rounded-full font-bold transition ${
               period === p.id
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black'
+                : 'glass-card text-gray-400 hover:text-white'
             }`}
           >
             {p.label}
@@ -77,76 +81,74 @@ export default function Leaderboard() {
         ))}
       </div>
 
-      {/* Top 3 */}
-      <div className="flex justify-center gap-4 mb-8">
+      {/* Top 3 Podium */}
+      <div className="flex justify-center items-end gap-4 mb-12">
         {/* 2nd Place */}
         {leaders[1] && (
-          <div className={`w-48 rounded-2xl p-6 text-center ${getCardStyle(1)}`}>
+          <div className="glass-card p-6 text-center transform hover:scale-105 transition" style={{ width: 200 }}>
             <div className="text-4xl mb-2">🥈</div>
-            <div className="w-16 h-16 mx-auto bg-gray-700 rounded-full flex items-center justify-center text-2xl font-bold mb-2">
+            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-3xl font-bold text-gray-900">
               {leaders[1].username?.charAt(0)}
             </div>
-            <div className="font-bold">{leaders[1].username}</div>
-            <div className="text-yellow-300 font-bold">{leaders[1].totalWinnings}</div>
+            <div className="font-bold text-lg mb-1">{leaders[1].username}</div>
+            <div className="text-2xl font-bold gold-gradient">${leaders[1].totalWinnings}</div>
+            <div className="mt-3 glass-card py-1 px-3 rounded-full text-sm">
+              🥈 الثاني
+            </div>
           </div>
         )}
 
         {/* 1st Place */}
         {leaders[0] && (
-          <div className={`w-56 rounded-2xl p-6 text-center ${getCardStyle(0)} transform scale-110`}>
-            <div className="text-5xl mb-2">👑</div>
-            <div className="w-20 h-20 mx-auto bg-yellow-500 rounded-full flex items-center justify-center text-3xl font-bold mb-2">
+          <div className="glass-card p-8 text-center glow-pulse transform scale-110" style={{ width: 240 }}>
+            <div className="text-5xl mb-2 float">👑</div>
+            <div className="w-24 h-24 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-4xl font-bold text-amber-900 border-4 border-amber-400">
               {leaders[0].username?.charAt(0)}
             </div>
-            <div className="font-bold text-xl">{leaders[0].username}</div>
-            <div className="text-yellow-300 font-bold text-lg">{leaders[0].totalWinnings}</div>
+            <div className="font-bold text-xl mb-1 gold-gradient">{leaders[0].username}</div>
+            <div className="text-3xl font-bold gold-gradient">${leaders[0].totalWinnings}</div>
+            <div className="mt-3 bg-gradient-to-r from-amber-500 to-yellow-500 py-1 px-4 rounded-full text-amber-900 font-bold">
+              🥇 البطل
+            </div>
           </div>
         )}
 
         {/* 3rd Place */}
         {leaders[2] && (
-          <div className={`w-48 rounded-2xl p-6 text-center ${getCardStyle(2)}`}>
+          <div className="glass-card p-6 text-center transform hover:scale-105 transition" style={{ width: 200 }}>
             <div className="text-4xl mb-2">🥉</div>
-            <div className="w-16 h-16 mx-auto bg-gray-700 rounded-full flex items-center justify-center text-2xl font-bold mb-2">
+            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center text-3xl font-bold text-amber-900">
               {leaders[2].username?.charAt(0)}
             </div>
-            <div className="font-bold">{leaders[2].username}</div>
-            <div className="text-yellow-300 font-bold">{leaders[2].totalWinnings}</div>
+            <div className="font-bold text-lg mb-1">{leaders[2].username}</div>
+            <div className="text-2xl font-bold gold-gradient">${leaders[2].totalWinnings}</div>
+            <div className="mt-3 glass-card py-1 px-3 rounded-full text-sm">
+              🥉 الثالث
+            </div>
           </div>
         )}
       </div>
 
-      {/* Rest of Leaderboard */}
-      <div className="bg-gray-800 rounded-2xl overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-700">
-            <tr>
-              <th className="p-4 text-right">#</th>
-              <th className="p-4 text-right">اللاعب</th>
-              <th className="p-4 text-right">الصناديق</th>
-              <th className="p-4 text-right">المكاسب</th>
-              <th className="p-4 text-right">القيمة</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaders.slice(3).map((leader, i) => (
-              <tr key={leader._id} className="border-t border-gray-700 hover:bg-gray-700/50">
-                <td className="p-4 font-bold text-gray-400">{getMedal(i + 3)}</td>
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-bold">
-                      {leader.username?.charAt(0)}
-                    </div>
-                    <span className="font-bold">{leader.username}</span>
-                  </div>
-                </td>
-                <td className="p-4">{leader.totalBoxes || 0}</td>
-                <td className="p-4">{leader.totalWins || 0}</td>
-                <td className="p-4 text-yellow-400 font-bold">${leader.totalWinnings || 0}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Leaderboard List */}
+      <div className="glass-card p-6 max-w-3xl mx-auto">
+        {leaders.slice(3).map((leader, i) => (
+          <div key={leader._id} className="leader-item">
+            <div className="leader-rank rank-4+ text-gray-400">
+              #{i + 4}
+            </div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold">
+              {leader.username?.charAt(0)}
+            </div>
+            <div className="flex-1">
+              <div className="font-bold">{leader.username}</div>
+              <div className="text-sm text-gray-400">{leader.totalBoxes || 0} صندوق</div>
+            </div>
+            <div className="text-right">
+              <div className="font-bold text-lg">{leader.totalWins || 0} مكسب</div>
+              <div className="gold-gradient font-bold">${leader.totalWinnings || 0}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
