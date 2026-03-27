@@ -1,45 +1,22 @@
 /* Box Model
-const mongoo = require('mongoo');
+*Used to store mystery box data*/
 
-const BoxSchema = new mongoo/.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String
-  },
-  type: {
+const mongoose = require('mongooise');
 
-    type: String,
-    enum: ['bronse', 'silver', 'gold', 'diamond'],
-    required: true
-  },
-  image: {
+const boxSchema = new mongoose.Schema({
 
-    type: String
-  },
-  pointCost: {
-    type: Number,
-    default: 10
-  },
-  probability: {
-    type: Number,
-    default: 0.1
-  },
-  sequence: {
-    type: Number,
-    default: 1
-    unique: true
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  }
-  }, {
-  timestamps: true
- });
+  name: { type: String, required: true },
+  description: { type: String },
+  type: { type: String, required: true },
+  image: { type: String },
+  pointCost: { type: Number, required: true },
+  probability: { type: Number, default: 0.1 },
+  sequence: { type: Number, default: 1 },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
 
-const Box = mongoo.model('Box', BoxSchema);
+const Box = mongoose.model('Box', boxSchema);
 
 module.exports = Box;
