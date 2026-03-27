@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
+import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Wallet() {
   const [wallet, setWallet] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
+  const { onHover, onClick } = useSoundEffects()
+  const { celebrate, addEffect, triggerFlash } = useVFX()
 
   useEffect(() => { fetchData() }, [])
 
@@ -24,6 +28,19 @@ export default function Wallet() {
         { _id: '3', type: 'points', amount: 25, currency: 'Points', description: 'مكافأة نقاط', createdAt: new Date() },
       ])
     } finally { setLoading(false) }
+  }
+
+  const handleAction = (action) => {
+    onClick()
+    if (action === 'deposit') {
+      addEffect('particles', { count: 30, colors: ['#22c55e', '#10b981'] })
+      triggerFlash('green')
+    } else if (action === 'withdraw') {
+      addEffect('particles', { count: 30, colors: ['#3b82f6', '#06b6d4'] })
+      triggerFlash('blue')
+    } else {
+      addEffect('sparkle', { count: 15, duration: 1000 })
+    }
   }
 
   if (loading) return (
@@ -45,17 +62,16 @@ export default function Wallet() {
           <h1 className="text-4xl font-bold mb-2"><span className="shimmer-text">المحفظة</span></h1>
           <p className="text-xl text-gray-400">إدارة نقاطك وأموالك</p>
         </div>
-        <Link to="/" className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
+        <Link to="/" onClick={onClick} className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
       </header>
 
-      {/* Balance Cards - 3D */}
       <div className="grid grid-cols-3 gap-6 mb-8">
         {[
           { icon: '🪙', label: 'نقاطي', value: wallet?.points || 0, desc: 'للاستخدام في الصناديق', gradient: 'from-amber-500 to-orange-600', textColor: 'text-amber-400' },
           { icon: '💵', label: 'USDT', value: `$${wallet?.usdtBalance?.toFixed(2) || '0.00'}`, desc: 'متاح للسحب', gradient: 'from-blue-500 to-cyan-600', textColor: 'text-blue-400' },
           { icon: '🎁', label: 'مكافآت', value: `$${wallet?.bonusBalance?.toFixed(2) || '0.00'}`, desc: 'الإحالة والولاء', gradient: 'from-purple-500 to-pink-600', textColor: 'text-purple-400' },
         ].map((bal, i) => (
-          <div key={i} className="stat-card card-3d glow-pulse fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
+          <div key={i} className="stat-card card-3d glow-pulse fade-in-up cursor-pointer" style={{ animationDelay: `${i * 0.1}s` }} onClick={() => { onClick(); celebrate(); addEffect('particles', { count: 20, colors: ['#d4af37', '#8b5cf6'] }) }} onMouseEnter={onHover}>
             <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${bal.gradient} flex items-center justify-center text-2xl mb-3 float-3d`}>
               {bal.icon}
             </div>
@@ -66,7 +82,6 @@ export default function Wallet() {
         ))}
       </div>
 
-      {/* Quick Actions - 3D Buttons */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         {[
           { icon: '💳', label: 'إيداع', action: 'deposit', color: 'from-emerald-500 to-teal-600' },
@@ -74,7 +89,7 @@ export default function Wallet() {
           { icon: '🔄', label: 'تحويل', action: 'transfer', color: 'from-blue-500 to-cyan-600' },
           { icon: '📊', label: 'سجل', action: 'history', color: 'from-purple-500 to-pink-600' },
         ].map((btn, i) => (
-          <button key={i} className="category-card glass-premium p-6 text-center hover:bg-white/10 transition group">
+          <button key={i} onClick={() => handleAction(btn.action)} onMouseEnter={onHover} className="category-card glass-premium p-6 text-center hover:bg-white/10 transition group">
             <div className={`w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br ${btn.color} flex items-center justify-center text-2xl float-3d`}>
               {btn.icon}
             </div>
@@ -83,13 +98,12 @@ export default function Wallet() {
         ))}
       </div>
 
-      {/* Transactions */}
       <div className="glass-premium p-6 fade-in-up" style={{ animationDelay: '0.4s' }}>
         <h2 className="text-2xl font-bold mb-6">📜 أحدث المعاملات</h2>
         <div className="space-y-3">
           {transactions.length === 0 ? <p className="text-gray-500 text-center py-12">لا توجد معاملات</p> :
             transactions.map((tx, i) => (
-              <div key={i} className="category-card flex items-center gap-4 p-4 hover:bg-white/5 transition">
+              <div key={i} className="category-card flex items-center gap-4 p-4 hover:bg-white/5 transition cursor-pointer" onClick={() => { onClick(); addEffect('glow', { color: tx.amount > 0 ? '#22c55e' : '#ef4444', duration: 500 }) }} onMouseEnter={onHover}>
                 <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                   tx.type === 'deposit' ? 'bg-gradient-to-br from-emerald-500 to-teal-600' :
                   tx.type === 'withdraw' ? 'bg-gradient-to-br from-red-500 to-pink-600' :
