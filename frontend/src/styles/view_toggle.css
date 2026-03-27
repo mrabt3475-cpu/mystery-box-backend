@@ -1,0 +1,30 @@
+/* View Toggle CSS#
+#view-toggle {
+  display: flex;
+  gap: 5px;
+  padding: 10px 20px;
+  justify-content: flex-end;
+}
+	#view-toggle button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1F1B13;
+  color: white;
+  border: 1px solid #34F5E5;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+	#view-toggle button:hover {
+  background: #34F5E5;
+}
+	#view-toggle button.active {
+  background: #8B5CF6;
+  border-color: #8B5CF6;
+}
+	#view-toggle button i {
+  font-size: 18px;
+}
