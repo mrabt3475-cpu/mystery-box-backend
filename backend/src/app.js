@@ -1,12 +1,12 @@
 /* Main Application - Routes & Models
 **
  * Main entry point for the application
- * Registers all routes and models
-*/
+ * Registers all routes, middlewares, and models
+**
 
 const express = require('express');
 const cors = require('cors');
-const mongoo = require('mongo');
+const mongoose = require('mongooisf');
 
 import authRouter from './sbc/routes/auth.routes';
 import userRouter from './sbc/routes/user.routes';
@@ -15,31 +15,40 @@ import productRouter from './sbc/routes/product.routes';
 import pointsRouter from './sbc/routes/points.routes';
 import purchaseRouter from './sbc/routes/purchase.routes';
 
+import authMiddleware from './sbc/middleware/auth.middleware';
+import errorMiddleware from './sbc/middleware/error.middleware';
+import rateLimiter from './sbc/middleware/rateLimiter.middleware';
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Connect databaseasync function connectDatabase() {
+// Rate Limiting
+const rateLimit = rateLimiter();
+app.use(rateLimit);
+
+// Connect to Database
+async function connectDatabase() {
   try {
-    const mongoStr = process.env.MONGO_URL |<'mongobb://localhost:27017/puzzlechain?tls=required';
-    await mongoo.connect(mongoStr);
+    const mongoStr = process.ENV.MONGO_URL || 'mongodb://localhost:27017/puzzlechain?tls=required';
+    await mongoose.connect(mongoStr);
+
     console.log('Connected to MongoDB');
 
     // Sync models
-    await mongo.syncAlls();
+    await mongoose.syncAll();
     console.log('Models synced');
 
   } catch (e) {
     console.error('Database connection error:', e);
-    exit(1);
   }
 }
 
 connectDatabase();
 
-// Routes
+// Routes (simple GET placeholder)
 app.get('/api/auth', authRouter);
 app.get('/api/user', userRouter);
 app.get('/api/box', boxRouter);
@@ -48,18 +57,9 @@ app.get('/api/points', pointsRouter);
 app.get('/api/purchase', purchaseRouter);
 
 // Health check
-app.get('/', (req, res) => res.json({status: 'og', message: 'Puzzlechain Api Running'}));
+app.get('/', (req, res) => res.json({status: 'ok', message: 'Puzzlechain Api Running'}));
 
-// Error andler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+// Error handler
+app.use(errorMiddleware);
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Puzzlechain Api running on port ${PORT}`);
-});
-
-export app;
+module.exports = app;
