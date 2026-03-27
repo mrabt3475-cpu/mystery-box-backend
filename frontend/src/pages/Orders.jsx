@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
+import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const { onHover, onClick } = useSoundEffects()
+  const { addEffect, winPrize } = useVFX()
 
   useEffect(() => { fetchOrders() }, [filter])
 
@@ -23,6 +27,12 @@ export default function Orders() {
         { _id: '3', orderNumber: '1003', total: 79, status: 'processing', createdAt: new Date(), items: [{ name: 'سماعات', price: 79, image: '🎧', pointsReward: 4 }] },
       ])
     } finally { setLoading(false) }
+  }
+
+  const handleFilterChange = (status) => {
+    setFilter(status)
+    onClick()
+    addEffect('sparkle', { count: 8, duration: 800 })
   }
 
   const getStatusColor = (status) => {
@@ -52,13 +62,12 @@ export default function Orders() {
           <h1 className="text-4xl font-bold mb-2"><span className="shimmer-text">طلباتي</span></h1>
           <p className="text-xl text-gray-400">تتبع طلباتك وشحناتها</p>
         </div>
-        <Link to="/" className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
+        <Link to="/" onClick={onClick} className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
       </header>
 
-      {/* Filters */}
       <div className="flex gap-3 mb-6" style={{ position: 'relative' }}>
         {['all', 'processing', 'shipped', 'delivered', 'cancelled'].map(status => (
-          <button key={status} onClick={() => setFilter(status)}
+          <button key={status} onClick={() => handleFilterChange(status)} onMouseEnter={onHover}
             className={`category-card px-5 py-2 rounded-xl font-bold transition ${
               filter === status ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'glass-premium text-gray-400 hover:text-white'`}>
             {status === 'all' ? 'الكل' : getStatusText(status)}
@@ -66,19 +75,18 @@ export default function Orders() {
         ))}
       </div>
 
-      {/* Orders List */}
       <div className="space-y-4">
         {orders.length === 0 ? (
-          <div className="text-center py-20 glass-premium">
+          <div className="text-center py-20 glass-premium cursor-pointer" onClick={() => { onClick(); addEffect('particles', { count: 30, colors: ['#d4af37', '#8b5cf6'] }) }}>
             <div className="text-8xl mb-6 float-3d">📦</div>
             <h2 className="text-3xl font-bold mb-4">لا توجد طلبات</h2>
             <p className="text-gray-400 mb-8">ابدأ التسوق الآن!</p>
-            <Link to="/shop" className="btn-3d btn-premium">تسوق الآن</Link>
+            <Link to="/shop" onClick={onClick} className="btn-3d btn-premium">تسوق الآن</Link>
           </div>
         ) : (
           orders.map((order, i) => (
             <div key={order._id} className="glass-premium overflow-hidden fade-in-up card-3d" style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className="glass-premium p-4 flex justify-between items-center">
+              <div className="glass-premium p-4 flex justify-between items-center cursor-pointer" onClick={() => { onClick(); addEffect('glow', { color: '#8b5cf6', duration: 500 }) }}>
                 <div>
                   <span className="font-bold text-lg">طلب #{order.orderNumber}</span>
                   <span className="text-gray-400 mr-4">{new Date(order.createdAt).toLocaleDateString('ar')}</span>
@@ -90,7 +98,7 @@ export default function Orders() {
               <div className="p-5">
                 <div className="space-y-3 mb-5">
                   {order.items?.map((item, j) => (
-                    <div key={j} className="flex items-center gap-4">
+                    <div key={j} className="flex items-center gap-4 cursor-pointer" onClick={() => { onClick(); winPrize('rare') }}>
                       <div className="w-16 h-16 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-xl flex items-center justify-center text-3xl">
                         {item.image || '📦'}
                       </div>
