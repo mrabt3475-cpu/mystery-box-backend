@@ -1,72 +1,59 @@
-# 🎁 PuzzleChain - Mystery Box Backend
+# PuzzleChain Backend
 
-A secure and scalable mystery box system built with Node.js, Express, and MongoDB.
+NestJS API for Mystery Box Platform
 
-## 🚀 Features
-
-- **User Authentication** - JWT-based auth with registration and login
-- **Points System** - Earn 5% points on every purchase
-- **Box Opening** - Open mystery boxes using earned points (FREE!)
-- **Prize System** - Win real products from boxes
-- **Purchase System** - Buy products and earn points back
-
-## 📡 API Endpoints
-
-### Auth
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
-
-### User
-- `GET /api/user/profile` - Get user profile
-- `PUT /api/user/profile` - Update user profile
-
-### Boxes
-- `GET /api/box` - Get all boxes
-- `POST /api/box/open` - Open a box (uses points)
-- `GET /api/box/history` - Get box opening history
-
-### Products
-- `GET /api/product` - Get all products
-- `POST /api/product` - Create product (admin)
-
-### Points
-- `GET /api/points/balance` - Get points balance
-- `POST /api/points/add` - Add points (admin)
-- `POST /api/points/deduct` - Deduct points
-
-### Purchase
-- `POST /api/purchase` - Purchase product (adds points)
-
-## 💰 Economy Flow
-
-```
-🛒 Buy Products → 💰 Get 5% back as Points
-   ↓
-🪙 Use Points → 📦 Open Mystery Boxes (FREE!)
-   ↓
-🎁 Win Real Products!
-```
-
-## 🛠️ Setup
+## Installation
 
 ```bash
-# Install dependencies
-cd backend
 npm install
-
-# Start server
-npm start
 ```
 
-## 📝 Environment Variables
+## Configuration
 
-```env
-MONGO_URL=mongodb://localhost:27017/puzzlechain
-PORT=3000
-JWT_SECRET=your-secret-key
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
 ```
 
-## 📄 License
+## Running
 
-MIT
+```bash
+# Development
+npm run start:dev
+
+# Production
+npm run build
+npm run start:prod
+```
+
+## API Endpoints
+
+### Auth
+- `POST /api/auth/register` - Register
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh` - Refresh token
+- `GET /api/auth/me` - Get current user
+
+### Boxes
+- `GET /api/boxes` - List boxes
+- `GET /api/boxes/:id` - Get box details
+- `POST /api/boxes/open` - Open box
+
+### Economy
+- `GET /api/economy/balance` - Get balance
+- `GET /api/economy/transactions` - Get transactions
+
+### Products
+- `GET /api/products` - List products
+- `GET /api/products/:id` - Get product
+
+### Orders
+- `POST /api/orders` - Create order
+- `GET /api/orders` - Get user orders
+
+### Users
+- `GET /api/users/profile` - Get profile
+- `GET /api/users/stats` - Get stats
+- `GET /api/users/leaderboard` - Get leaderboard
+- `GET /api/users/daily-reward` - Claim daily reward
