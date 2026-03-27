@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/premium.css'
-import { useTheme } from '../context/ThemeContext'
+import '../styles/animations.css'
+import { useSoundEffects } from '../context/SoundContext'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -10,8 +11,7 @@ export default function Dashboard() {
   const [boxes, setBoxes] = useState([])
   const [recentWinners, setRecentWinners] = useState([])
   const [loading, setLoading] = useState(true)
-  const { theme } = useTheme()
-  const navigate = useNavigate()
+  const { onHover, onClick, onWin, onCoin, muted } = useSoundEffects()
 
   useEffect(() => {
     fetchData()
@@ -36,13 +36,12 @@ export default function Dashboard() {
         { username: 'علي', prize: 'سماعات', avatar: 'ع' },
       ])
     } catch (err) {
-      // Mock data for demo
       setUser({ username: 'مستخدم', points: 1250, totalBoxes: 15, totalWins: 8 })
       setStats({ totalBoxes: 150, totalWins: 89, totalValue: 5000, rank: 42 })
       setBoxes([
         { _id: '1', name: 'صندوق الذهبي', icon: '👑', cost: 500, rarity: 'legendary' },
         { _id: '2', name: 'صندوق الفضي', icon: '💎', cost: 300, rarity: 'epic' },
-        { _id: '3', name:صندوق البرونزي', icon: '🥉', cost: 150, rarity: 'rare' },
+        { _id: '3', name: 'صندوق البرونزي', icon: '🥉', cost: 150, rarity: 'rare' },
       ])
     } finally {
       setLoading(false)
@@ -58,9 +57,16 @@ export default function Dashboard() {
     }
   }
 
+  const handleBoxClick = () => {
+    if (!muted) {
+      const { playSound } = useSoundEffects()
+      playSound('click')
+    }
+  }
+
   if (loading) return (
     <div className="premium-bg min-h-screen flex items-center justify-center">
-      <div className="spinner-luxury"></div>
+      <div className="loading-dots"><span></span><span></span><span></span></div>
     </div>
   )
 
@@ -69,22 +75,13 @@ export default function Dashboard() {
       {/* Particles */}
       <div className="particles">
         {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 15}s`,
-              animationDuration: `${15 + Math.random() * 10}s`,
-            }}
-          />
+          <div key={i} className="particle" style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 15}s`, animationDuration: `${15 + Math.random() * 10}s` }} />
         ))}
       </div>
 
       {/* Hero Section */}
       <div className="relative mb-12 fade-in-up">
-        <div className="glass-card p-8 relative overflow-hidden">
-          {/* Animated Background */}
+        <div className="glass-card p-8 relative overflow-hidden" onMouseEnter={onHover}>
           <div className="absolute inset-0 opacity-30">
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -95,22 +92,15 @@ export default function Dashboard() {
               <h1 className="text-5xl font-bold mb-4">
                 مرحباً، <span className="gold-gradient">{user?.username || 'مستخدم'}</span>
               </h1>
-              <p className="text-xl text-gray-400 mb-6">
-                هل أنت مستعد للفوز بجوائز قيمة؟
-              </p>
+              <p className="text-xl text-gray-400 mb-6">هل أنت مستعد للفوز بجوائز قيمة؟</p>
               <div className="flex gap-4">
-                <Link to="/boxes" className="btn-premium">
-                  🎁 افتح صندوق الآن
-                </Link>
-                <Link to="/shop" className="glass-card px-6 py-3 hover:bg-white/10 transition">
-                  🛒 تسوق
-                </Link>
+                <Link to="/boxes" onClick={onClick} className="btn-premium">🎁 افتح صندوق الآن</Link>
+                <Link to="/shop" onClick={onClick} className="glass-card px-6 py-3 hover:bg-white/10 transition">🛒 تسوق</Link>
               </div>
             </div>
             
-            {/* Points Display */}
             <div className="text-center">
-              <div className="glass-card p-6 glow-pulse">
+              <div className="glass-card p-6 glow-pulse" onMouseEnter={onHover}>
                 <div className="text-gray-400 mb-2">رصيدك</div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-5xl font-bold gold-gradient">{user?.points?.toLocaleString() || 0}</span>
@@ -124,52 +114,31 @@ export default function Dashboard() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="stat-card fade-in-up stagger-1">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">🎁</div>
-            <div className="text-gray-400">الصناديق</div>
+        {[
+          { icon: '🎁', value: stats?.totalBoxes || 0, label: 'الصناديق', gradient: 'from-purple-500 to-pink-500' },
+          { icon: '🏆', value: stats?.totalWins || 0, label: 'المكاسب', gradient: 'from-emerald-500 to-teal-500', color: 'text-emerald-400' },
+          { icon: '💎', value: `$${stats?.totalValue || 0}`, label: 'القيمة', gradient: 'from-blue-500 to-cyan-500', color: 'text-blue-400' },
+          { icon: '👑', value: `#${stats?.rank || '-'}`, label: 'ترتيبك', gradient: 'from-amber-500 to-orange-500', color: 'gold-gradient' },
+        ].map((stat, i) => (
+          <div key={i} className="stat-card fade-in-up" style={{ animationDelay: `${0.1 * (i + 1)}s` }} onMouseEnter={onHover}>
+            <div className="flex items-center gap-3 mb-2">
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>{stat.icon}</div>
+              <div className="text-gray-400">{stat.label}</div>
+            </div>
+            <div className={`text-3xl font-bold ${stat.color || ''}`}>{stat.value}</div>
           </div>
-          <div className="text-3xl font-bold">{stats?.totalBoxes || 0}</div>
-        </div>
-        <div className="stat-card fade-in-up stagger-2">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">🏆</div>
-            <div className="text-gray-400">المكاسب</div>
-          </div>
-          <div className="text-3xl font-bold text-emerald-400">{stats?.totalWins || 0}</div>
-        </div>
-        <div className="stat-card fade-in-up stagger-3">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">💎</div>
-            <div className="text-gray-400">القيمة</div>
-          </div>
-          <div className="text-3xl font-bold text-blue-400">${stats?.totalValue || 0}</div>
-        </div>
-        <div className="stat-card fade-in-up stagger-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">👑</div>
-            <div className="text-gray-400">ترتيبك</div>
-          </div>
-          <div className="text-3xl font-bold gold-gradient">#{stats?.rank || '-'}</div>
-        </div>
+        ))}
       </div>
 
       {/* Featured Boxes */}
       <div className="mb-8 fade-in-up" style={{ animationDelay: '0.3s' }}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">🎁 الصناديق المميزة</h2>
-          <Link to="/boxes" className="text-amber-400 hover:text-amber-300 transition">
-            عرض الكل →
-          </Link>
+          <Link to="/boxes" onClick={onClick} className="text-amber-400 hover:text-amber-300 transition">عرض الكل →</Link>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {boxes.map((box, i) => (
-            <Link
-              key={box._id || i}
-              to="/boxes"
-              className="card-luxury p-5 cursor-pointer"
-              style={{ textDecoration: 'none' }}
-            >
+            <Link key={box._id || i} to="/boxes" onClick={onClick} className="card-luxury p-5 cursor-pointer" style={{ textDecoration: 'none' }}>
               <div className={`w-full h-24 rounded-xl bg-gradient-to-br ${getRarityColor(box.rarity)} flex items-center justify-center mb-4`}>
                 <span className="text-5xl float">{box.icon || '🎁'}</span>
               </div>
@@ -185,14 +154,13 @@ export default function Dashboard() {
 
       {/* Recent Winners */}
       <div className="grid grid-cols-2 gap-6 mb-8">
-        {/* Winners */}
         <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.4s' }}>
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <span className="animate-pulse">🏆</span> أحدث الفائزين
           </h2>
           <div className="space-y-3">
             {recentWinners.map((winner, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition">
+              <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition" onMouseEnter={onHover}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                   i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-amber-900' :
                   i === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-900' :
@@ -205,9 +173,7 @@ export default function Dashboard() {
                   <div className="font-bold">{winner.username}</div>
                   <div className="text-xs text-gray-400">فاز بـ {winner.prize}</div>
                 </div>
-                {i < 3 && <span className="text-2xl">{
-                  i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'
-                }</span>}
+                {i < 3 && <span className="text-2xl">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>}
               </div>
             ))}
           </div>
@@ -217,30 +183,22 @@ export default function Dashboard() {
         <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.5s' }}>
           <h2 className="text-xl font-bold mb-4">⚡ إجراءات سريعة</h2>
           <div className="space-y-3">
-            <Link to="/leaderboard" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl">🏅</div>
-              <div className="flex-1">
-                <div className="font-bold">الترتيب العالمي</div>
-                <div className="text-sm text-gray-400">شاهد ترتيبك</div>
-              </div>
-              <span className="text-amber-400">→</span>
-            </Link>
-            <Link to="/referral" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl">👥</div>
-              <div className="flex-1">
-                <div className="font-bold">دعوة أصدقاء</div>
-                <div className="text-sm text-gray-400">اكسب نقاط مجانية</div>
-              </div>
-              <span className="text-emerald-400">→</span>
-            </Link>
-            <Link to="/orders" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl">📦</div>
-              <div className="flex-1">
-                <div className="font-bold">طلباتي</div>
-                <div className="text-sm text-gray-400">تتبع طلباتك</div>
-              </div>
-              <span className="text-blue-400">→</span>
-            </Link>
+            {[
+              { icon: '🏅', title: 'الترتيب العالمي', desc: 'شاهد ترتيبك', link: '/leaderboard' },
+              { icon: '👥', title: 'دعوة أصدقاء', desc: 'اكسب نقاط مجانية', link: '/referral' },
+              { icon: '📦', title: 'طلباتي', desc: 'تتبع طلباتك', link: '/orders' },
+            ].map((action, i) => (
+              <Link key={i} to={action.link} onClick={onClick} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition" onMouseEnter={onHover}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${['from-amber-500 to-orange-600', 'from-emerald-500 to-teal-600', 'from-blue-500 to-cyan-600'][i]} flex items-center justify-center text-2xl`}>
+                  {action.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold">{action.title}</div>
+                  <div className="text-sm text-gray-400">{action.desc}</div>
+                </div>
+                <span className="text-amber-400">→</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -251,34 +209,23 @@ export default function Dashboard() {
           <span className="gold-gradient">كيف تعمل منصة Athena؟</span>
         </h2>
         <div className="grid grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-4xl glow-pulse">
-              🛒
+          {[
+            { icon: '🛒', title: 'تسوق', desc: 'اشترِ منتجات من المتجر', reward: '+5% نقاط', color: 'from-emerald-500 to-teal-600' },
+            { icon: '🪙', title: 'اكسب نقاط', desc: 'احصل على نقاط مع كل شراء', reward: 'نقاط مجانية', color: 'from-amber-500 to-orange-600' },
+            { icon: '🎁', title: 'افتح صناديق', desc: 'استخدم نقاطك لفتح صناديق', reward: 'فوز مؤكد', color: 'from-purple-500 to-pink-600' },
+          ].map((step, i) => (
+            <div key={i} className="text-center" onMouseEnter={onHover}>
+              <div className={`w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center text-4xl glow-pulse`}>
+                {step.icon}
+              </div>
+              <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+              <p className="text-gray-400">{step.desc}</p>
+              <div className={`mt-4 font-bold ${i === 0 ? 'text-emerald-400' : i === 1 ? 'text-amber-400' : 'text-purple-400'}`}>{step.reward}</div>
             </div>
-            <h3 className="text-xl font-bold mb-2">تسوق</h3>
-            <p className="text-gray-400">اشترِ منتجات من المتجر</p>
-            <div className="mt-4 text-emerald-400 font-bold">+5% نقاط</div>
-          </div>
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-4xl glow-pulse" style={{ animationDelay: '0.5s' }}>
-              🪙
-            </div>
-            <h3 className="text-xl font-bold mb-2">اكسب نقاط</h3>
-            <p className="text-gray-400">احصل على نقاط مع كل شراء</p>
-            <div className="mt-4 text-amber-400 font-bold">نقاط مجانية</div>
-          </div>
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-4xl glow-pulse" style={{ animationDelay: '1s' }}>
-              🎁
-            </div>
-            <h3 className="text-xl font-bold mb-2">افتح صناديق</h3>
-            <p className="text-gray-400">استخدم نقاطك لفتح صناديق</p>
-            <div className="mt-4 text-purple-400 font-bold">فوز مؤكد</div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Footer */}
       <div className="mt-12 text-center text-gray-500 text-sm">
         <p>© 2026 Athena. جميع الحقوق محفوظة</p>
       </div>
