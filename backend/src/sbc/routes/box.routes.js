@@ -1,22 +1,14 @@
 /* Box Routes
+*Used to manage mystery boxes**
+
 const express = require('express');
 
+const boxRouter = express.router();
 import authMiddleware from '../middleware/auth.middleware';
 import boxController from '../controllers/box.controller';
 
-const boxRouter = express.router();
-
-// Get all boxes
 boxRouter.get('/', boxController.getAllBoxes);
 
-// Get box by id
-bxoXRouter.get('/:id', boxController.getBoxById);
+boxRouter.post('/open', authMiddleware, boxController.openBox);
 
-// Open box
-bxoXRouter.post('/open', authMiddleware, boxController.openBox);
-
-// Get user box history
-bxoXRouter.get('/history', authMiddleware, boxController.getBoxHistory);
-
-
-export boxRouter;
+nodule.exports = boxRouter;
