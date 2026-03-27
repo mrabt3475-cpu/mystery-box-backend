@@ -4,6 +4,7 @@ import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
 import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [recentWinners, setRecentWinners] = useState([])
   const [loading, setLoading] = useState(true)
   const { onHover, onClick, onWin, onCoin, muted } = useSoundEffects()
+  const { celebrate, winPrize, addEffect } = useVFX()
 
   useEffect(() => {
     fetchData()
@@ -48,19 +50,17 @@ export default function Dashboard() {
     }
   }
 
+  const handleBoxClick = () => {
+    onClick()
+    addEffect('sparkle', { count: 15, duration: 1500 })
+  }
+
   const getRarityColor = (rarity) => {
     switch (rarity) {
       case 'legendary': return 'from-yellow-500 via-amber-500 to-orange-600'
       case 'epic': return 'from-purple-500 via-violet-500 to-fuchsia-600'
       case 'rare': return 'from-blue-500 via-cyan-500 to-sky-600'
       default: return 'from-gray-500 to-gray-600'
-    }
-  }
-
-  const handleBoxClick = () => {
-    if (!muted) {
-      const { playSound } = useSoundEffects()
-      playSound('click')
     }
   }
 
@@ -81,7 +81,7 @@ export default function Dashboard() {
 
       {/* Hero Section */}
       <div className="relative mb-12 fade-in-up">
-        <div className="glass-card p-8 relative overflow-hidden" onMouseEnter={onHover}>
+        <div className="glass-card p-8 relative overflow-hidden" onMouseEnter={() => { onHover(); addEffect('glow', { color: '#d4af37', duration: 500 }) }}>
           <div className="absolute inset-0 opacity-30">
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -94,13 +94,13 @@ export default function Dashboard() {
               </h1>
               <p className="text-xl text-gray-400 mb-6">هل أنت مستعد للفوز بجوائز قيمة؟</p>
               <div className="flex gap-4">
-                <Link to="/boxes" onClick={onClick} className="btn-premium">🎁 افتح صندوق الآن</Link>
+                <Link to="/boxes" onClick={handleBoxClick} className="btn-premium">🎁 افتح صندوق الآن</Link>
                 <Link to="/shop" onClick={onClick} className="glass-card px-6 py-3 hover:bg-white/10 transition">🛒 تسوق</Link>
               </div>
             </div>
             
             <div className="text-center">
-              <div className="glass-card p-6 glow-pulse" onMouseEnter={onHover}>
+              <div className="glass-card p-6 glow-pulse" onMouseEnter={() => { onHover(); addEffect('sparkle', { count: 8, duration: 800 }) }}>
                 <div className="text-gray-400 mb-2">رصيدك</div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-5xl font-bold gold-gradient">{user?.points?.toLocaleString() || 0}</span>
@@ -120,7 +120,7 @@ export default function Dashboard() {
           { icon: '💎', value: `$${stats?.totalValue || 0}`, label: 'القيمة', gradient: 'from-blue-500 to-cyan-500', color: 'text-blue-400' },
           { icon: '👑', value: `#${stats?.rank || '-'}`, label: 'ترتيبك', gradient: 'from-amber-500 to-orange-500', color: 'gold-gradient' },
         ].map((stat, i) => (
-          <div key={i} className="stat-card fade-in-up" style={{ animationDelay: `${0.1 * (i + 1)}s` }} onMouseEnter={onHover}>
+          <div key={i} className="stat-card fade-in-up" style={{ animationDelay: `${0.1 * (i + 1)}s` }} onMouseEnter={() => { onHover(); addEffect('glow', { color: '#8b5cf6', duration: 300 }) }}>
             <div className="flex items-center gap-3 mb-2">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>{stat.icon}</div>
               <div className="text-gray-400">{stat.label}</div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {boxes.map((box, i) => (
-            <Link key={box._id || i} to="/boxes" onClick={onClick} className="card-luxury p-5 cursor-pointer" style={{ textDecoration: 'none' }}>
+            <Link key={box._id || i} to="/boxes" onClick={handleBoxClick} className="card-luxury p-5 cursor-pointer" style={{ textDecoration: 'none' }}>
               <div className={`w-full h-24 rounded-xl bg-gradient-to-br ${getRarityColor(box.rarity)} flex items-center justify-center mb-4`}>
                 <span className="text-5xl float">{box.icon || '🎁'}</span>
               </div>
@@ -160,7 +160,7 @@ export default function Dashboard() {
           </h2>
           <div className="space-y-3">
             {recentWinners.map((winner, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition" onMouseEnter={onHover}>
+              <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition cursor-pointer" onClick={() => { onClick(); winPrize('legendary') }} onMouseEnter={onHover}>
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
                   i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-amber-900' :
                   i === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-900' :
@@ -188,7 +188,7 @@ export default function Dashboard() {
               { icon: '👥', title: 'دعوة أصدقاء', desc: 'اكسب نقاط مجانية', link: '/referral' },
               { icon: '📦', title: 'طلباتي', desc: 'تتبع طلباتك', link: '/orders' },
             ].map((action, i) => (
-              <Link key={i} to={action.link} onClick={onClick} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition" onMouseEnter={onHover}>
+              <Link key={i} to={action.link} onClick={onClick} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition" onMouseEnter={() => { onHover(); addEffect('sparkle', { count: 5, duration: 500 }) }}>
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${['from-amber-500 to-orange-600', 'from-emerald-500 to-teal-600', 'from-blue-500 to-cyan-600'][i]} flex items-center justify-center text-2xl`}>
                   {action.icon}
                 </div>
@@ -214,7 +214,7 @@ export default function Dashboard() {
             { icon: '🪙', title: 'اكسب نقاط', desc: 'احصل على نقاط مع كل شراء', reward: 'نقاط مجانية', color: 'from-amber-500 to-orange-600' },
             { icon: '🎁', title: 'افتح صناديق', desc: 'استخدم نقاطك لفتح صناديق', reward: 'فوز مؤكد', color: 'from-purple-500 to-pink-600' },
           ].map((step, i) => (
-            <div key={i} className="text-center" onMouseEnter={onHover}>
+            <div key={i} className="text-center cursor-pointer" onClick={() => { onClick(); addEffect('particles', { count: 20, colors: ['#d4af37', '#8b5cf6'] }) }}>
               <div className={`w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center text-4xl glow-pulse`}>
                 {step.icon}
               </div>
