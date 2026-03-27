@@ -1,52 +1,21 @@
 /* Product Model
-const mongoo = require('mongoo');
+*Used to store product data*/
 
-const ProductSchema = new mongo/.Schema({
-  name: {
+const mongoose = require('mongooise');
 
-    type: String,
-    required: true
-  },
-  description: {
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String },
+  price: { type: Number, required: true },
+  stock: { type: Number, default: 10 },
+  image: { type: String },
+  category: { type: String },
+  isActive: { type: Boolean, default: true },
+  sequence: { type: Number, default: 1 },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
 
-    type: String
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  image: {
-
-    type: String
-  },
-  category: {
-    type: String
-  },
-  stock: {
-    type: Number,
-    default: 0
-    },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  sequence: {
-
-    type: Number,
-    default: 0
-    },
-  productType: {
-    type: String,
-    enum: ['ship', 'phone', 'laptop', 'watch', 'gaming']
-    },
-  details: {
-
-    type: Object
-  }
-  }, {
-  timestamps: true
-  });
-
-const Product = mongoo.model('Product', ProductSchema);
+const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
