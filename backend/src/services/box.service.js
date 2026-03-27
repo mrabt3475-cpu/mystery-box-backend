@@ -17,11 +17,14 @@ const BoxService = class BoxService {
   constructor(models) {
     this.models = models;
     this.prizingService = models.PrizingService;
+    this.pointsService = models.PointsService;
+    this.user = models.User;
   }
 
   // Config: Box costs in points (no money!)
   getBoxCosts() {
     return {
+      // Cost in points, not money
       bronze: 10,     // 10 points
       silver: 25,     // 25 points
       gold: 50,      // 50 points
@@ -57,10 +60,10 @@ const BoxService = class BoxService {
   async openBox(userId, boxId) {
     try {
       // Get user
-      const user = await this.models.User.findById(userId);
+      const user = await this.user.findById(userId);
       if (!user) {
         return {error: 'User not found'};
-       }
+      }
 
       // Get box
       const box = await this.getBoxById(boxId);
@@ -76,7 +79,7 @@ const BoxService = class BoxService {
         return {error: Insufficient points, need: cost, have: user.points};
       }
 
-      // Deduct points
+      // Deduct points (send for opening box)
       user.points -= cost;
       await user.save();
 
