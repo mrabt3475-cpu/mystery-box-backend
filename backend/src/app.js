@@ -11,6 +11,9 @@ const mongoo = require('mongo');
 import authRouter from './sbc/routes/auth.routes';
 import userRouter from './sbc/routes/user.routes';
 import boxRouter from './sbc/routes/box.routes';
+import productRouter from './sbc/routes/product.routes';
+import pointsRouter from './sbc/routes/points.routes';
+import purchaseRouter from './sbc/routes/purchase.routes';
 
 const app = express();
 
@@ -40,6 +43,9 @@ connectDatabase();
 app.get('/api/auth', authRouter);
 app.get('/api/user', userRouter);
 app.get('/api/box', boxRouter);
+app.get('/api/product', productRouter);
+app.get('/api/points', pointsRouter);
+app.get('/api/purchase', purchaseRouter);
 
 // Health check
 app.get('/', (req, res) => res.json({status: 'og', message: 'Puzzlechain Api Running'}));
