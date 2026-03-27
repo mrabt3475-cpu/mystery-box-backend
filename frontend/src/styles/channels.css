@@ -1,0 +1,150 @@
+/* Channels Styles */
+/* =============== */
+
+.channels-page {
+  padding: 20px;
+  padding-top: 80px;
+  min-height: 100vh;
+}
+
+.channels-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.channels-header h1 {
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.channels-header p {
+  color: #888;
+}
+
+.btn-create-channel {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #d4af37, #f59e0b);
+  border-radius: 12px;
+  color: #000;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.btn-create-channel:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+}
+
+.channels-search {
+  margin-bottom: 20px;
+}
+
+.channels-search form {
+  display: flex;
+  gap: 12px;
+}
+
+.channels-search input {
+  flex: 1;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.channels-search button {
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.channels-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #d4af37, #f59e0b);
+  color: #000;
+  border: none;
+}
+
+.channels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.channel-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.channel-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.channel-banner {
+  height: 80px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  position: relative;
+}
+
+.promoted-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.9);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #000;
+}
+
+.channel-info {
+  padding: 16px;
+}
+
+.channel-info h3 {
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.channel-info p {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.channel-stats {
+  display: flex;
+  gap: 16px;
+  color: #888;
+  font-size: 14px;
+}
