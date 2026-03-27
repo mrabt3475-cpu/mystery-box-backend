@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
+import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Referral() {
   const [referral, setReferral] = useState(null)
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { onHover, onClick } = useSoundEffects()
+  const { celebrate, addEffect } = useVFX()
 
   useEffect(() => { fetchData() }, [])
 
@@ -24,7 +28,8 @@ export default function Referral() {
 
   const copyCode = () => {
     navigator.clipboard.writeText(referral?.code || 'ATHENA123')
-    alert('تم نسخ الكود! 📋')
+    onClick()
+    addEffect('sparkle', { count: 15, duration: 1500 })
   }
 
   if (loading) return (
@@ -46,11 +51,10 @@ export default function Referral() {
           <h1 className="text-5xl font-bold mb-2"><span className="shimmer-text">الإحالة</span></h1>
           <p className="text-xl text-gray-400">دعوة أصدقاء واكسب نقاط!</p>
         </div>
-        <Link to="/" className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
+        <Link to="/" onClick={onClick} className="glass-premium px-6 py-3 hover:bg-white/10 transition">← رجوع</Link>
       </header>
 
-      {/* Referral Code - Holographic */}
-      <div className="referral-box mb-12 holographic fade-in-up">
+      <div className="referral-box mb-12 holographic fade-in-up cursor-pointer" onClick={copyCode} onMouseEnter={() => { onHover(); addEffect('glow', { color: '#d4af37', duration: 1000 }) }}>
         <h2 className="text-2xl font-bold mb-6">كود الإحالة الخاص بك</h2>
         <div className="flex items-center justify-center gap-6 mb-6">
           <div className="glass-premium px-8 py-4 animated-border">
@@ -58,10 +62,9 @@ export default function Referral() {
           </div>
           <button onClick={copyCode} className="btn-3d btn-premium">📋 نسخ</button>
         </div>
-        <p className="text-gray-400">شارك هذا الكود مع أصدقائك وعند تسجيلهم ستحصل على نقاط!</p>
+        <p className="text-gray-400">انقر للنسخ! 🎉</p>
       </div>
 
-      {/* Stats - 3D Cards */}
       <div className="grid grid-cols-4 gap-6 mb-12">
         {[
           { icon: '👥', label: 'إجمالي الإحالات', value: stats?.totalReferrals || 0, color: 'text-purple-400' },
@@ -69,7 +72,7 @@ export default function Referral() {
           { icon: '🪙', label: 'نقاط مكتسبة', value: stats?.totalEarnings || 0, color: 'text-amber-400' },
           { icon: '💰', label: 'متاح للسحب', value: `$${stats?.availableBalance || 0}`, color: 'text-blue-400' },
         ].map((stat, i) => (
-          <div key={i} className="stat-card fade-in-up card-3d" style={{ animationDelay: `${i * 0.1}s` }}>
+          <div key={i} className="stat-card fade-in-up card-3d cursor-pointer" style={{ animationDelay: `${i * 0.1}s` }} onClick={() => { onClick(); addEffect('particles', { count: 15, colors: ['#d4af37', '#8b5cf6'] }) }} onMouseEnter={onHover}>
             <div className="text-4xl mb-3">{stat.icon}</div>
             <div className={`text-4xl font-bold ${stat.color}`}>{stat.value}</div>
             <div className="text-gray-400 mt-2">{stat.label}</div>
@@ -77,7 +80,6 @@ export default function Referral() {
         ))}
       </div>
 
-      {/* How it works - 3D Steps */}
       <div className="glass-premium p-8 mb-12 fade-in-up" style={{ animationDelay: '0.3s' }}>
         <h2 className="text-3xl font-bold mb-8 text-center"><span className="shimmer-text">💡 كيف يعمل؟</span></h2>
         <div className="grid grid-cols-3 gap-8">
@@ -86,7 +88,7 @@ export default function Referral() {
             { step: 2, icon: '📝', title: 'يسجل', desc: 'صديقك يسجل باستخدام الكود' },
             { step: 3, icon: '🎁', title: 'اكسب نقاط', desc: 'تحصل على 30% من نقاطهم!' },
           ].map((item, i) => (
-            <div key={i} className="text-center category-card p-6">
+            <div key={i} className="text-center category-card p-6 cursor-pointer" onClick={() => { onClick(); celebrate() }} onMouseEnter={onHover}>
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-4xl float-3d">
                 {item.icon}
               </div>
@@ -97,7 +99,6 @@ export default function Referral() {
         </div>
       </div>
 
-      {/* Commission Rates */}
       <div className="glass-premium p-8 fade-in-up" style={{ animationDelay: '0.4s' }}>
         <h2 className="text-3xl font-bold mb-8 text-center"><span className="shimmer-text">💰 معدلات العمولة</span></h2>
         <div className="grid grid-cols-3 gap-6">
@@ -106,7 +107,7 @@ export default function Referral() {
             { level: '20%', name: 'المستوى الثاني', user: 'صديق صديقك', gradient: 'from-gray-500/20 to-slate-500/20', border: 'border-gray-500/30' },
             { level: '10%', name: 'المستوى الثالث', user: 'صديق صديق صديقك', gradient: 'from-amber-700/20 to-orange-700/20', border: 'border-amber-700/30' },
           ].map((tier, i) => (
-            <div key={i} className={`text-center p-8 rounded-2xl bg-gradient-to-br ${tier.gradient} border ${tier.border} category-card`}>
+            <div key={i} className={`text-center p-8 rounded-2xl bg-gradient-to-br ${tier.gradient} border ${tier.border} category-card cursor-pointer`} onClick={() => { onClick(); addEffect('glow', { color: '#d4af37', duration: 800 }) }} onMouseEnter={onHover}>
               <div className="text-5xl font-bold shimmer-text mb-2">{tier.level}</div>
               <div className="text-xl font-bold mb-1">{tier.name}</div>
               <div className="text-gray-400">{tier.user}</div>
