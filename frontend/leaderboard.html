@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆排行榜 - PuzzleChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981; --gold: #f59e0b; --silver: #9ca3af; --bronze: #cd7f32; --danger: #ef4444; --dark: #0f172a; --dark-secondary: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--dark); color: var(--text); min-height: 100vh; }
+
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .bg-animation::before { content: ''; position: absolute; width: 200%; height: 200%; background: radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%); animation: bgMove 20s ease-in-out infinite; }
+        @keyframes bgMove { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10%, -10%); } }
+
+        .navbar { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .navbar-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; border-radius: 10px; transition: all 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--text); background: rgba(99, 102, 241, 0.2); }
+        .balance-badge { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 6rem 2rem 2rem; }
+
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .page-title i { color: var(--gold); }
+        .page-subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+        .podium { display: flex; justify-content: center; align-items: flex-end; gap: 1rem; margin-bottom: 3rem; padding: 2rem 0; }
+        .podium-item { text-align: center; position: relative; }
+        .podium-item.first { order: 2; }
+        .podium-item.second { order: 1; }
+        .podium-item.third { order: 3; }
+
+        .podium-rank { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; position: relative; z-index: 1; }
+        .podium-item.first .podium-rank { width: 100px; height: 100px; background: linear-gradient(135deg, var(--gold), #d97706); box-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+        .podium-item.second .podium-rank { background: linear-gradient(135deg, var(--silver), #6b7280); }
+        .podium-item.third .podium-rank { background: linear-gradient(135deg, var(--bronze), #8b4513); }
+
+        .podium-avatar { font-size: 3rem; margin-bottom: 0.5rem; }
+        .podium-item.first .podium-avatar { font-size: 4rem; }
+
+        .podium-name { font-weight: 700; margin-bottom: 0.25rem; }
+        .podium-score { color: var(--gold); font-weight: 600; }
+
+        .podium-stand { width: 120px; background: var(--dark-secondary); border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; margin: 0 auto; }
+        .podium-item.first .podium-stand { height: 120px; background: linear-gradient(180deg, var(--gold), #b45309); }
+        .podium-item.second .podium-stand { height: 90px; background: linear-gradient(180deg, var(--silver), #4b5563); }
+        .podium-item.third .podium-stand { height: 60px; background: linear-gradient(180deg, var(--bronze), #78350f); }
+
+        .leaderboard-section { background: var(--dark-secondary); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); }
+        .leaderboard-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .leaderboard-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .leaderboard-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.3s; }
+        .leaderboard-item:hover { background: rgba(255,255,255,0.08); }
+        .leaderboard-item.top-10 { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .leaderboard-rank { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; background: rgba(255,255,255,0.1); }
+        .leaderboard-rank.gold { background: var(--gold); color: var(--dark); }
+        .leaderboard-rank.silver { background: var(--silver); color: var(--dark); }
+        .leaderboard-rank.bronze { background: var(--bronze); color: var(--dark); }
+
+        .leaderboard-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+
+        .leaderboard-info { flex: 1; }
+        .leaderboard-name { font-weight: 600; }
+        .leaderboard-stats { font-size: 0.8rem; color: var(--text-muted); }
+
+        .leaderboard-prizes { display: flex; gap: 1rem; }
+        .leaderboard-stat { text-align: center; }
+        .leaderboard-stat-value { font-weight: 700; font-size: 1.1rem; }
+        .leaderboard-stat-label { font-size: 0.7rem; color: var(--text-muted); }
+
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 0.25rem; border-radius: 12px; width: fit-content; }
+        .tab { padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-muted); font-weight: 600; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: var(--primary); color: white; }
+
+        .your-rank { background: var(--dark-secondary); border-radius: 20px; padding: 2rem; margin-top: 2rem; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .your-rank-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
+        .your-rank-display { display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .your-rank-item { text-align: center; }
+        .your-rank-value { font-size: 2rem; font-weight: 800; color: var(--gold); }
+        .your-rank-label { color: var(--text-muted); font-size: 0.9rem; }
+
+        @media (max-width: 768px) { 
+            .navbar-content { flex-direction: column; } 
+            .podium { flex-direction: column; align-items: center; }
+            .podium-item { order: unset !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo"><i class="fas fa-gift"></i> PuzzleChain</div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/products" class="nav-link">المنتجات</a>
+                <a href="/boxes" class="nav-link">الصناديق</a>
+                <a href="/leaderboard" class="nav-link active">ال排行榜</a>
+                <div class="balance-badge"><i class="fas fa-coins"></i> <span id="userPoints">0</span> نقطة</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-trophy"></i>排行榜</h1>
+            <p class="page-subtitle">أفضل اللاعبين على المنصة</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('wins')">الأكثر فوزاً</button>
+            <button class="tab" onclick="switchTab('boxes')">الأكثر فتحاً</button>
+            <button class="tab" onclick="switchTab('points">النقاط</button>
+        </div>
+
+        <!-- Podium -->
+        <div class="podium">
+            <div class="podium-item second">
+                <div class="podium-rank"><i class="fas fa-medal"></i></div>
+                <div class="podium-avatar">🥈</div>
+                <div class="podium-name">أحمد</div>
+                <div class="podium-score">15 جائزة</div>
+                <div class="podium-stand">2</div>
+            </div>
+            <div class="podium-item first">
+                <div class="podium-rank"><i class="fas fa-crown"></i></div>
+                <div class="podium-avatar">👑</div>
+                <div class="podium-name">سارة</div>
+                <div class="podium-score">28 جائزة</div>
+                <div class="podium-stand">1</div>
+            </div>
+            <div class="podium-item third">
+                <div class="podium-rank"><i class="fas fa-medal"></i></div>
+                <div class="podium-avatar">🥉</div>
+                <div class="podium-name">محمد</div>
+                <div class="podium-score">12 جائزة</div>
+                <div class="podium-stand">3</div>
+            </div>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div class="leaderboard-section">
+            <h2 class="leaderboard-title"><i class="fas fa-list"></i> ترتيب اللاعبين</h2>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+
+        <!-- Your Rank -->
+        <div class="your-rank">
+            <h2 class="your-rank-title"><i class="fas fa-user"></i> ترتيبك</h2>
+            <div class="your-rank-display">
+                <div class="your-rank-item">
+                    <div class="your-rank-value" id="yourRank">#--</div>
+                    <div class="your-rank-label">الترتيب العام</div>
+                </div>
+                <div class="your-rank-item">
+                    <div class="your-rank-value" id="yourWins">0</div>
+                    <div class="your-rank-label">جوائزك</div>
+                </div>
+                <div class="your-rank-item">
+                    <div class="your-rank-value" id="yourBoxes">0</div>
+                    <div class="your-rank-label">صناديق مفتوحة</div>
+                </div>
+                <div class="your-rank-item">
+                    <div class="your-rank-value" id="yourPoints">0</div>
+                    <div class="your-rank-label">نقاطك</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockLeaderboard = [
+            { rank: 1, name: 'سارة', wins: 28, boxes: 156, points: 8500, avatar: '👑' },
+            { rank: 2, name: 'أحمد', wins: 15, boxes: 89, points: 5200, avatar: '🥈' },
+            { rank: 3, name: 'محمد', wins: 12, boxes: 67, points: 4100, avatar: '🥉' },
+            { rank: 4, name: 'علي', wins: 10, boxes: 54, points: 3800, avatar: '🧑' },
+            { rank: 5, name: 'Fatima', wins: 8, boxes: 45, points: 3200, avatar: '👩' },
+            { rank: 6, name: 'خالد', wins: 7, boxes: 38, points: 2800, avatar: '👨' },
+            { rank: 7, name: 'نورة', wins: 6, boxes: 32, points: 2400, avatar: '👩' },
+            { rank: 8, name: 'يوسف', wins: 5, boxes: 28, points: 2100, avatar: '👦' },
+            { rank: 9, name: 'ليلى', wins: 4, boxes: 24, points: 1800, avatar: '👧' },
+            { rank: 10, name: 'طارق', wins: 3, boxes: 20, points: 1500, avatar: '👨' }
+        ];
+
+        function renderLeaderboard(data) {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = data.map((user, idx) => {
+                let rankClass = '';
+                if (user.rank === 1) rankClass = 'gold';
+                else if (user.rank === 2) rankClass = 'silver';
+                else if (user.rank === 3) rankClass = 'bronze';
+
+                return `
+                    <div class="leaderboard-item ${idx < 10 ? 'top-10' : ''}">
+                        <div class="leaderboard-rank ${rankClass}">${user.rank}</div>
+                        <div class="leaderboard-avatar">${user.avatar}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${user.name}</div>
+                            <div class="leaderboard-stats">${user.boxes} صندوق مفتوح</div>
+                        </div>
+                        <div class="leaderboard-prizes">
+                            <div class="leaderboard-stat">
+                                <div class="leaderboard-stat-value" style="color: var(--gold);">🏆 ${user.wins}</div>
+                                <div class="leaderboard-stat-label">جوائز</div>
+                            </div>
+                            <div class="leaderboard-stat">
+                                <div class="leaderboard-stat-value" style="color: var(--primary);">⭐ ${user.points}</div>
+                                <div class="leaderboard-stat-label">نقاط</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let sorted = [...mockLeaderboard];
+            if (tab === 'wins') sorted.sort((a, b) => b.wins - a.wins);
+            else if (tab === 'boxes') sorted.sort((a, b) => b.boxes - a.boxes);
+            else if (tab === 'points') sorted.sort((a, b) => b.points - a.points);
+            
+            sorted = sorted.map((u, i) => ({ ...u, rank: i + 1 }));
+            renderLeaderboard(sorted);
+        }
+
+        async function loadUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const res = await fetch('http://localhost:3000/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('userPoints').textContent = user.points || 0;
+                    document.getElementById('yourWins').textContent = user.totalWins || 0;
+                    document.getElementById('yourBoxes').textContent = user.boxesOpened || 0;
+                    document.getElementById('yourPoints').textContent = user.totalPointsEarned || 0;
+                    document.getElementById('yourRank').textContent = '#' + (Math.floor(Math.random() * 100) + 1);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        renderLeaderboard(mockLeaderboard);
+        loadUserData();
+    </script>
+</body>
+</html>
