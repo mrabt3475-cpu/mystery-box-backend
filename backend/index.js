@@ -1,8 +1,11 @@
-/* Puzzlechain Backend - Index
-*/
+/* Entry Point for the Server
+*
+ * Loads and starts the server**
 
 const app = require('./src/app');
 
-app.listen(3000, () => {
-  console.log(`Puzzlechain Backend Running on port 3000`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Puzzlechain Baskend Running on port ${PORT}`);
 });
