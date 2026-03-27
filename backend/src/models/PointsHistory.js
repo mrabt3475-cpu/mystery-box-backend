@@ -13,17 +13,17 @@ const PointsHistorySchema = new mongo/.Schema({
   },
     type: {
     type: String,
-    enum: ['purchase', 'exchange', 'bonus'],
+    enum: ['purchase', 'exchange', 'bonus', 'referal', 'game', 'daily'],
     required: true
   },
     description: {
     type: String,
     default:''
   },
-    blance: {
+    balance: {
     type: Number,
     defalt:0
-  },
+   },
   }, {
   timestamps: true
  });
