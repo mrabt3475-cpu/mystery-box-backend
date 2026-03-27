@@ -71,7 +71,6 @@ export class WebhookService {
       throw new NotFoundException('Webhook غير موجود');
     }
 
-    // Validate URL if provided
     if (data.url) {
       try {
         new URL(data.url);
@@ -96,79 +95,6 @@ export class WebhookService {
     await this.webhookModel.findByIdAndDelete(id);
   }
 
-  async trigger(event: string, payload: any): Promise<void> {
-    // Find all webhooks subscribed to this event
-    const webhooks = await this.webhookModel.find({
-      events: event,
-      isActive: true,
-    });
-
-    for (const webhook of webhooks) {
-      this.sendWebhook(webhook, event, payload);
-    }
-  }
-
-  private async sendWebhook(webhook: WebhookDocument, event: string, payload: any): Promise<void> {
-    const startTime = Date.now();
-    let success = false;
-    let statusCode = 0;
-    let responseBody = '';
-    let errorMessage = '';
-
-    try {
-      const signature = this.generateSignature(webhook.secret, JSON.stringify(payload));
-
-      const response = await axios.post(webhook.url, payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Webhook-Signature': signature,
-          'X-Webhook-Event': event,
-          ...webhook.headers,
-        },
-        timeout: webhook.timeout * 1000,
-      });
-
-      statusCode = response.status;
-      responseBody = JSON.stringify(response.data);
-      success = statusCode >= 200 && statusCode < 300;
-
-      await this.webhookModel.findByIdAndUpdate(webhook._id, {
-        lastTriggeredAt: new Date(),
-        $inc: { successCount: success ? 1 : 0, failureCount: success ? 0 : 1 },
-      });
-    } catch (error: any) {
-      statusCode = error.response?.status || 0;
-      errorMessage = error.message;
-      success = false;
-
-      await this.webhookModel.findByIdAndUpdate(webhook._id, {
-        lastFailedAt: new Date(),
-        $inc: { failureCount: 1 },
-      });
-    }
-
-    // Log the webhook call
-    await this.webhookLogService.log({
-      webhookId: webhook._id.toString(),
-      developerId: webhook.developerId,
-      event,
-      payload: JSON.stringify(payload),
-      url: webhook.url,
-      statusCode,
-      success,
-      responseBody,
-      errorMessage,
-      responseTime: Date.now() - startTime,
-    });
-  }
-
-  private generateSignature(secret: string, payload: string): string {
-    return crypto
-      .createHmac('sha256', secret)
-      .update(payload)
-      .digest('hex');
-  }
-
   async regenerateSecret(id: string, developerId: string): Promise<string> {
     const webhook = await this.webhookModel.findOne({ _id: id, developerId });
     if (!webhook) {
@@ -179,5 +105,13 @@ export class WebhookService {
     await this.webhookModel.findByIdAndUpdate(id, { secret: newSecret });
 
     return newSecret;
+  }
+
+  async getLogs(webhookId: string, limit = 20) {
+    return this.webhookLogService.getWebhookLogs(webhookId, limit);
+  }
+
+  async getStats(webhookId: string, days = 7) {
+    return this.webhookLogService.getWebhookStats(webhookId, days);
   }
 }
