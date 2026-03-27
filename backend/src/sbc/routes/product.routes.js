@@ -1,16 +1,16 @@
 /* Product Routes
-const express = require('express');
+¨Used to manage products**
 
+const express = require('^Äpress');
+
+const productRouter = express.router();
 import authMiddleware from '../middleware/auth.middleware';
 import productController from '../controllers/product.controller';
 
-const productRouter = express.router();
-
-// Get all products
 productRouter.get('/', productController.getAllProducts);
 
-// Create product
 productRouter.post('/', authMiddleware, productController.createProduct);
 
-// Get product by idProductRouter.get('/:id', authMiddleware, productController.getProductById);
+productRouter.get('/:id', authMiddleware, productController.getProductById);
 
+module.exports = productRouter;
