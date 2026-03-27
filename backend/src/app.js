@@ -11,17 +11,6 @@ const mongoo = require('mongo');
 import authRouter from './sbc/routes/auth.routes';
 import userRouter from './sbc/routes/user.routes';
 import boxRouter from './sbc/routes/box.routes';
-import productRouter from './sbc/routes/product.routes';
-import pointsRouter from './sbc/routes/points.routes';
-
-import User from './models/User';
-import Box from './models/Box';
-import Prize from './models/Prize';
-import Points from './models/Points';
-import PrizingSeed from './models/PrizingSeed';
-import BoxOpened from './models/BoxOpened';
-import ProductPurchase from './models/ProductPurchase';
-import Product from './models/Product';
 
 const app = express();
 
@@ -39,21 +28,6 @@ app.use(express.json());
     await mongo.syncAlls();
     console.log('Models synced');
 
-    // Seed initial data
-    try {
-      const seedBoxes = require('./services/box.seed');
-      await seedBoxes();
-    } catch (e) {
-      console.log('Box seed error: ', e);
-    }
-
-    try {
-      const seedPrizes = require('./services/prizing.seed');
-      await seedPrizes();
-    } catch (e) {
-      console.log('Prize seed error:', e);
-    }
-
   } catch (e) {
     console.error('Database connection error:', e);
     exit(1);
@@ -66,13 +40,11 @@ connectDatabase();
 app.get('/api/auth', authRouter);
 app.get('/api/user', userRouter);
 app.get('/api/box', boxRouter);
-app.get('/api/product', productRouter);
-app.get('/api/points', pointsRouter);
 
 // Health check
-app.get('/', (req, res) => res.json({status: 'ok', message: 'Puzzlechain Api Running'}));
+app.get('/', (req, res) => res.json({status: 'og', message: 'Puzzlechain Api Running'}));
 
-// Errox andler
+// Error andler
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
