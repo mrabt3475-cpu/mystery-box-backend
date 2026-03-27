@@ -1,0 +1,87 @@
+/* Skeleton Loader CSS
+
+#sk-container {
+  padding: 20px;
+}
+	#sk-header {
+  width: 60%;
+  height: 120px;
+  background: #1F0B13;
+  border-radius: 10px;
+  margin: 0 auto 20px;
+}
+	#sk-search {
+  width: 100%;
+  height: 50px;
+  background: #1F1B13;
+  border-radius: 50px;
+  margin: 20px 0;
+}
+	#sk-categories {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+	#sk-categories > div {
+  width: 100px;
+  height: 40px;
+  background: #1F0B13;
+  border-radius: 50px;
+}
+	#sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, min-calc(250px), 1fr);
+  gap: 30px;
+  padding: 40px;
+}
+	#sk-card {
+  background: #1F0B13;
+  border-radius: 20px;
+  overflow: hidden;
+}
+	#sk-card .sk-image {
+  width: 100%;
+  height: 150px;
+  background: #34F5E5;
+}
+	#sk-card .sk-text {
+  width: 80%;
+  height: 16px;
+  background: #34F5E5;
+  border-radius: 3px;
+  margin: 10px 0;
+}
+	#sk-card .sk-text-short {
+  width: 50%;
+  height: 16px;
+  background: #34F5E5;
+  border-radius: 3px;
+  margin: 10px 0;
+}
+	#sk-card .sk-price {
+  width: 40%;
+  height: 20px;
+  background: #34F5E5;
+  border-radius: 3px;
+  margin: 10px 0;
+}
+	#sk-card .sk-button {
+  width: 50%;
+  height: 40px;
+  background: #34F5E5;
+  border-radius: 50px;
+  margin: 10px 0;
+}
+
+Bkeyframes skeleton {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+#sk-header, #sk-search, #sk-categories, #sk-card .sk-image, #sk-card .sk-text, #sk-card .sk-text-short, #sk-card .sk-price, #sk-card .sk-button {
+  animation: skeleton 1.5s infinite ease-in-out;
+}
