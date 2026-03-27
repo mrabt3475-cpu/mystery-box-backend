@@ -4,6 +4,7 @@ import api from '../services/api'
 import '../styles/premium.css'
 import '../styles/animations.css'
 import { useSoundEffects } from '../context/SoundContext'
+import { useVFX } from '../context/VFXContext'
 
 export default function Shop() {
   const [products, setProducts] = useState([])
@@ -13,6 +14,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const { onHover, onClick, onPurchase, onCoin } = useSoundEffects()
+  const { addToCart: triggerAddToCart, celebrate } = useVFX()
 
   useEffect(() => {
     fetchProducts()
@@ -44,11 +46,17 @@ export default function Shop() {
   const addToCart = (product) => {
     setCart([...cart, product])
     onPurchase()
+    triggerAddToCart()
   }
 
   const removeFromCart = (index) => {
     setCart(cart.filter((_, i) => i !== index))
     onClick()
+  }
+
+  const handleCheckout = () => {
+    onPurchase()
+    celebrate()
   }
 
   const totalPoints = cart.reduce((sum, p) => sum + p.pointsReward, 0)
@@ -186,7 +194,7 @@ export default function Shop() {
                 <div className="flex justify-between"><span className="text-emerald-400">النقاط المكتسبة:</span><span className="font-bold text-xl shimmer-text">+{totalPoints} 🪙</span></div>
               </div>
 
-              <button onClick={onPurchase} className="btn-3d w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-lg hover:from-amber-400 hover:to-orange-500 transition">
+              <button onClick={handleCheckout} className="btn-3d w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-lg hover:from-amber-400 hover:to-orange-500 transition">
                 إتمام الشراء 🎉
               </button>
             </>
