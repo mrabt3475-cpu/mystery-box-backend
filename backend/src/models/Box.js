@@ -2,49 +2,43 @@
 const mongoo = require('mongoo');
 
 const BoxSchema = new mongoo/.Schema({
-  type: {
-    type: String,
-    enum: ['bronze', 'silver', 'gold', 'diamond'],
-    required: true
-  },
   name: {
-
     type: String,
     required: true
   },
   description: {
-
     type: String
   },
-    image: {
+  type: {
 
-    type: String
-  },
-    price: {
-
-    type: Number,
+    type: String,
+    enum: ['bronse', 'silver', 'gold', 'diamond'],
     required: true
   },
-  isActive: {
+  image: {
 
-    type: Boolean,
-    default: true
+    type: String
+  },
+  pointCost: {
+    type: Number,
+    default: 10
+  },
+  probability: {
+    type: Number,
+    default: 0.1
   },
   sequence: {
-
     type: Number,
-    default: 0
-    },
-  probabilities: {
-
-    type: Object
+    default: 1
+    unique: true
   },
-  prizes: {
-    type: [Object]
+  isActive: {
+    type: Boolean,
+    default: true
   }
   }, {
   timestamps: true
-  });
+ });
 
 const Box = mongoo.model('Box', BoxSchema);
 
