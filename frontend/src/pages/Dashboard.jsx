@@ -2,87 +2,59 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/premium.css'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [stats, setStats] = useState(null)
+  const [boxes, setBoxes] = useState([])
   const [recentWinners, setRecentWinners] = useState([])
-  const [featuredBoxes, setFeaturedBoxes] = useState([])
   const [loading, setLoading] = useState(true)
-  const [animatedPoints, setAnimatedPoints] = useState(0)
+  const { theme } = useTheme()
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchData()
   }, [])
 
-  // Animate points counter
-  useEffect(() => {
-    if (user?.points) {
-      const target = user.points
-      const duration = 1500
-      const step = target / (duration / 16)
-      let current = 0
-      const timer = setInterval(() => {
-        current += step
-        if (current >= target) {
-          setAnimatedPoints(target)
-          clearInterval(timer)
-        } else {
-          setAnimatedPoints(Math.floor(current))
-        }
-      }, 16)
-      return () => clearInterval(timer)
-    }
-  }, [user?.points])
-
   const fetchData = async () => {
     try {
-      const [userRes, statsRes, winnersRes, boxesRes] = await Promise.all([
+      const [userRes, statsRes, boxesRes, winnersRes] = await Promise.all([
         api.get('/users/me'),
         api.get('/users/stats'),
-        api.get('/winners/recent'),
-        api.get('/boxes/featured'),
+        api.get('/boxes/active?limit=3'),
+        api.get('/winners/recent?limit=5'),
       ])
       setUser(userRes.data)
       setStats(statsRes.data)
+      setBoxes(boxesRes.data)
       setRecentWinners(winnersRes.data || [
-        { username: 'أحمد***', prize: 'آيفون 15 برو', rarity: 'legendary', avatar: '👨' },
-        { username: 'سارة***', prize: '1000 USDT', rarity: 'epic', avatar: '👩' },
-        { username: 'خالد***', prize: 'سماعات AirPods', rarity: 'rare', avatar: '👨‍💼' },
-        { username: 'محمد***', prize: '50 نقطة', rarity: 'common', avatar: '🧑' },
-        { username: 'علي***', prize: '500 نقطة', rarity: 'uncommon', avatar: '👱' },
-      ])
-      setFeaturedBoxes(boxesRes.data || [
-        { _id: '1', name: 'صندوق الأساطير', icon: '👑', cost: 500, rarity: 'legendary' },
-        { _id: '2', name: 'صندوق الألماس', icon: '💎', cost: 300, rarity: 'epic' },
-        { _id: '3', name: 'صندوق الذهب', icon: '🥇', cost: 150, rarity: 'rare' },
+        { username: 'أحمد', prize: 'آيفون 15', avatar: 'أ' },
+        { username: 'سارة', prize: '500 USDT', avatar: 'س' },
+        { username: 'خالد', prize: 'PS5', avatar: 'خ' },
+        { username: 'منى', prize: '1000 نقطة', avatar: 'م' },
+        { username: 'علي', prize: 'سماعات', avatar: 'ع' },
       ])
     } catch (err) {
-      console.error(err)
       // Mock data for demo
-      setUser({ username: 'مستخدم', points: 1250 })
-      setStats({ totalBoxes: 45, totalWins: 23, totalValue: 2500, rank: 15 })
-      setRecentWinners([
-        { username: 'أحمد***', prize: 'آيفون 15 برو', rarity: 'legendary', avatar: '👨' },
-        { username: 'سارة***', prize: '1000 USDT', rarity: 'epic', avatar: '👩' },
-        { username: 'خالد***', prize: 'سماعات', rarity: 'rare', avatar: '👨‍💼' },
-      ])
-      setFeaturedBoxes([
-        { _id: '1', name: 'صندوق الأساطير', icon: '👑', cost: 500, rarity: 'legendary' },
-        { _id: '2', name: 'صندوق الألماس', icon: '💎', cost: 300, rarity: 'epic' },
+      setUser({ username: 'مستخدم', points: 1250, totalBoxes: 15, totalWins: 8 })
+      setStats({ totalBoxes: 150, totalWins: 89, totalValue: 5000, rank: 42 })
+      setBoxes([
+        { _id: '1', name: 'صندوق الذهبي', icon: '👑', cost: 500, rarity: 'legendary' },
+        { _id: '2', name: 'صندوق الفضي', icon: '💎', cost: 300, rarity: 'epic' },
+        { _id: '3', name:صندوق البرونزي', icon: '🥉', cost: 150, rarity: 'rare' },
       ])
     } finally {
       setLoading(false)
     }
   }
 
-  const getRarityClass = (rarity) => {
-    switch(rarity) {
-      case 'legendary': return 'rarity-legendary'
-      case 'epic': return 'rarity-epic'
-      case 'rare': return 'rarity-rare'
-      case 'uncommon': return 'rarity-uncommon'
-      default: return 'rarity-common'
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'legendary': return 'from-yellow-500 via-amber-500 to-orange-600'
+      case 'epic': return 'from-purple-500 via-violet-500 to-fuchsia-600'
+      case 'rare': return 'from-blue-500 via-cyan-500 to-sky-600'
+      default: return 'from-gray-500 to-gray-600'
     }
   }
 
@@ -94,9 +66,9 @@ export default function Dashboard() {
 
   return (
     <div className="premium-bg min-h-screen p-6 pt-24 pb-32">
-      {/* Particles Background */}
+      {/* Particles */}
       <div className="particles">
-        {[...Array(25)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <div
             key={i}
             className="particle"
@@ -104,222 +76,211 @@ export default function Dashboard() {
               left: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 15}s`,
               animationDuration: `${15 + Math.random() * 10}s`,
-              width: `${3 + Math.random() * 4}px`,
-              height: `${3 + Math.random() * 4}px`,
             }}
           />
         ))}
       </div>
 
-      {/* Welcome Section */}
-      <div className="fade-in-up mb-8">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-              مرحباً، <span className="gold-gradient">{user?.username}</span>
-            </h1>
-            <p className="text-xl text-gray-400">هل أنت مستعد للفوز اليوم؟ 🎯</p>
+      {/* Hero Section */}
+      <div className="relative mb-12 fade-in-up">
+        <div className="glass-card p-8 relative overflow-hidden">
+          {/* Animated Background */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
           </div>
           
-          {/* Animated Points Display */}
-          <div className="points-display glow-pulse">
-            <span className="points-icon text-3xl">🪙</span>
-            <div className="text-left">
-              <div className="text-xs text-gray-400">رصيدك</div>
-              <div className="points-value text-2xl">{animatedPoints.toLocaleString()}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-        <div className="stat-card fade-in-up stagger-1 group cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              🎁
-            </div>
-            <span className="text-purple-400 text-sm">+5</span>
-          </div>
-          <div className="text-3xl md:text-4xl font-bold text-white mb-1">{stats?.totalBoxes || 0}</div>
-          <div className="text-gray-400 text-sm">صندوق فتحت</div>
-        </div>
-
-        <div className="stat-card fade-in-up stagger-2 group cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              🏆
-            </div>
-            <span className="text-emerald-400 text-sm">+2</span>
-          </div>
-          <div className="text-3xl md:text-4xl font-bold text-white mb-1">{stats?.totalWins || 0}</div>
-          <div className="text-gray-400 text-sm">مكسب</div>
-        </div>
-
-        <div className="stat-card fade-in-up stagger-3 group cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              💎
-            </div>
-            <span className="text-amber-400 text-sm">+150</span>
-          </div>
-          <div className="text-3xl md:text-4xl font-bold gold-gradient mb-1">${stats?.totalValue || 0}</div>
-          <div className="text-gray-400 text-sm">قيمة الجوائز</div>
-        </div>
-
-        <div className="stat-card fade-in-up stagger-4 group cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              👑
-            </div>
-            <span className="text-blue-400 text-sm">TOP 20%</span>
-          </div>
-          <div className="text-3xl md:text-4xl font-bold text-white mb-1">#{stats?.rank || '-'}</div>
-          <div className="text-gray-400 text-sm">ترتيبك</div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <Link to="/boxes" className="card-luxury group p-6 md:p-8 cursor-pointer relative overflow-hidden" style={{ textDecoration: 'none' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-transparent rounded-bl-full"></div>
-          <div className="text-4xl md:text-6xl mb-4 float" style={{ animationDelay: '0s' }}>🎁</div>
-          <h3 className="text-lg md:text-xl font-bold mb-1 group-hover:text-amber-400 transition">افتح صندوق</h3>
-          <p className="text-gray-400 text-sm">جرب حظك الآن!</p>
-          <div className="mt-3 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500 w-12"></div>
-        </Link>
-
-        <Link to="/shop" className="card-luxury group p-6 md:p-8 cursor-pointer relative overflow-hidden" style={{ textDecoration: 'none' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-bl-full"></div>
-          <div className="text-4xl md:text-6xl mb-4 float" style={{ animationDelay: '1s' }}>🛍️</div>
-          <h3 className="text-lg md:text-xl font-bold mb-1 group-hover:text-emerald-400 transition">تسوق</h3>
-          <p className="text-gray-400 text-sm">واكسب نقاط!</p>
-          <div className="mt-3 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full group-hover:w-full transition-all duration-500 w-12"></div>
-        </Link>
-
-        <Link to="/leaderboard" className="card-luxury group p-6 md:p-8 cursor-pointer relative overflow-hidden" style={{ textDecoration: 'none' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/20 to-transparent rounded-bl-full"></div>
-          <div className="text-4xl md:text-6xl mb-4 float" style={{ animationDelay: '2s' }}>🏅</div>
-          <h3 className="text-lg md:text-xl font-bold mb-1 group-hover:text-purple-400 transition">الترتيب</h3>
-          <p className="text-gray-400 text-sm">شاهد الأفضل!</p>
-          <div className="mt-3 h-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full group-hover:w-full transition-all duration-500 w-12"></div>
-        </Link>
-      </div>
-
-      {/* Featured Boxes */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">
-            <span className="gold-gradient">الصناديق المميزة</span>
-          </h2>
-          <Link to="/boxes" className="text-amber-400 hover:text-amber-300 transition text-sm">
-            عرض الكل ←
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {featuredBoxes.map((box, i) => (
-            <div key={box._id} className={`box-card fade-in-up ${getRarityClass(box.rarity)}`} style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className="box-image" style={{ height: '140px' }}>
-                <span className="text-6xl spin">{box.icon}</span>
+          <div className="relative z-10 flex items-center justify-between">
+            <div>
+              <h1 className="text-5xl font-bold mb-4">
+                مرحباً، <span className="gold-gradient">{user?.username || 'مستخدم'}</span>
+              </h1>
+              <p className="text-xl text-gray-400 mb-6">
+                هل أنت مستعد للفوز بجوائز قيمة؟
+              </p>
+              <div className="flex gap-4">
+                <Link to="/boxes" className="btn-premium">
+                  🎁 افتح صندوق الآن
+                </Link>
+                <Link to="/shop" className="glass-card px-6 py-3 hover:bg-white/10 transition">
+                  🛒 تسوق
+                </Link>
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg mb-2">{box.name}</h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold gold-gradient">{box.cost} 🪙</span>
-                  <Link to={`/boxes/${box._id}`} className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-sm">
-                    فتح
-                  </Link>
+            </div>
+            
+            {/* Points Display */}
+            <div className="text-center">
+              <div className="glass-card p-6 glow-pulse">
+                <div className="text-gray-400 mb-2">رصيدك</div>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-5xl font-bold gold-gradient">{user?.points?.toLocaleString() || 0}</span>
+                  <span className="text-3xl">🪙</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="stat-card fade-in-up stagger-1">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">🎁</div>
+            <div className="text-gray-400">الصناديق</div>
+          </div>
+          <div className="text-3xl font-bold">{stats?.totalBoxes || 0}</div>
+        </div>
+        <div className="stat-card fade-in-up stagger-2">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">🏆</div>
+            <div className="text-gray-400">المكاسب</div>
+          </div>
+          <div className="text-3xl font-bold text-emerald-400">{stats?.totalWins || 0}</div>
+        </div>
+        <div className="stat-card fade-in-up stagger-3">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">💎</div>
+            <div className="text-gray-400">القيمة</div>
+          </div>
+          <div className="text-3xl font-bold text-blue-400">${stats?.totalValue || 0}</div>
+        </div>
+        <div className="stat-card fade-in-up stagger-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">👑</div>
+            <div className="text-gray-400">ترتيبك</div>
+          </div>
+          <div className="text-3xl font-bold gold-gradient">#{stats?.rank || '-'}</div>
+        </div>
+      </div>
+
+      {/* Featured Boxes */}
+      <div className="mb-8 fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">🎁 الصناديق المميزة</h2>
+          <Link to="/boxes" className="text-amber-400 hover:text-amber-300 transition">
+            عرض الكل →
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {boxes.map((box, i) => (
+            <Link
+              key={box._id || i}
+              to="/boxes"
+              className="card-luxury p-5 cursor-pointer"
+              style={{ textDecoration: 'none' }}
+            >
+              <div className={`w-full h-24 rounded-xl bg-gradient-to-br ${getRarityColor(box.rarity)} flex items-center justify-center mb-4`}>
+                <span className="text-5xl float">{box.icon || '🎁'}</span>
+              </div>
+              <h3 className="font-bold text-lg mb-2">{box.name}</h3>
+              <div className="flex justify-between items-center">
+                <span className="text-xl font-bold gold-gradient">{box.cost} 🪙</span>
+                <span className="text-sm text-gray-400">افتح الآن</span>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
 
       {/* Recent Winners */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">
-            <span className="gold-gradient">🏆 أحدث الفائزين</span>
+      <div className="grid grid-cols-2 gap-6 mb-8">
+        {/* Winners */}
+        <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.4s' }}>
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="animate-pulse">🏆</span> أحدث الفائزين
           </h2>
-          <Link to="/leaderboard" className="text-amber-400 hover:text-amber-300 transition text-sm">
-            عرض الكل ←
-          </Link>
-        </div>
-        <div className="glass-card p-4">
           <div className="space-y-3">
             {recentWinners.map((winner, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl ${getRarityClass(winner.rarity)}`}>
+              <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                  i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-amber-900' :
+                  i === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-900' :
+                  i === 2 ? 'bg-gradient-to-br from-orange-400 to-amber-600 text-amber-900' :
+                  'bg-gradient-to-br from-purple-500 to-pink-500'
+                }`}>
                   {winner.avatar}
                 </div>
                 <div className="flex-1">
                   <div className="font-bold">{winner.username}</div>
-                  <div className="text-sm text-gray-400">فاز بـ: {winner.prize}</div>
+                  <div className="text-xs text-gray-400">فاز بـ {winner.prize}</div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${getRarityClass(winner.rarity)}`}>
-                  {winner.rarity === 'legendary' ? 'أسطوري' :
-                   winner.rarity === 'epic' ? 'ملحمي' :
-                   winner.rarity === 'rare' ? 'نادر' :
-                   winner.rarity === 'uncommon' ? 'غير شائع' : 'شائع'}
-                </div>
+                {i < 3 && <span className="text-2xl">{
+                  i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'
+                }</span>}
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="glass-card p-6 fade-in-up" style={{ animationDelay: '0.5s' }}>
+          <h2 className="text-xl font-bold mb-4">⚡ إجراءات سريعة</h2>
+          <div className="space-y-3">
+            <Link to="/leaderboard" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl">🏅</div>
+              <div className="flex-1">
+                <div className="font-bold">الترتيب العالمي</div>
+                <div className="text-sm text-gray-400">شاهد ترتيبك</div>
+              </div>
+              <span className="text-amber-400">→</span>
+            </Link>
+            <Link to="/referral" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl">👥</div>
+              <div className="flex-1">
+                <div className="font-bold">دعوة أصدقاء</div>
+                <div className="text-sm text-gray-400">اكسب نقاط مجانية</div>
+              </div>
+              <span className="text-emerald-400">→</span>
+            </Link>
+            <Link to="/orders" className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl">📦</div>
+              <div className="flex-1">
+                <div className="font-bold">طلباتي</div>
+                <div className="text-sm text-gray-400">تتبع طلباتك</div>
+              </div>
+              <span className="text-blue-400">→</span>
+            </Link>
           </div>
         </div>
       </div>
 
       {/* How It Works */}
-      <div className="glass-card p-6 md:p-8 fade-in-up" style={{ animationDelay: '0.5s' }}>
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          <span className="gold-gradient">💡 كيف تعمل المنصة؟</span>
+      <div className="glass-card p-8 fade-in-up" style={{ animationDelay: '0.6s' }}>
+        <h2 className="text-2xl font-bold mb-8 text-center">
+          <span className="gold-gradient">كيف تعمل منصة Athena؟</span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center relative">
+        <div className="grid grid-cols-3 gap-8">
+          <div className="text-center">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-4xl glow-pulse">
               🛒
             </div>
-            <h3 className="text-xl font-bold mb-2">1. تسوق</h3>
-            <p className="text-gray-400">اشترِ منتجات من المتجر واحصل على نقاط</p>
-            <div className="hidden md:block absolute top-10 -right-8 text-2xl text-gray-600">➜</div>
+            <h3 className="text-xl font-bold mb-2">تسوق</h3>
+            <p className="text-gray-400">اشترِ منتجات من المتجر</p>
+            <div className="mt-4 text-emerald-400 font-bold">+5% نقاط</div>
           </div>
-          <div className="text-center relative">
+          <div className="text-center">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-4xl glow-pulse" style={{ animationDelay: '0.5s' }}>
               🪙
             </div>
-            <h3 className="text-xl font-bold mb-2">2. اكسب نقاط</h3>
-            <p className="text-gray-400">5% من كل عملية شراء تصبح نقاط</p>
-            <div className="hidden md:block absolute top-10 -right-8 text-2xl text-gray-600">➜</div>
+            <h3 className="text-xl font-bold mb-2">اكسب نقاط</h3>
+            <p className="text-gray-400">احصل على نقاط مع كل شراء</p>
+            <div className="mt-4 text-amber-400 font-bold">نقاط مجانية</div>
           </div>
           <div className="text-center">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-4xl glow-pulse" style={{ animationDelay: '1s' }}>
               🎁
             </div>
-            <h3 className="text-xl font-bold mb-2">3. افتح صناديق</h3>
-            <p className="text-gray-400">استخدم نقاطك لفتح صناديق مجانية</p>
+            <h3 className="text-xl font-bold mb-2">افتح صناديق</h3>
+            <p className="text-gray-400">استخدم نقاطك لفتح صناديق</p>
+            <div className="mt-4 text-purple-400 font-bold">فوز مؤكد</div>
           </div>
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="mt-8 glass-card p-6 md:p-8 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10"></div>
-        <div className="relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            🎰 هل حظك جيد اليوم؟
-          </h2>
-          <p className="text-gray-400 mb-6 max-w-lg mx-auto">
-            كل صندوق تفتحه فرصة للفوز بجوائز قيمة! ابدأ الآن وحصل على نقاط إضافية عند أول عملية شراء
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/shop" className="btn-premium">
-              تسوق واكسب
-            </Link>
-            <Link to="/boxes" className="glass-card px-6 py-3 hover:bg-white/10 transition font-bold">
-              افتح صندوق
-            </Link>
-          </div>
-        </div>
+      {/* Footer */}
+      <div className="mt-12 text-center text-gray-500 text-sm">
+        <p>© 2026 Athena. جميع الحقوق محفوظة</p>
       </div>
     </div>
   )
