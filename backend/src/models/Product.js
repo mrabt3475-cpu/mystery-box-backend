@@ -1,1 +1,52 @@
-Ly8gUHJvZHVjdCBNb2RlbAppbXBvcnQgbW9uZ29vZ2UgZnJvbSAnbW9uZ29vZ2UnOwoKY29uc3QgcHJvZHVjdFNjaGVtYSA9IG5ldyBtb25nb29nZSh7CiAgbmFtZTogeyB0eXBlOiBTdHJpbmcsIHJlcXVpcmVkOiB0cnVlIH0sCiAgZGVzY3JpcHRpb246IHsgdHlwZTogU3RyaW5nIH0sCiAgY2F0ZWdvcnk6IHsgdHlwZTogU3RyaW5nLCBlbnVtOiBbJ2VsZWN0cm9uaWNzJywgJ3dhdGNoZXMnLCAnY2xvdGhpbmcnLCAnYWNjZXNzb3JpZXMnLCAnbW9iaWxlJ10gfSwKICBwcmljZTogeyB0eXBlOiBOdW1iZXIsIHJlcXVpcmVkOiB0cnVlIH0sCiAgb3JpZ2luYWxQcmljZTogeyB0eXBlOiBOdW1iZXIgfSwKICBpbWFnZTogeyB0eXBlOiBTdHJpbmcgfSwKICBpbWFnZXM6IHsgdHlwZTogW1N0cmluZ10sIGRlZmF1bHQ6IFtdIH0sCiAgcmFyaXR5OiB7IHR5cGU6IFN0cmluZywgZW51bTogWydjb21tb24nLCAncmFyZScsICdlcGljJywgJ2xlZ2VuZGFyeSddIH0sCiAgc3RvY2s6IHsgdHlwZTogTnVtYmVyLCBkZWZhdWx0OiAwIH0sCiAgc2FsZUNvdW50OiB7IHR5cGU6IE51bWJlciwgZGVmYXVsdDogMCB9LAogIGNqSWQ6IHsgdHlwZTogU3RyaW5nIH0sCiAgcHJvZHVjdFVybDogeyB0eXBlOiBTdHJpbmcgfSwKICB0YWdzOiB7IHR5cGU6IFtTdHJpbmddLCBkZWZhdWx0OiBbXSB9LAogIGFjdGl2ZTogeyB0eXBlOiBCb29sZWFuLCBkZWZhdWx0OiB0cnVlIH0sCiAgZmVhdHVyZWQ6IHsgdHlwZTogQm9vbGVhbiwgZGVmYXVsdDogZmFsc2UgfSwKICBjcmVhdGVkQXQ6IHsgdHlwZTogRGF0ZSwgZGVmYXVsdDogRGF0ZS5ub3coKSB9LAogIHVwZGF0ZWRBdDogIHsgdHlwZTogRGF0ZSwgZGVmYXVsdDogRGF0ZS5ub3coKSB9Cn0pOwoKbW9kdWxlLmV4cG9ydHMgPSBtb25nb29nZS5jb25uZWN0KCdTdG9yZScpIHx8IG1vbmdvb2dlKHsKICB1c2VOZXdUb3BvbG9neU9ubHlJZjogJ3N0b3JlJywKICB1c2VGbGF0QklERXM6IGZhbHNlLAogIHNlcnZlclNlbGVjdGlvbk9ubHlJZk5vQXZhaWxhYmxlOiB0cnVlCn0pLm1vZGVsKCdQcm9kdWN0JywgcHJvZHVjdFNjaGVtYSk7Cg
+/* Product Model
+const mongoo = require('mongoo');
+
+const ProductSchema = new mongo/.Schema({
+  name: {
+
+    type: String,
+    required: true
+  },
+  description: {
+
+    type: String
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  image: {
+
+    type: String
+  },
+  category: {
+    type: String
+  },
+  stock: {
+    type: Number,
+    default: 0
+    },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  sequence: {
+
+    type: Number,
+    default: 0
+    },
+  productType: {
+    type: String,
+    enum: ['ship', 'phone', 'laptop', 'watch', 'gaming']
+    },
+  details: {
+
+    type: Object
+  }
+  }, {
+  timestamps: true
+  });
+
+const Product = mongoo.model('Product', ProductSchema);
+
+module.exports = Product;
