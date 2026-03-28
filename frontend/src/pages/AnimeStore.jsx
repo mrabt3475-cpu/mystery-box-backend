@@ -27,14 +27,19 @@ export default function AnimeStore() {
       setProducts(productsRes.data.products || [])
       setAnimeList(animeRes.data.data || [])
     } catch (err) {
-      // Mock data
+      // Mock data - مُحدَّث
       setCampaign({
         _id: '1',
         name: '🎌 Anime Festival Sale',
         description: 'خصم 60% على جميع منتجات الأنمي!',
         discount: { percentage: 60 },
-        points: { percentage: 10 },
-        referral: { bonusPoints: 50, bonusPercentage: 5 },
+        points: { percentage: 5, maxPoints: 50 }, // 5% points, max 50
+        referral: { 
+          bonusPoints: 10, // 10 points for referrer (was 50!)
+          bonusPercentage: 3, // 3% discount for referee (was 5%)
+          pointsPercentage: 5, // 5% points for referee (was 10%)
+          minPurchaseRequired: 20
+        },
         theme: {
           primaryColor: '#ff6b9d',
           secondaryColor: '#4ecdc4',
@@ -48,10 +53,10 @@ export default function AnimeStore() {
       })
       
       setProducts([
-        { _id: '1', name: 'قبعة القش Luffy', anime: 'One Piece', category: 'accessories', price: 15, originalPrice: 40, images: ['🎩'], stock: 50 },
-        { _id: '2', name: 'زي ناروتو', anime: 'Naruto', category: 'clothing', price: 25, originalPrice: 65, images: ['👘'], stock: 30 },
-        { _id: '3', name: 'دمية غوكو', anime: 'Dragon Ball', category: 'figures', price: 35, originalPrice: 90, images: ['🧸'], stock: 15 },
-        { _id: '4', name: 'سوار الشاكرين', anime: 'Naruto', category: 'accessories', price: 12, originalPrice: 30, images: ['💫'], stock: 100 },
+        { _id: '1', name: 'قبعة القش Luffy', anime: 'One Piece', category: 'accessories', price: 15, originalPrice: 40, costPrice: 8, images: ['🎩'], stock: 50 },
+        { _id: '2', name: 'زي ناروتو', anime: 'Naruto', category: 'clothing', price: 25, originalPrice: 65, costPrice: 12, images: ['👘'], stock: 30 },
+        { _id: '3', name: 'دمية غوكو', anime: 'Dragon Ball', category: 'figures', price: 35, originalPrice: 90, costPrice: 18, images: ['🧸'], stock: 15 },
+        { _id: '4', name: 'سوار الشاكرين', anime: 'Naruto', category: 'accessories', price: 12, originalPrice: 30, costPrice: 5, images: ['💫'], stock: 100 },
       ])
       
       setAnimeList([
@@ -106,9 +111,9 @@ export default function AnimeStore() {
           {/* Countdown */}
           <CountdownTimer endDate={campaign?.endDate} />
 
-          {/* Points Info */}
+          {/* Points Info - مُحدَّث */}
           <div className="points-info">
-            <span>🎁 احصل على {campaign?.points?.percentage || 10}% من قيمة مشترياتك كنقاط</span>
+            <span>🎁 احصل على {campaign?.points?.percentage || 5}% من قيمة مشترياتك كنقاط</span>
           </div>
         </div>
 
@@ -150,16 +155,21 @@ export default function AnimeStore() {
             key={product._id} 
             product={product} 
             discount={campaign?.discount?.percentage || 60}
+            pointsPercentage={campaign?.points?.percentage || 5}
             index={index}
           />
         ))}
       </div>
 
-      {/* Referral Banner */}
+      {/* Referral Banner - مُحدَّث */}
       <div className="referral-banner">
         <div className="referral-content">
           <h3>🎯 ربح نقاط إضافية!</h3>
-          <p>شارك رابطك الخاص واحصل على {campaign?.referral?.bonusPoints || 50} نقطة لكل إحالة</p>
+          <p>
+            شارك رابطك واحصل على <strong>{campaign?.referral?.bonusPoints || 10} نقاط</strong> لكل إحالة
+            <br />
+            <small>المُحال يحصل على {campaign?.referral?.bonusPercentage || 3}% خصم + {campaign?.referral?.pointsPercentage || 5}% نقاط</small>
+          </p>
           <RippleButton variant="primary">
             نسخ رابط الإحالة
           </RippleButton>
@@ -219,10 +229,12 @@ function CountdownTimer({ endDate }) {
   )
 }
 
-// Anime Product Card
-function AnimeProductCard({ product, discount, index }) {
+// Anime Product Card - مُحدَّث
+function AnimeProductCard({ product, discount, pointsPercentage, index }) {
   const discountedPrice = Math.round(product.price * (1 - discount / 100))
   const savings = product.originalPrice - discountedPrice
+  const pointsEarned = Math.round(discountedPrice * (pointsPercentage / 100))
+  const profit = discountedPrice - product.costPrice - (pointsEarned * 0.1)
 
   return (
     <div className="anime-product-card" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -245,7 +257,11 @@ function AnimeProductCard({ product, discount, index }) {
         </div>
         
         <div className="product-savings">
-          توفر {savings}$
+          توفر {savings}$ + {pointsEarned} نقطة
+        </div>
+        
+        <div className={`profit-indicator ${profit > 0 ? 'positive' : 'negative'}`}>
+          {profit > 0 ? `ربح: ${profit.toFixed(2)}$` : 'خسارة'}
         </div>
         
         <RippleButton variant="primary" className="buy-btn-3d">
