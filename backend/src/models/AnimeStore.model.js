@@ -1,5 +1,5 @@
-// Anime Store Campaign System
-// ===========================
+// Anime Store Campaign System - Updated
+// ======================================
 
 const mongoose = require('mongoose')
 
@@ -20,26 +20,28 @@ const animeCampaignSchema = new mongoose.Schema({
     maxDiscount: { type: Number, default: 100 }
   },
   
-  // Points System
+  // Points System - متوازن اقتصادياً
   points: {
     enabled: { type: Boolean, default: true },
-    percentage: { type: Number, default: 10 }, // 10% back as points
+    percentage: { type: Number, default: 5 }, // 5% back as points (was 10%)
     minPoints: { type: Number, default: 1 },
-    maxPoints: { type: Number, default: 100 }
+    maxPoints: { type: Number, default: 50 } // max 50 points per purchase
   },
   
-  // Referral Enhancement
+  // Referral System - مُحدَّث ومحمي
   referral: {
-    bonusPoints: { type: Number, default: 50 }, // Extra points for referrer
-    bonusPercentage: { type: Number, default: 5 }, // 5% discount for referee
-    doublePoints: { type: Boolean, default: true }
+    bonusPoints: { type: Number, default: 10 }, // 10 points for referrer (was 50!)
+    bonusPercentage: { type: Number, default: 3 }, // 3% discount for referee (was 5%)
+    pointsPercentage: { type: Number, default: 5 }, // 5% points for referee (was 10%)
+    minPurchaseRequired: { type: Number, default: 20 }, // minimum to qualify
+    maxReferralBonus: { type: Number, default: 100 } // max bonus per month
   },
   
   // Visual Settings
   theme: {
-    primaryColor: { type: String, default: '#ff6b9d' }, // Pink
-    secondaryColor: { type: String, default: '#4ecdc4' }, // Teal
-    accentColor: { type: String, default: '#ffd93d' }, // Gold
+    primaryColor: { type: String, default: '#ff6b9d' },
+    secondaryColor: { type: String, default: '#4ecdc4' },
+    accentColor: { type: String, default: '#ffd93d' },
     videoBackground: String,
     musicBackground: String
   },
@@ -49,7 +51,7 @@ const animeCampaignSchema = new mongoose.Schema({
     name: String,
     image: String,
     anime: String,
-    position: String // 'left', 'right', 'center'
+    position: String
   }],
   
   // Stats
@@ -57,7 +59,8 @@ const animeCampaignSchema = new mongoose.Schema({
     totalSales: { type: Number, default: 0 },
     totalRevenue: { type: Number, default: 0 },
     totalPointsAwarded: { type: Number, default: 0 },
-    totalReferrals: { type: Number, default: 0 }
+    totalReferrals: { type: Number, default: 0 },
+    totalReferralCost: { type: Number, default: 0 }
   },
   
   createdAt: { type: Date, default: Date.now }
@@ -80,7 +83,7 @@ animeCampaignSchema.methods.calculatePrice = function(basePrice) {
   }
 }
 
-// Calculate points earned
+// Calculate points earned - محمي
 animeCampaignSchema.methods.calculatePoints = function(purchaseAmount) {
   if (!this.points.enabled) return 0
   
@@ -89,6 +92,40 @@ animeCampaignSchema.methods.calculatePoints = function(purchaseAmount) {
     this.points.minPoints,
     Math.min(pointsEarned, this.points.maxPoints)
   )
+}
+
+// Calculate referral bonus - محمي اقتصادياً
+animeCampaignSchema.methods.calculateReferralBonus = function(referrerId, refereePurchaseAmount) {
+  // Check minimum purchase requirement
+  if (refereePurchaseAmount < this.referral.minPurchaseRequired) {
+    return { eligible: false, reason: `Minimum purchase of ${this.referral.minPurchaseRequired}$ required` }
+  }
+  
+  // For referrer (who invited)
+  const referrerBonus = this.referral.bonusPoints
+  
+  // For referee (new user)
+  const refereeDiscount = refereePurchaseAmount * (this.referral.bonusPercentage / 100)
+  const refereePoints = Math.min(
+    refereePurchaseAmount * (this.referral.pointsPercentage / 100),
+    this.referral.maxReferralBonus
+  )
+  
+  const totalCost = referrerBonus + refereeDiscount + refereePoints
+  
+  return {
+    eligible: true,
+    referrer: {
+      points: referrerBonus,
+      description: `Earn ${referrerBonus} points for referring`
+    },
+    referee: {
+      discount: parseFloat(refereeDiscount.toFixed(2)),
+      points: parseFloat(refereePoints.toFixed(2)),
+      description: `${this.referral.bonusPercentage}% discount + ${this.referral.pointsPercentage}% points`
+    },
+    totalCost: parseFloat(totalCost.toFixed(2))
+  }
 }
 
 // Check if campaign is active
@@ -111,15 +148,39 @@ animeCampaignSchema.methods.getTimeRemaining = function() {
   return { days, hours, minutes, expired: false }
 }
 
+// Calculate profit margin
+animeCampaignSchema.methods.calculateProfit = function(costPrice, purchaseAmount) {
+  const priceCalc = this.calculatePrice(costPrice * 2) // Assuming 50% markup
+  const points = this.calculatePoints(priceCalc.discountedPrice)
+  const referralCost = this.referral.bonusPoints * 0.1 // Assume 0.1$ per point
+  
+  const revenue = priceCalc.discountedPrice
+  const totalCost = costPrice + points * 0.1 + referralCost
+  const profit = revenue - totalCost
+  const profitMargin = (profit / revenue * 100).toFixed(1)
+  
+  return {
+    revenue,
+    cost: costPrice,
+    pointsCost: points * 0.1,
+    referralCost,
+    totalCost,
+    profit: parseFloat(profit.toFixed(2)),
+    profitMargin: `${profitMargin}%`,
+    isProfitable: profit > 0
+  }
+}
+
 // Anime Product Schema
 const animeProductSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: String,
   price: { type: Number, required: true },
   originalPrice: { type: Number },
+  costPrice: { type: Number, required: true }, // سعر التكلفة
   
   // Anime specific
-  anime: { type: String, required: true }, // Naruto, One Piece, etc.
+  anime: { type: String, required: true },
   category: { 
     type: String, 
     enum: ['clothing', 'accessories', 'figures', 'cosplay', 'posters', 'other'],
@@ -128,12 +189,12 @@ const animeProductSchema = new mongoose.Schema({
   
   // Media
   images: [String],
-  model3D: String, // URL for 3D model
-  video: String, // Product video
+  model3D: String,
+  video: String,
   
   // Stock
   stock: { type: Number, default: 100 },
-  sizes: [String], // S, M, L, XL for clothing
+  sizes: [String],
   colors: [String],
   
   // Tags
@@ -158,7 +219,7 @@ class AnimeStoreService {
     const campaign = await AnimeCampaign.create({
       ...data,
       startDate: new Date(),
-      endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days
+      endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
     })
     return campaign
   }
@@ -206,22 +267,39 @@ class AnimeStoreService {
     }
   }
   
-  // Process purchase with campaign
+  // Process purchase with campaign - مع حساب الربح
   async processPurchase(userId, products, campaign) {
     let totalOriginal = 0
     let totalDiscounted = 0
     let totalPoints = 0
+    let totalCost = 0
+    let totalProfit = 0
+    
+    const purchaseDetails = []
     
     for (const item of products) {
       const product = await AnimeProduct.findById(item.productId)
       if (!product) continue
       
       const priceCalc = campaign.calculatePrice(product.price)
+      const points = campaign.calculatePoints(priceCalc.discountedPrice)
+      
       totalOriginal += priceCalc.originalPrice
       totalDiscounted += priceCalc.discountedPrice
-      
-      const points = campaign.calculatePoints(priceCalc.discountedPrice)
       totalPoints += points
+      totalCost += product.costPrice
+      
+      const itemProfit = priceCalc.discountedPrice - product.costPrice - (points * 0.1)
+      totalProfit += itemProfit
+      
+      purchaseDetails.push({
+        product: product.name,
+        originalPrice: priceCalc.originalPrice,
+        discountedPrice: priceCalc.discountedPrice,
+        pointsEarned: points,
+        costPrice: product.costPrice,
+        profit: itemProfit
+      })
     }
     
     return {
@@ -229,7 +307,11 @@ class AnimeStoreService {
       discountedTotal: totalDiscounted,
       totalDiscount: totalOriginal - totalDiscounted,
       pointsEarned: totalPoints,
-      savings: ((totalOriginal - totalDiscounted) / totalOriginal * 100).toFixed(1)
+      savings: ((totalOriginal - totalDiscounted) / totalOriginal * 100).toFixed(1),
+      costTotal: totalCost,
+      profit: parseFloat(totalProfit.toFixed(2)),
+      profitMargin: ((totalProfit / totalDiscounted) * 100).toFixed(1),
+      details: purchaseDetails
     }
   }
   
