@@ -1,0 +1,407 @@
+/* Anime Store Styles */
+/* ================= */
+
+.anime-store-page {
+  position: relative;
+  min-height: 100vh;
+  padding-top: 72px;
+  overflow: hidden;
+}
+
+/* Video Background */
+.anime-video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 15, 0.7) 0%,
+    rgba(10, 10, 15, 0.5) 50%,
+    rgba(10, 10, 15, 0.9) 100%
+  );
+}
+
+/* Hero Section */
+.anime-hero {
+  position: relative;
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.anime-title {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+
+.title-text {
+  background: linear-gradient(135deg, #ff6b9d, #ffd93d, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+  background-size: 200% auto;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.anime-subtitle {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 24px;
+}
+
+/* Discount Badge */
+.discount-badge-large {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 40px;
+  background: linear-gradient(135deg, #ff6b9d, #ff8a5b);
+  border-radius: 20px;
+  margin-bottom: 24px;
+  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(255, 107, 157, 0.5);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 40px rgba(255, 107, 157, 0.5); }
+  50% { box-shadow: 0 0 60px rgba(255, 107, 157, 0.8); }
+}
+
+.discount-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.discount-text {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+}
+
+/* Countdown Timer */
+.countdown-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.time-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.time-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+}
+
+.time-separator {
+  font-size: 2rem;
+  color: #ff6b9d;
+  font-weight: 700;
+}
+
+/* Points Info */
+.points-info {
+  padding: 12px 24px;
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 30px;
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+/* Characters */
+.hero-characters {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10%;
+  pointer-events: none;
+}
+
+.character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+.character-left { animation-delay: 0s; }
+.character-center { animation-delay: 0.5s; }
+.character-right { animation-delay: 1s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.character-image {
+  font-size: 4rem;
+  filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+}
+
+.character-name {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+/* Anime Filter */
+.anime-filter-section {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  overflow-x: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 107, 157, 0.5);
+}
+
+.filter-chip.active {
+  background: linear-gradient(135deg, #ff6b9d, #ff8a5b);
+  border-color: transparent;
+}
+
+.chip-count {
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+/* Products Grid */
+.anime-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Anime Product Card */
+.anime-product-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 20px;
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+.anime-product-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: rgba(255, 107, 157, 0.5);
+  box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+}
+
+.product-badge-3d {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #ff6b9d, #ff8a5b);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #fff;
+  transform: rotate(15deg);
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+}
+
+.product-3d-image {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.product-emoji {
+  font-size: 5rem;
+  transition: transform 0.3s ease;
+}
+
+.anime-product-card:hover .product-emoji {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.product-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.product-anime {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.product-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.product-pricing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.original-price {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: line-through;
+}
+
+.discounted-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b9d;
+}
+
+.product-savings {
+  font-size: 0.875rem;
+  color: #4ecdc4;
+  margin-bottom: 16px;
+}
+
+.buy-btn-3d {
+  width: 100%;
+}
+
+/* Referral Banner */
+.referral-banner {
+  margin: 40px 20px;
+  padding: 40px;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(78, 205, 196, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  text-align: center;
+}
+
+.referral-content h3 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.referral-content p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .anime-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .anime-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hero-characters {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .anime-products-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .anime-title {
+    font-size: 2rem;
+  }
+  
+  .countdown-timer {
+    flex-wrap: wrap;
+  }
+}
