@@ -1,0 +1,99 @@
+/* 🎵 Music Control Widget Styles */
+.music-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.music-toggle-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  font-size: 24px;
+}
+.music-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(99, 102, 241, 0.7);
+}
+.music-toggle-btn.playing {
+  animation: musicPulse 2s ease-in-out infinite;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), 0 0 60px rgba(139, 92, 246, 0.4); }
+}
+.music-settings-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.9);
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  cursor: pointer;
+  font-size: 18px;
+}
+.music-panel {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  min-width: 220px;
+  backdrop-filter: blur(10px);
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.music-panel h4 {
+  color: #fff;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+.music-control-row {
+  margin-bottom: 12px;
+}
+.music-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #fff;
+  cursor: pointer;
+}
+.music-btn:hover {
+  background: rgba(99, 102, 241, 0.4);
+}
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+}
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  background: rgba(99, 102, 241, 0.2);
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
