@@ -1,0 +1,378 @@
+/* 🎁 PuzzleChain - Enhanced 3D Box Effects */
+
+/* Base 3D Container */
+.box-3d-container {
+  perspective: 1500px;
+  transform-style: preserve-3d;
+  width: 280px;
+  height: 350px;
+}
+
+/* Box Inner Container */
+.box-3d-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Box Front Face */
+.box-3d-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+/* Box Glow Effect */
+.box-3d-front::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(99, 102, 241, 0.1) 60deg,
+    rgba(139, 92, 246, 0.2) 120deg,
+    rgba(245, 158, 11, 0.1) 180deg,
+    rgba(99, 102, 241, 0.1) 240deg,
+    transparent 300deg
+  );
+  animation: rotateGlow 8s linear infinite;
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Box Image */
+.box-3d-image {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
+  transition: all 0.5s ease;
+  z-index: 1;
+}
+
+.box-3d-container:hover .box-3d-image {
+  transform: scale(1.1) translateY(-10px);
+  filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.8));
+}
+
+/* Box Info */
+.box-3d-info {
+  text-align: center;
+  z-index: 1;
+  padding: 20px;
+}
+
+.box-3d-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.box-3d-price {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.box-3d-rarity {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.rarity-common { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+.rarity-uncommon { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.rarity-rare { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.rarity-epic { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.rarity-legendary { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+/* Hover 3D Tilt Effect */
+.box-3d-container:hover .box-3d-inner {
+  transform: rotateX(5deg) rotateY(-5deg) translateZ(20px);
+}
+
+/* Floating Animation */
+.box-floating {
+  animation: boxFloat 3s ease-in-out infinite;
+}
+
+@keyframes boxFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Glow Pulse */
+.box-glow-pulse {
+  animation: boxGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes boxGlowPulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3),
+                0 0 40px rgba(99, 102, 241, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.6),
+                0 0 80px rgba(139, 92, 246, 0.3),
+                0 0 120px rgba(245, 158, 11, 0.1);
+  }
+}
+
+/* Opening Animation */
+.box-opening {
+  animation: boxOpening 1s ease-out forwards;
+}
+
+@keyframes boxOpening {
+  0% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% { 
+    transform: scale(1.1) rotate(-5deg);
+    filter: brightness(1.3);
+  }
+  50% { 
+    transform: scale(0.9) rotate(5deg);
+    filter: brightness(1.5);
+  }
+  75% { 
+    transform: scale(1.05) rotate(-3deg);
+  }
+  100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+/* Box Shake */
+.box-shake {
+  animation: boxShake 0.5s ease-in-out;
+}
+
+@keyframes boxShake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-15px) rotate(-10deg); }
+  40% { transform: translateX(15px) rotate(10deg); }
+  60% { transform: translateX(-10px) rotate(-5deg); }
+  80% { transform: translateX(10px) rotate(5deg); }
+}
+
+/* Prize Reveal */
+.prize-reveal {
+  animation: prizeReveal 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes prizeReveal {
+  0% { 
+    transform: scale(0) rotate(-360deg) translateY(50px);
+    opacity: 0;
+  }
+  50% { 
+    transform: scale(1.3) rotate(10deg) translateY(-20px);
+    opacity: 1;
+  }
+  70% { 
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% { 
+    transform: scale(1) rotate(0) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Particle Effects */
+.box-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: particleFly 1.5s ease-out forwards;
+}
+
+@keyframes particleFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Rarity Glow Colors */
+.box-legendary .box-3d-front {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+}
+
+.box-epic .box-3d-front {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+}
+
+.box-rare .box-3d-front {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+}
+
+/* 3D Button */
+.btn-open-box {
+  position: relative;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 15px rgba(99, 102, 241, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-open-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-open-box:hover::before {
+  left: 100%;
+}
+
+.btn-open-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 8px 25px rgba(99, 102, 241, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-open-box:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 10px rgba(99, 102, 241, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Music Control */
+.music-control {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+  transition: all 0.3s ease;
+  font-size: 20px;
+}
+
+.music-control:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.7);
+}
+
+.music-control.playing {
+  animation: musicPulse 2s ease-in-out infinite;
+}
+
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), 0 0 60px rgba(139, 92, 246, 0.4); }
+}
+
+/* Prize Overlay */
+.prize-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .box-3d-container {
+    width: 240px;
+    height: 300px;
+  }
+  
+  .box-3d-image {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .box-3d-title {
+    font-size: 18px;
+  }
+  
+  .box-3d-price {
+    font-size: 20px;
+  }
+}
