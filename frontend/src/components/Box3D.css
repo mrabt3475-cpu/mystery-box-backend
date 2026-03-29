@@ -1,0 +1,358 @@
+/* 🎁 Enhanced 3D Box Styles for PuzzleChain */
+
+/* CSS Variables for Rarity Colors */
+:root {
+  --rarity-common: #94a3b8;
+  --rarity-uncommon: #22c55e;
+  --rarity-rare: #3b82f6;
+  --rarity-epic: #a855f7;
+  --rarity-legendary: #f59e0b;
+}
+
+/* Box Container */
+.box-3d-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.box-3d-wrapper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: all 0.5s ease;
+}
+
+/* Floating Animation */
+.box-floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotateX(10deg) rotateY(0deg); }
+  50% { transform: translateY(-15px) rotateX(10deg) rotateY(5deg); }
+}
+
+/* Hover Effect */
+.box-hover .box-3d-wrapper {
+  transform: scale(1.1) translateY(-10px);
+}
+
+/* Glow Effect for Rare Boxes */
+.box-glowing .box-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, var(--rarity-glow, rgba(168, 85, 247, 0.3)) 0%, transparent 70%);
+  animation: pulse-glow 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Box Lid */
+.box-3d-lid {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(135deg, var(--rarity-secondary, #64748b), var(--rarity-primary, #94a3b8));
+  border-radius: 10px 10px 0 0;
+  transform: translateZ(30px);
+  transition: transform 0.5s ease;
+  box-shadow: 
+    inset 0 2px 4px rgba(255,255,255,0.2),
+    0 -2px 10px rgba(0,0,0,0.2);
+}
+
+.box-lid-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  border-radius: 10px 10px 0 0;
+}
+
+.box-lid-open {
+  transform: translateZ(80px) rotateX(-45deg);
+}
+
+/* Box Body */
+.box-3d-body {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.box-body-front {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(145deg, var(--rarity-primary, #94a3b8), var(--rarity-secondary, #64748b));
+  border-radius: 0 0 10px 10px;
+  transform: translateZ(30px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 2px 4px rgba(255,255,255,0.2),
+    0 10px 30px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+/* Box Sides (3D Effect) */
+.box-body-side {
+  position: absolute;
+  background: linear-gradient(145deg, var(--rarity-secondary, #64748b), var(--rarity-primary, #94a3b8));
+}
+
+.box-body-left {
+  width: 60px;
+  height: 200px;
+  left: -60px;
+  top: 0;
+  transform: rotateY(-90deg);
+  transform-origin: right;
+  border-radius: 0 0 0 10px;
+}
+
+.box-body-right {
+  width: 60px;
+  height: 200px;
+  right: -60px;
+  top: 0;
+  transform: rotateY(90deg);
+  transform-origin: left;
+  border-radius: 0 0 10px 0;
+}
+
+.box-body-back {
+  width: 200px;
+  height: 200px;
+  top: 0;
+  left: 0;
+  transform: translateZ(-30px);
+  border-radius: 0 0 10px 10px;
+  background: var(--rarity-secondary, #64748b);
+}
+
+.box-body-bottom {
+  width: 200px;
+  height: 60px;
+  bottom: -60px;
+  left: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top;
+  border-radius: 0 0 10px 10px;
+  background: var(--rarity-secondary, #64748b);
+}
+
+/* Box Image */
+.box-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  transition: transform 0.3s ease;
+}
+
+.box-hover .box-image {
+  transform: scale(1.1);
+}
+
+/* Box Info */
+.box-info {
+  text-align: center;
+  z-index: 1;
+}
+
+.box-title {
+  color: #fff;
+  font-size: 16px;
+  margin: 0 0 5px 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.box-price {
+  color: #fbbf24;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Rarity Badge */
+.box-rarity {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.rarity-common {
+  background: rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+  border: 1px solid #94a3b8;
+}
+
+.rarity-uncommon {
+  background: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  border: 1px solid #22c55e;
+}
+
+.rarity-rare {
+  background: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.rarity-epic {
+  background: rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+  border: 1px solid #a855f7;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+  animation: epic-glow 1.5s ease-in-out infinite;
+}
+
+.rarity-legendary {
+  background: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+  animation: legendary-glow 1s ease-in-out infinite;
+}
+
+@keyframes epic-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+}
+
+@keyframes legendary-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 1); }
+}
+
+/* Box Shadow */
+.box-shadow {
+  position: absolute;
+  bottom: -30px;
+  left: 20%;
+  width: 60%;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%);
+  transform: rotateX(60deg);
+}
+
+/* Shake Animation */
+.box-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px) rotate(-2deg); }
+  40% { transform: translateX(10px) rotate(2deg); }
+  60% { transform: translateX(-10px) rotate(-2deg); }
+  80% { transform: translateX(10px) rotate(2deg); }
+}
+
+/* Opening Animation */
+.box-opening {
+  animation: open-box 1s ease forwards;
+}
+
+@keyframes open-box {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* Particles */
+.box-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: particle-fly 2s ease-out forwards;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes particle-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Prize Reveal Overlay */
+.prize-overlay {
+  backdrop-filter: blur(10px);
+}
+
+.prize-reveal {
+  animation: reveal-pop 0.5s ease;
+}
+
+@keyframes reveal-pop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Button Styles */
+.btn-open-box {
+  padding: 15px 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+}
+
+.btn-open-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.7);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .box-body-front {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .box-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .box-title {
+    font-size: 14px;
+  }
+}
