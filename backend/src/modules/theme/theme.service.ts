@@ -1,19 +1,39 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User, UserDocument } from '../users/user.schema';
+import { Model, Types } from 'mongoose';
+import { Config, ConfigDocument } from '../config/config.schema';
 import { CacheService } from '../cache/cache.service';
+
+export interface Theme {
+  id: string;
+  name: string;
+  nameEn: string;
+  bg: string;
+  char: string;
+  color: string;
+  font: string;
+  tags: string[];
+}
+
+export interface Animation {
+  id: string;
+  name: string;
+  nameEn: string;
+  icon: string;
+  desc: string;
+}
 
 @Injectable()
 export class ThemeService {
   private readonly logger = new Logger(ThemeService.name);
 
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Config.name) private configModel: Model<ConfigDocument>,
     private cacheService: CacheService,
   ) {}
 
-  getAvailableThemes() {
+  // Available themes (admin choices)
+  getAvailableThemes(): Theme[] {
     return [
       {
         id: 'anime-neon',
@@ -58,75 +78,113 @@ export class ThemeService {
     ];
   }
 
-  getAnimations() {
+  // Available animations
+  getAnimations(): Animation[] {
     return [
-      { id: 'float', name: 'Float', icon: '🪶', desc: 'حركة خفيفة' },
-      { id: 'pulse', name: 'نبض', icon: '💗', desc: 'نبض قلبي' },
-      { id: 'shake', name: 'هز', icon: '📳', desc: 'اهتزاز قوي' },
-      { id: 'sparkle', name: 'لمعان', icon: '✨', desc: 'جذاب ومشرق' },
-      { id: 'rotate', name: 'دوران', icon: '🔄', desc: 'دوران سلس' },
+      { id: 'float', name: 'Float', nameEn: 'Float', icon: '🪶', desc: 'حركة خفيفة' },
+      { id: 'pulse', name: 'نبض', nameEn: 'Pulse', icon: '💗', desc: 'نبض قلبي' },
+      { id: 'shake', name: 'هز', nameEn: 'Shake', icon: '📳', desc: 'اهتزاز قوي' },
+      { id: 'sparkle', name: 'لمعان', nameEn: 'Sparkle', icon: '✨', desc: 'جذاب ومشرق' },
+      { id: 'rotate', name: 'دوران', nameEn: 'Rotate', icon: '🔄', desc: 'دوران سلس' },
     ];
   }
 
-  async getUserTheme(userId: string) {
-    const cached = await this.cacheService.get(`theme:${userId}`);
+  // Get GLOBAL theme (set by admin)
+  async getGlobalTheme() {
+    // Check cache first
+    const cached = await this.cacheService.get('global:theme');
     if (cached) return cached;
 
-    const user = await this.userModel.findById(userId).select('themeSettings');
-    const theme = user?.themeSettings || {
-      name: 'أنمي نيون',
-      animation: 'float',
+    // Get from config
+    const config = await this.configModel.findOne({ key: 'globalTheme' });
+    
+    const defaultTheme = this.getAvailableThemes()[0];
+    const defaultAnim = this.getAnimations()[0];
+
+    const globalTheme = config?.value || {
+      theme: defaultTheme,
+      animation: defaultAnim,
       soundEnabled: true,
       hapticsEnabled: true,
       particlesEnabled: true,
+      updatedAt: new Date(),
+      updatedBy: 'system',
     };
 
-    await this.cacheService.set(`theme:${userId}`, theme, 3600);
-    return theme;
+    // Cache for 5 minutes
+    await this.cacheService.set('global:theme', globalTheme, 300);
+    return globalTheme;
   }
 
-  async updateTheme(userId: string, themeData: {
-    name?: string;
-    animation?: string;
+  // ADMIN: Set global theme (only admin can call this)
+  async setGlobalTheme(adminId: string, themeData: {
+    themeId?: string;
+    animationId?: string;
     soundEnabled?: boolean;
     hapticsEnabled?: boolean;
     particlesEnabled?: boolean;
   }) {
-    const user = await this.userModel.findById(userId);
-    if (!user) throw new Error('User not found');
-
     const themes = this.getAvailableThemes();
-    const validTheme = themes.find(t => t.name === themeData.name || t.nameEn === themeData.name);
-    if (themeData.name && !validTheme) throw new Error('Invalid theme');
-
     const animations = this.getAnimations();
-    const validAnim = animations.find(a => a.id === themeData.animation);
-    if (themeData.animation && !validAnim) throw new Error('Invalid animation');
 
-    user.themeSettings = { ...user.themeSettings, ...themeData };
-    await user.save();
-    await this.cacheService.del(`theme:${userId}`);
+    // Validate theme
+    let selectedTheme = themes[0];
+    if (themeData.themeId) {
+      const found = themes.find(t => t.id === themeData.themeId);
+      if (!found) throw new Error('Invalid theme ID');
+      selectedTheme = found;
+    }
 
-    this.logger.log(`Theme updated for user ${userId}`);
-    return user.themeSettings;
+    // Validate animation
+    let selectedAnim = animations[0];
+    if (themeData.animationId) {
+      const found = animations.find(a => a.id === themeData.animationId);
+      if (!found) throw new Error('Invalid animation ID');
+      selectedAnim = found;
+    }
+
+    // Get current global theme
+    const currentGlobal = await this.getGlobalTheme();
+
+    const newGlobalTheme = {
+      theme: selectedTheme,
+      animation: selectedAnim,
+      soundEnabled: themeData.soundEnabled ?? currentGlobal.soundEnabled,
+      hapticsEnabled: themeData.hapticsEnabled ?? currentGlobal.hapticsEnabled,
+      particlesEnabled: themeData.particlesEnabled ?? currentGlobal.particlesEnabled,
+      updatedAt: new Date(),
+      updatedBy: adminId,
+    };
+
+    // Save to config
+    await this.configModel.findOneAndUpdate(
+      { key: 'globalTheme' },
+      { key: 'globalTheme', value: newGlobalTheme },
+      { upsert: true }
+    );
+
+    // Invalidate cache
+    await this.cacheService.del('global:theme');
+
+    this.logger.log(`Global theme updated by admin ${adminId}: ${selectedTheme.name}`);
+
+    return newGlobalTheme;
   }
 
-  async getFullThemeConfig(userId: string) {
-    const [userThemes, availableThemes, animations] = await Promise.all([
-      this.getUserTheme(userId),
+  // Get full config for frontend (read-only for users)
+  async getThemeConfig() {
+    const [globalTheme, availableThemes, animations] = await Promise.all([
+      this.getGlobalTheme(),
       Promise.resolve(this.getAvailableThemes()),
       Promise.resolve(this.getAnimations()),
     ]);
 
-    const currentTheme = availableThemes.find(
-      t => t.name === userThemes.name || t.nameEn === userThemes.name
-    ) || availableThemes[0];
-
-    const currentAnim = animations.find(a => a.id === userThemes.animation) || animations[0];
-
     return {
-      current: { ...userThemes, themeDetails: currentTheme, animationDetails: currentAnim },
-      available: { themes: availableThemes, animations },
+      global: globalTheme,
+      available: {
+        themes: availableThemes,
+        animations,
+      },
     };
   }
 }

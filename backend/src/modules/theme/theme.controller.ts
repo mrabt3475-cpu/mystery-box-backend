@@ -1,38 +1,48 @@
-import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { ThemeService } from './theme.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('theme')
-@UseGuards(JwtAuthGuard)
 export class ThemeController {
   constructor(private readonly themeService: ThemeService) {}
 
+  // Anyone can get the current global theme
   @Get()
-  async getTheme(@Request() req) {
-    return this.themeService.getUserTheme(req.user.id);
+  async getGlobalTheme() {
+    return this.themeService.getGlobalTheme();
   }
 
+  // Get full config (themes + animations)
   @Get('config')
-  async getFullConfig(@Request() req) {
-    return this.themeService.getFullThemeConfig(req.user.id);
+  async getThemeConfig() {
+    return this.themeService.getThemeConfig();
   }
 
+  // Get available themes/animations (read-only)
   @Get('available')
-  async getAvailableThemes() {
+  async getAvailable() {
     return {
       themes: this.themeService.getAvailableThemes(),
       animations: this.themeService.getAnimations(),
     };
   }
 
-  @Put()
-  async updateTheme(@Request() req, @Body() themeData: {
-    name?: string;
-    animation?: string;
-    soundEnabled?: boolean;
-    hapticsEnabled?: boolean;
-    particlesEnabled?: boolean;
-  }) {
-    return this.themeService.updateTheme(req.user.id, themeData);
+  // ADMIN ONLY: Set global theme
+  @Put('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'superadmin')
+  async setGlobalTheme(
+    @Request() req,
+    @Body() themeData: {
+      themeId?: string;
+      animationId?: string;
+      soundEnabled?: boolean;
+      hapticsEnabled?: boolean;
+      particlesEnabled?: boolean;
+    },
+  ) {
+    return this.themeService.setGlobalTheme(req.user.id, themeData);
   }
 }
