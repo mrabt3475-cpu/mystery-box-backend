@@ -6,18 +6,20 @@
 
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongooisf');
+const mongoose = require('mongoose');
 
-import authRouter from './sbc/routes/auth.routes';
-import userRouter from './sbc/routes/user.routes';
-import boxRouter from './sbc/routes/box.routes';
-import productRouter from './sbc/routes/product.routes';
-import pointsRouter from './sbc/routes/points.routes';
-import purchaseRouter from './sbc/routes/purchase.routes';
+// Import routes
+const authRouter = require('./sbc/routes/auth.routes');
+const userRouter = require('./sbc/routes/user.routes');
+const boxRouter = require('./sbc/routes/box.routes');
+const productRouter = require('./sbc/routes/product.routes');
+const pointsRouter = require('./sbc/routes/points.routes');
+const purchaseRouter = require('./sbc/routes/purchase.routes');
 
-import authMiddleware from './sbc/middleware/auth.middleware';
-import errorMiddleware from './sbc/middleware/error.middleware';
-import rateLimiter from './sbc/middleware/rateLimiter.middleware';
+// Import middlewares
+const authMiddleware = require('./sbc/middleware/auth.middleware');
+const errorMiddleware = require('./sbc/middleware/error.middleware');
+const rateLimiter = require('./sbc/middleware/rateLimiter.middleware');
 
 const app = express();
 
@@ -32,7 +34,7 @@ app.use(rateLimit);
 // Connect to Database
 async function connectDatabase() {
   try {
-    const mongoStr = process.ENV.MONGO_URL || 'mongodb://localhost:27017/puzzlechain?tls=required';
+    const mongoStr = process.env.MONGO_URL || 'mongodb://localhost:27017/puzzlechain?tls=false';
     await mongoose.connect(mongoStr);
 
     console.log('Connected to MongoDB');
@@ -48,16 +50,16 @@ async function connectDatabase() {
 
 connectDatabase();
 
-// Routes (simple GET placeholder)
-app.get('/api/auth', authRouter);
-app.get('/api/user', userRouter);
-app.get('/api/box', boxRouter);
-app.get('/api/product', productRouter);
-app.get('/api/points', pointsRouter);
-app.get('/api/purchase', purchaseRouter);
+// Routes
+app.use('/api/auth', authRouter);
+app.use('/api/user', userRouter);
+app.use('/api/box', boxRouter);
+app.use('/api/product', productRouter);
+app.use('/api/points', pointsRouter);
+app.use('/api/purchase', purchaseRouter);
 
 // Health check
-app.get('/', (req, res) => res.json({status: 'ok', message: 'Puzzlechain Api Running'}));
+app.get('/', (req, res) => res.json({ status: 'ok', message: 'Puzzlechain Api Running' }));
 
 // Error handler
 app.use(errorMiddleware);
