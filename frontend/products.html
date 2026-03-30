@@ -29,7 +29,6 @@
     html { scroll-behavior: smooth; }
     body { background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-
     /* Animated Background */
     .bg-animation { 
       position: fixed; 
@@ -64,6 +63,34 @@
     @keyframes bgMove { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10%, -10%); } }
     @keyframes floatShape { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(50px, -50px) scale(1.1); } }
 
+    /* Sound Toggle Button */
+    .sound-toggle {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1001;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sound-toggle:hover {
+      background: var(--primary);
+      transform: scale(1.1) rotate(10deg);
+    }
+    .sound-toggle.muted {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.2);
+    }
+
     /* Smooth Navigation */
     .navbar { 
       background: rgba(15, 23, 42, 0.8); 
@@ -93,7 +120,6 @@
       gap: 1rem; 
     }
 
-    /* Logo */
     .logo { 
       font-size: 1.625rem; 
       font-weight: 900; 
@@ -120,7 +146,6 @@
       50% { transform: translateY(-3px) rotate(5deg); }
     }
 
-    /* Navigation Links */
     .nav-links { 
       display: flex; 
       gap: 0.375rem; 
@@ -172,7 +197,6 @@
     .nav-link.active::before { display: none; }
     .nav-link i { font-size: 0.9rem; }
 
-    /* Mobile Menu Toggle */
     .mobile-menu-btn {
       display: none;
       background: rgba(255,255,255,0.1);
@@ -190,7 +214,6 @@
       transform: rotate(90deg);
     }
 
-    /* Balance Badge */
     .balance-wrapper {
       position: relative;
     }
@@ -226,10 +249,8 @@
       font-weight: 800;
     }
 
-    /* Main Container */
     .container { max-width: 1400px; margin: 0 auto; padding: 7rem 2rem 2rem; }
 
-    /* Page Header */
     .page-header { 
       text-align: center; 
       margin-bottom: 3rem; 
@@ -274,7 +295,6 @@
       animation: spin 3s linear infinite;
     }
 
-    /* Search & Filters */
     .search-filters { 
       display: flex; 
       gap: 1rem; 
@@ -354,14 +374,12 @@
     }
     .sort-select:focus { border-color: var(--primary); outline: none; }
 
-    /* Products Grid */
     .products-grid { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
       gap: 1.5rem; 
     }
 
-    /* Product Card */
     .product-card { 
       background: var(--dark-secondary); 
       border-radius: 24px; 
@@ -545,7 +563,6 @@
     .product-btn:hover::before { transform: translateX(100%); }
     .product-btn:active { transform: scale(0.97); }
 
-    /* Cart Toggle */
     .cart-toggle { 
       position: fixed; 
       bottom: 2rem; 
@@ -587,7 +604,6 @@
       animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
-    /* Cart Panel */
     .cart-sidebar { 
       position: fixed; 
       top: 0; 
@@ -746,7 +762,6 @@
       box-shadow: 0 18px 45px rgba(16, 185, 129, 0.5);
     }
 
-    /* Empty Cart */
     .empty-cart { 
       text-align: center; 
       color: var(--text-muted); 
@@ -760,7 +775,6 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* Toast */
     .toast-container {
       position: fixed;
       bottom: 2rem;
@@ -788,7 +802,6 @@
     .toast.success { border-color: var(--secondary); }
     .toast.info { border-color: var(--primary); }
 
-    /* Animations */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
@@ -801,7 +814,6 @@
     @keyframes slideIn { from { opacity: 0; transform: translateX(-25px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-    /* Responsive */
     @media (max-width: 900px) {
       .nav-links { 
         position: fixed;
@@ -826,6 +838,7 @@
       .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
       .balance-wrapper { order: 3; width: 100%; }
       .balance-badge { width: 100%; justify-content: center; }
+      .sound-toggle { top: 1rem; right: 1rem; width: 40px; height: 40px; }
     }
 
     @media (max-width: 768px) {
@@ -846,34 +859,39 @@
     </div>
   </div>
 
+  <!-- Sound Toggle -->
+  <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="تشغيل/إيقاف الأصوات">
+    <i class="fas fa-volume-up"></i>
+  </button>
+
   <nav class="navbar" id="navbar">
     <div class="navbar-content">
-      <div class="logo" onclick="window.location.href='/'" style="animation: fadeInUp 0.6s ease;">
+      <div class="logo" onclick="playClick(); window.location.href='/'" style="animation: fadeInUp 0.6s ease;">
         <i class="fas fa-gift"></i> 
         <span>PuzzleChain</span>
       </div>
       
-      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+      <button class="mobile-menu-btn" onclick="playClick(); toggleMobileMenu()">
         <i class="fas fa-bars"></i>
       </button>
 
       <div class="nav-links" id="navLinks">
-        <a href="/" class="nav-link" style="animation: fadeInUp 0.6s ease 0.1s backwards;">
+        <a href="/" class="nav-link" onclick="playClick()" style="animation: fadeInUp 0.6s ease 0.1s backwards;">
           <i class="fas fa-home"></i> الرئيسية
         </a>
-        <a href="/products" class="nav-link active" style="animation: fadeInUp 0.6s ease 0.15s backwards;">
+        <a href="/products" class="nav-link active" onclick="playClick()" style="animation: fadeInUp 0.6s ease 0.15s backwards;">
           <i class="fas fa-shopping-bag"></i> المنتجات
         </a>
-        <a href="/boxes" class="nav-link" style="animation: fadeInUp 0.6s ease 0.2s backwards;">
+        <a href="/boxes" class="nav-link" onclick="playClick()" style="animation: fadeInUp 0.6s ease 0.2s backwards;">
           <i class="fas fa-box"></i> الصناديق
         </a>
-        <a href="/wallet" class="nav-link" style="animation: fadeInUp 0.6s ease 0.25s backwards;">
+        <a href="/wallet" class="nav-link" onclick="playClick()" style="animation: fadeInUp 0.6s ease 0.25s backwards;">
           <i class="fas fa-wallet"></i> المحفظة
         </a>
       </div>
 
       <div class="balance-wrapper" style="animation: fadeInUp 0.6s ease 0.3s backwards;">
-        <div class="balance-badge" onclick="window.location.href='/wallet'">
+        <div class="balance-badge" onclick="playClick(); window.location.href='/wallet'">
           <i class="fas fa-coins"></i> 
           <span class="balance-amount" id="userPoints">0</span>
           <span>نقطة</span>
@@ -886,7 +904,7 @@
     <div class="page-header">
       <h1 class="page-title"><i class="fas fa-shopping-bag"></i> المتجر</h1>
       <p class="page-subtitle">كل منتج تشتريه يمنحك نقاط مجانية لفتح الصناديق المميزة! 🎁</p>
-      <div class="points-info">
+      <div class="points-info" onclick="playClick()">
         <i class="fas fa-coins"></i> 
         <span>كل $1 يمنحك 5 نقاط مجانية!</span>
       </div>
@@ -894,27 +912,27 @@
 
     <div class="search-filters">
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 ابحث عن منتجات...">
+        <input type="text" id="searchInput" placeholder="🔍 ابحث عن منتجات..." oninput="playType(); filterProductsSearch(this.value)">
         <i class="fas fa-search"></i>
       </div>
       <div class="filter-group">
-        <button class="filter-btn active" onclick="filterProducts('all')">
+        <button class="filter-btn active" onclick="playClick(); filterProducts('all')">
           <i class="fas fa-th"></i> الكل
         </button>
-        <button class="filter-btn" onclick="filterProducts('electronics')">
+        <button class="filter-btn" onclick="playClick(); filterProducts('electronics')">
           <i class="fas fa-mobile-alt"></i> إلكترونيات
         </button>
-        <button class="filter-btn" onclick="filterProducts('fashion')">
+        <button class="filter-btn" onclick="playClick(); filterProducts('fashion')">
           <i class="fas fa-tshirt"></i> ملابس
         </button>
-        <button class="filter-btn" onclick="filterProducts('gaming')">
+        <button class="filter-btn" onclick="playClick(); filterProducts('gaming')">
           <i class="fas fa-gamepad"></i> ألعاب
         </button>
-        <button class="filter-btn" onclick="filterProducts('accessories')">
+        <button class="filter-btn" onclick="playClick(); filterProducts('accessories')">
           <i class="fas fa-gem"></i> إكسسوارات
         </button>
       </div>
-      <select class="sort-select" onchange="sortProducts(this.value)">
+      <select class="sort-select" onchange="playClick(); sortProducts(this.value)">
         <option value="default">📊 الترتيب الافتراضي</option>
         <option value="price-low">💵 السعر: من الأقل</option>
         <option value="price-high">💰 السعر: من الأعلى</option>
@@ -925,16 +943,16 @@
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
-  <div class="cart-toggle" onclick="toggleCart()">
+  <div class="cart-toggle" onclick="playClick(); toggleCart()">
     <i class="fas fa-shopping-cart"></i>
     <div class="cart-badge" id="cartBadge">0</div>
   </div>
 
-  <div class="cart-sidebar" id="cartSidebar" onclick="toggleCart()"></div>
+  <div class="cart-sidebar" id="cartSidebar" onclick="playClick(); toggleCart()"></div>
   <div class="cart-panel" id="cartPanel">
     <div class="cart-header">
       <h2 class="cart-title"><i class="fas fa-shopping-cart"></i> سلة المشتريات</h2>
-      <button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+      <button class="cart-close" onclick="playClick(); toggleCart()"><i class="fas fa-times"></i></button>
     </div>
     <div class="cart-items" id="cartItems">
       <div class="empty-cart">
@@ -948,7 +966,7 @@
       <div class="cart-total-row"><span>النقاط المكتسبة</span><span id="cartPoints" style="color: var(--gold);">+0 نقطة</span></div>
       <div class="cart-total-row final"><span>الإجمالي</span><span id="cartTotal">$0</span></div>
     </div>
-    <button class="checkout-btn" onclick="checkout()">
+    <button class="checkout-btn" onclick="playClick(); checkout()">
       <i class="fas fa-credit-card"></i> إتمام الشراء
     </button>
   </div>
@@ -956,6 +974,166 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
+    // Sound Effects System
+    let soundEnabled = true;
+    let audioContext = null;
+
+    // Initialize Audio Context on first interaction
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    // Sound Effects
+    function playClick() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.frequency.setValueAtTime(800, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.1);
+    }
+
+    function playAddToCart() {
+      if (!soundEnabled) return;
+      initAudio();
+      // Success chime
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, audioContext.currentTime);
+      osc.frequency.setValueAtTime(659, audioContext.currentTime + 0.1);
+      osc.frequency.setValueAtTime(784, audioContext.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.3);
+    }
+
+    function playRemove() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.15);
+    }
+
+    function playSuccess() {
+      if (!soundEnabled) return;
+      initAudio();
+      // Victory fanfare
+      const notes = [523, 659, 784, 1047];
+      notes.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.1);
+        gain.gain.setValueAtTime(0.12, audioContext.currentTime + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.2);
+        osc.start(audioContext.currentTime + i * 0.1);
+        osc.stop(audioContext.currentTime + i * 0.1 + 0.2);
+      });
+    }
+
+    function playError() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(200, audioContext.currentTime);
+      osc.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+      osc.frequency.setValueAtTime(100, audioContext.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.3);
+    }
+
+    function playType() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioContext.currentTime);
+      gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.05);
+    }
+
+    function playHover() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, audioContext.currentTime);
+      gain.gain.setValueAtTime(0.02, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.03);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.03);
+    }
+
+    function playCartOpen() {
+      if (!soundEnabled) return;
+      initAudio();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.15);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('soundToggle');
+      if (soundEnabled) {
+        btn.classList.remove('muted');
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        playClick();
+      } else {
+        btn.classList.add('muted');
+        btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+      }
+    }
+
+    // Products Data
     const products = [
       { id: 1, name: 'آيفون 15 برو ماكس', desc: 'أحدث إصدار من آبل بشاشة سوبر ريتينا XDR مقاس 6.7 بوصة', price: 1200, category: 'electronics', icon: '📱', isNew: true },
       { id: 2, name: 'جالكسي S24 ألترا', desc: 'هاتف سامسونج الرائد بكاميرا 200 ميجابيكسل وزوم 100x', price: 2000, category: 'electronics', icon: '📱' },
@@ -975,53 +1153,34 @@
     let currentFilter = 'all';
     let currentSort = 'default';
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       renderProducts();
       loadUserData();
       initScrollEffects();
-      initSmoothScroll();
+      initHoverSounds();
     });
 
-    // Smooth scroll for anchor links
-    function initSmoothScroll() {
-      document.querySelectorAll('a[href^="/"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          const href = this.getAttribute('href');
-          if (href.startsWith('/') && !href.endsWith('.html')) {
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }
-        });
+    function initHoverSounds() {
+      document.querySelectorAll('.filter-btn, .product-card, .nav-link, .action-btn').forEach(el => {
+        el.addEventListener('mouseenter', playHover);
       });
     }
 
-    // Navbar scroll effect
     function initScrollEffects() {
       let lastScroll = 0;
       window.addEventListener('scroll', () => {
         const navbar = document.getElementById('navbar');
         const currentScroll = window.pageYOffset;
-        
-        if (currentScroll > 80) {
-          navbar.classList.add('scrolled');
-        } else {
-          navbar.classList.remove('scrolled');
-        }
-        
+        if (currentScroll > 80) navbar.classList.add('scrolled');
+        else navbar.classList.remove('scrolled');
         lastScroll = currentScroll;
       });
     }
 
-    // Mobile menu toggle
     function toggleMobileMenu() {
       const navLinks = document.getElementById('navLinks');
       const btn = document.querySelector('.mobile-menu-btn i');
       navLinks.classList.toggle('open');
-      
       if (navLinks.classList.contains('open')) {
         btn.classList.remove('fa-bars');
         btn.classList.add('fa-times');
@@ -1031,7 +1190,6 @@
       }
     }
 
-    // Close mobile menu when clicking a link
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         const navLinks = document.getElementById('navLinks');
@@ -1046,29 +1204,20 @@
 
     function renderProducts(filter = 'all', search = '') {
       const grid = document.getElementById('productsGrid');
-      
       setTimeout(() => {
         let filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
-        
         if (search) {
           filtered = filtered.filter(p => 
             p.name.toLowerCase().includes(search.toLowerCase()) || 
             p.desc.toLowerCase().includes(search.toLowerCase())
           );
         }
-
         if (currentSort === 'price-low') filtered.sort((a, b) => a.price - b.price);
         else if (currentSort === 'price-high') filtered.sort((a, b) => b.price - a.price);
         else if (currentSort === 'points') filtered.sort((a, b) => (b.price * 0.05) - (a.price * 0.05));
 
         if (filtered.length === 0) {
-          grid.innerHTML = `
-            <div class="empty-cart" style="grid-column: 1/-1;">
-              <i class="fas fa-search"></i>
-              <p>لا توجد منتجات!</p>
-              <small>جرب فلتر آخر</small>
-            </div>
-          `;
+          grid.innerHTML = `<div class="empty-cart" style="grid-column: 1/-1;"><i class="fas fa-search"></i><p>لا توجد منتجات!</p><small>جرب فلتر آخر</small></div>`;
           return;
         }
 
@@ -1076,18 +1225,14 @@
           const points = Math.floor(product.price * 0.05 * 100);
           const discount = Math.floor(20 + Math.random() * 30);
           return `
-            <div class="product-card" style="animation-delay: ${index * 0.05}s">
+            <div class="product-card" style="animation-delay: ${index * 0.05}s" onmouseenter="playHover()">
               <div class="product-badges">
                 <span class="product-badge new">${product.isNew ? 'جديد 🔥' : ''}</span>
                 <span class="product-badge discount">-${discount}%</span>
               </div>
               <div class="product-actions">
-                <button class="action-btn wishlist" onclick="addToWishlist(${product.id})" title="المفضلة">
-                  <i class="fas fa-heart"></i>
-                </button>
-                <button class="action-btn" onclick="quickView(${product.id})" title="عرض سريع">
-                  <i class="fas fa-eye"></i>
-                </button>
+                <button class="action-btn wishlist" onclick="playClick(); addToWishlist(${product.id})" title="المفضلة"><i class="fas fa-heart"></i></button>
+                <button class="action-btn" onclick="playClick(); quickView(${product.id})" title="عرض سريع"><i class="fas fa-eye"></i></button>
               </div>
               <div class="product-image">${product.icon}</div>
               <h3 class="product-name">${product.name}</h3>
@@ -1096,15 +1241,12 @@
                 <span class="price-original">$${Math.floor(product.price * 1.3)}</span>
                 <span class="price-current">$${product.price}</span>
               </div>
-              <div class="points-earned">
-                <i class="fas fa-coins"></i> +${points} <span>نقطة</span>
-              </div>
-              <button class="product-btn" onclick="addToCart(${product.id})">
-                <i class="fas fa-cart-plus"></i> إضافة للسلة
-              </button>
+              <div class="points-earned"><i class="fas fa-coins"></i> +${points} <span>نقطة</span></div>
+              <button class="product-btn" onclick="playClick(); addToCart(${product.id})"><i class="fas fa-cart-plus"></i> إضافة للسلة</button>
             </div>
           `;
         }).join('');
+        initHoverSounds();
       }, 300);
     }
 
@@ -1115,14 +1257,14 @@
       renderProducts(category, document.getElementById('searchInput').value);
     }
 
+    function filterProductsSearch(value) {
+      renderProducts(currentFilter, value);
+    }
+
     function sortProducts(value) {
       currentSort = value;
       renderProducts(currentFilter, document.getElementById('searchInput').value);
     }
-
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      renderProducts(currentFilter, e.target.value);
-    });
 
     function addToCart(id) {
       const product = products.find(p => p.id === id);
@@ -1130,25 +1272,30 @@
         cart.push(product);
         updateCart();
         toggleCart(true);
+        playAddToCart();
         showToast('✅ تم إضافة ' + product.name + ' للسلة', 'success');
       } else {
+        playError();
         showToast('⚠️ المنتج موجود بالفعل في السلة!', 'info');
       }
     }
 
     function addToWishlist(id) {
       const product = products.find(p => p.id === id);
+      playAddToCart();
       showToast('❤️ تم إضافة ' + product.name + ' للمفضلة', 'success');
     }
 
     function quickView(id) {
       const product = products.find(p => p.id === id);
+      playClick();
       showToast('👀 عرض سريع لـ ' + product.name, 'info');
     }
 
     function removeFromCart(id) {
       cart = cart.filter(item => item.id !== id);
       updateCart();
+      playRemove();
       showToast('🗑️ تم إزالة المنتج من السلة', 'info');
     }
 
@@ -1158,17 +1305,10 @@
       const subtotal = document.getElementById('cartSubtotal');
       const pointsEl = document.getElementById('cartPoints');
       const total = document.getElementById('cartTotal');
-
       badge.textContent = cart.length;
 
       if (cart.length === 0) {
-        itemsContainer.innerHTML = `
-          <div class="empty-cart">
-            <i class="fas fa-shopping-basket"></i>
-            <p>السلة فارغة تماماً! 🛒</p>
-            <small>أضف منتجات للبدء</small>
-          </div>
-        `;
+        itemsContainer.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>السلة فارغة تماماً! 🛒</p><small>أضف منتجات للبدء</small></div>`;
         subtotal.textContent = '$0';
         pointsEl.textContent = '+0 نقطة';
         total.textContent = '$0';
@@ -1179,20 +1319,14 @@
         <div class="cart-item">
           <div class="cart-item-info">
             <div class="cart-item-icon">${item.icon}</div>
-            <div>
-              <div class="cart-item-name">${item.name}</div>
-              <div class="cart-item-price">$${item.price}</div>
-            </div>
+            <div><div class="cart-item-name">${item.name}</div><div class="cart-item-price">$${item.price}</div></div>
           </div>
-          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">
-            <i class="fas fa-trash"></i>
-          </button>
+          <button class="cart-item-remove" onclick="playClick(); removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
         </div>
       `).join('');
 
       const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
       const totalPoints = Math.floor(totalPrice * 0.05 * 100);
-
       subtotal.textContent = '$' + totalPrice.toLocaleString();
       pointsEl.textContent = '+' + totalPoints.toLocaleString() + ' نقطة';
       total.textContent = '$' + totalPrice.toLocaleString();
@@ -1201,21 +1335,24 @@
     function toggleCart(open = null) {
       const sidebar = document.getElementById('cartSidebar');
       const panel = document.getElementById('cartPanel');
-      
       if (open === true) {
+        playCartOpen();
         sidebar.style.display = 'block';
         setTimeout(() => sidebar.classList.add('open'), 10);
         panel.classList.add('open');
       } else if (open === false) {
+        playClick();
         sidebar.classList.remove('open');
         panel.classList.remove('open');
         setTimeout(() => sidebar.style.display = 'none', 350);
       } else {
         if (sidebar.style.display === 'block') {
+          playClick();
           sidebar.classList.remove('open');
           panel.classList.remove('open');
           setTimeout(() => sidebar.style.display = 'none', 350);
         } else {
+          playCartOpen();
           sidebar.style.display = 'block';
           setTimeout(() => sidebar.classList.add('open'), 10);
           panel.classList.add('open');
@@ -1227,59 +1364,48 @@
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
-      toast.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-        <span>${message}</span>
-      `;
+      toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span>${message}</span>`;
       container.appendChild(toast);
-      
       setTimeout(() => toast.classList.add('show'), 10);
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 350);
-      }, 3500);
+      setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 350); }, 3500);
     }
 
     async function checkout() {
       if (cart.length === 0) {
+        playError();
         showToast('⚠️ السلة فارغة! أضف منتجات أولاً', 'error');
         return;
       }
-
       const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-      const confirmMsg = `سيتم خصم $${totalPrice} من رصيدك. هل تريد المتابعة؟`;
-
-      if (!confirm(confirmMsg)) return;
+      if (!confirm(`سيتم خصم $${totalPrice} من رصيدك. هل تريد المتابعة؟`)) return;
 
       try {
         const token = localStorage.getItem('token');
         if (!token) {
+          playError();
           showToast('يرجى تسجيل الدخول أولاً!', 'error');
           window.location.href = '/login';
           return;
         }
-
         const res = await fetch('http://localhost:3000/api/orders/create', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}` 
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ items: cart.map(i => i.id) })
         });
-
         const data = await res.json();
-
         if (res.ok) {
+          playSuccess();
           showToast(`🎉 تم الشراء بنجاح! حصلت على ${data.pointsEarned || 0} نقطة`, 'success');
           cart = [];
           updateCart();
           toggleCart(false);
           loadUserData();
         } else {
+          playError();
           showToast(data.error || 'فشل في الشراء!', 'error');
         }
       } catch (e) {
+        playError();
         showToast('حدث خطأ في الاتصال بالخادم!', 'error');
       }
     }
@@ -1288,11 +1414,9 @@
       try {
         const token = localStorage.getItem('token');
         if (!token) return;
-
         const res = await fetch('http://localhost:3000/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (res.ok) {
           const user = await res.json();
           document.getElementById('userPoints').textContent = (user.points || 0).toLocaleString();
