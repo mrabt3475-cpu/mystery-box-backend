@@ -1,0 +1,418 @@
+<!-- ========================================
+     Theme Settings Page - PuzzleChain Dashboard
+     ======================================== -->
+
+<!-- Page: Themes -->
+<div id="page-themes" class="page">
+  <!-- Live Preview -->
+  <div class="panel" style="margin-bottom: 24px;">
+    <div class="section-title">معاينة مباشرة</div>
+    <div id="live-preview" class="live-preview">
+      <span style="font-size:40px;animation:float 3s ease-in-out infinite">🌸</span>
+      <span style="font-size:14px;font-weight:700;color:#ff6eb4;font-family:Cairo,sans-serif">PuzzleChain</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.5)">افتح صندوقك الآن</span>
+    </div>
+  </div>
+
+  <!-- Themes Grid -->
+  <div class="panel" style="margin-bottom: 24px;">
+    <div class="section-title">الثيمات المتاحة</div>
+    <div class="themes-grid">
+      <!-- Anime Neon -->
+      <div class="theme-card theme-anime" data-theme-name="أنمي نيون" onclick="selectTheme(this,'أنمي نيون')">
+        <div class="active-badge">✓ نشط</div>
+        <div class="theme-preview">
+          <div class="theme-stars"></div>
+          <div class="char">🌸</div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name" style="color:#ff6eb4">🌸 أنمي نيون</div>
+          <div class="theme-desc">ألوان نيون، أنمي، حركة fluidez</div>
+          <div class="theme-tags">
+            <span class="tag">أنمي</span>
+            <span class="tag">نيون</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classic Royal -->
+      <div class="theme-card theme-classic" data-theme-name="كلاسيك رويال" onclick="selectTheme(this,'كلاسيك رويال')">
+        <div class="active-badge">✓ نشط</div>
+        <div class="theme-preview">
+          <div class="char">👑</div>
+          <div class="theme-sparkles" style="color:gold">✦</div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name" style="color:#c8963c">🏰 كلاسيك رويال</div>
+          <div class="theme-desc">طابع ملكي، ذهبي داكن، أسطوري</div>
+          <div class="theme-tags">
+            <span class="tag">ملكي</span>
+            <span class="tag">ذهبي</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cyber 2077 -->
+      <div class="theme-card theme-cyber" data-theme-name="سايبر 2077" onclick="selectTheme(this,'سايبر 2077')">
+        <div class="active-badge">✓ نشط</div>
+        <div class="theme-preview">
+          <div class="theme-grid-lines"></div>
+          <div class="char">🤖</div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name" style="color:#00ffc8">🤖 سايبر 2077</div>
+          <div class="theme-desc">مستقبل رقمي، هولوغرام، تقنية</div>
+          <div class="theme-tags">
+            <span class="tag">سايبر</span>
+            <span class="tag">مستقبلي</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dark Fantasy -->
+      <div class="theme-card theme-fantasy" data-theme-name="داك فانتازيا" onclick="selectTheme(this,'داك فانتازيا')">
+        <div class="active-badge">✓ نشط</div>
+        <div class="theme-preview">
+          <div class="theme-runes">◈ ◇ △</div>
+          <div class="char">🔮</div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name" style="color:#c084fc">🔮 داك فانتازيا</div>
+          <div class="theme-desc">فانتازيا معتمة، سحر، غموض</div>
+          <div class="theme-tags">
+            <span class="tag">فانتازيا</span>
+            <span class="tag">سحري</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Animations -->
+  <div class="panel" style="margin-bottom: 24px;">
+    <div class="section-title">تأثيرات فتح الصندوق</div>
+    <div class="anim-grid">
+      <div class="anim-card" data-anim-id="float" onclick="selectAnimation('float')">
+        <div class="anim-preview">🪶</div>
+        <div class="anim-name">Float</div>
+        <div class="anim-desc">حركة خفيفة</div>
+      </div>
+      <div class="anim-card" data-anim-id="pulse" onclick="selectAnimation('pulse')">
+        <div class="anim-preview">💗</div>
+        <div class="anim-name">نبض</div>
+        <div class="anim-desc">نبض قلبي</div>
+      </div>
+      <div class="anim-card" data-anim-id="shake" onclick="selectAnimation('shake')">
+        <div class="anim-preview">📳</div>
+        <div class="anim-name">هز</div>
+        <div class="anim-desc">اهتزاز قوي</div>
+      </div>
+      <div class="anim-card" data-anim-id="sparkle" onclick="selectAnimation('sparkle')">
+        <div class="anim-preview">✨</div>
+        <div class="anim-name">لمعان</div>
+        <div class="anim-desc">جذاب ومشرق</div>
+      </div>
+      <div class="anim-card" data-anim-id="rotate" onclick="selectAnimation('rotate')">
+        <div class="anim-preview">🔄</div>
+        <div class="anim-name">دوران</div>
+        <div class="anim-desc">دوران سلس</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Settings -->
+  <div class="panel">
+    <div class="section-title">إعدادات إضافية</div>
+    
+    <div class="control-row">
+      <div>
+        <div class="control-label">الصوت</div>
+        <div class="control-sub">تشغيل المؤثرات الصوتية</div>
+      </div>
+      <div class="toggle on" id="toggle-sound" onclick="this.classList.toggle('on'); toggleSound(this.classList.contains('on'))"></div>
+    </div>
+
+    <div class="control-row">
+      <div>
+        <div class="control-label">الاهتزاز</div>
+        <div class="control-sub">اهتزاز عند فتح الصندوق</div>
+      </div>
+      <div class="toggle on" id="toggle-haptics" onclick="this.classList.toggle('on'); toggleHaptics(this.classList.contains('on'))"></div>
+    </div>
+
+    <div class="control-row">
+      <div>
+        <div class="control-label">الجزيئات</div>
+        <div class="control-sub">تأثيرات جزيئات عند الفوز</div>
+      </div>
+      <div class="toggle on" id="toggle-particles" onclick="this.classList.toggle('on'); toggleParticles(this.classList.contains('on'))"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Apply Theme Bar -->
+<div id="apply-bar" class="apply-bar" style="display: none;">
+  <div class="apply-text">
+    الثيم المحدد: <span id="selected-theme-name">أنمي نيون</span>
+  </div>
+  <button class="btn btn-primary" onclick="applyTheme()">تطبيق ✓</button>
+  <button class="btn" onclick="cancelTheme()" style="background:var(--surface2)">إلغاء</button>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  ✅ تم تطبيق الثيم بنجاح!
+</div>
+
+<style>
+/* Live Preview */
+.live-preview {
+  height: 160px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+
+/* Theme Card Active Badge */
+.active-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: none;
+}
+
+.theme-card.active .active-badge {
+  display: block;
+}
+
+/* Theme Card */
+.theme-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.theme-card:hover {
+  transform: translateY(-4px);
+}
+
+.theme-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px var(--glow);
+}
+
+.theme-preview {
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-anime .theme-preview {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+
+.theme-anime .char {
+  font-size: 60px;
+  filter: drop-shadow(0 0 20px rgba(255,100,255,0.8));
+  animation: float 3s ease-in-out infinite;
+}
+
+.theme-classic .theme-preview {
+  background: linear-gradient(135deg, #1a0a00, #3d1f00, #1a0a00);
+}
+
+.theme-classic .char {
+  font-size: 56px;
+  filter: drop-shadow(0 0 16px rgba(200,150,50,0.9));
+  animation: float 4s ease-in-out infinite;
+}
+
+.theme-cyber .theme-preview {
+  background: linear-gradient(135deg, #000, #001a1a, #000);
+}
+
+.theme-cyber .char {
+  font-size: 58px;
+  filter: drop-shadow(0 0 20px rgba(0,255,200,0.9));
+  animation: glitch 3s infinite;
+}
+
+.theme-fantasy .theme-preview {
+  background: linear-gradient(135deg, #0d0010, #1a0030, #0d0010);
+}
+
+.theme-fantasy .char {
+  font-size: 58px;
+  filter: drop-shadow(0 0 20px rgba(180,0,255,0.9));
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.theme-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.7) 0%, transparent 100%);
+  animation: twinkle 4s infinite;
+}
+
+.theme-grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0,255,200,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,200,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.theme-runes {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 10px;
+  color: rgba(180,0,255,0.6);
+  letter-spacing: 2px;
+}
+
+.theme-sparkles {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+  animation: sparkle 2s infinite;
+}
+
+.theme-info {
+  background: var(--surface);
+  padding: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.theme-name {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.theme-desc {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.theme-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.tag {
+  font-size: 9px;
+  padding: 3px 6px;
+  background: var(--surface2);
+  border-radius: 4px;
+  color: var(--text2);
+}
+
+/* Animation Cards */
+.anim-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.anim-card:hover {
+  border-color: rgba(124,92,252,0.4);
+}
+
+.anim-card.selected {
+  border-color: var(--accent);
+  background: rgba(124,92,252,0.1);
+}
+
+.anim-preview {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.anim-name {
+  font-size: 12px;
+}
+
+.anim-desc {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 300;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0); }
+  50% { transform: scale(1.3) rotate(180deg); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+</style>
