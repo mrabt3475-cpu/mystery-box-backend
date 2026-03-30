@@ -1,9 +1,23 @@
 <!-- ========================================
      Theme Settings Page - PuzzleChain Dashboard
+     Admin controls global theme, users view only
      ======================================== -->
 
 <!-- Page: Themes -->
 <div id="page-themes" class="page">
+  <!-- User Notice (shown to non-admin users) -->
+  <div id="user-notice" class="panel" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(252,92,125,0.05)); border: 1px solid rgba(124,92,252,0.3);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 32px;">🎨</span>
+      <div>
+        <div style="font-weight: 700; color: var(--accent);">الثيم الحالي للمنصة</div>
+        <div style="font-size: 12px; color: var(--text2); margin-top: 4px;">
+          الثيم يُحدد من قبل الإدارة - استمتع بالتجربة!
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Live Preview -->
   <div class="panel" style="margin-bottom: 24px;">
     <div class="section-title">معاينة مباشرة</div>
@@ -14,12 +28,15 @@
     </div>
   </div>
 
-  <!-- Themes Grid -->
-  <div class="panel" style="margin-bottom: 24px;">
-    <div class="section-title">الثيمات المتاحة</div>
+  <!-- Admin: Theme Selection -->
+  <div class="panel admin-only" style="margin-bottom: 24px;">
+    <div class="section-title">
+      🎛 تحديد الثيم
+      <span style="font-size: 11px; color: var(--text2); font-weight: 400;">(لجميع المستخدمين)</span>
+    </div>
     <div class="themes-grid">
       <!-- Anime Neon -->
-      <div class="theme-card theme-anime" data-theme-name="أنمي نيون" onclick="selectTheme(this,'أنمي نيون')">
+      <div class="theme-card theme-anime" data-theme-id="anime-neon" onclick="selectTheme(this,'anime-neon')">
         <div class="active-badge">✓ نشط</div>
         <div class="theme-preview">
           <div class="theme-stars"></div>
@@ -27,7 +44,7 @@
         </div>
         <div class="theme-info">
           <div class="theme-name" style="color:#ff6eb4">🌸 أنمي نيون</div>
-          <div class="theme-desc">ألوان نيون، أنمي، حركة fluidez</div>
+          <div class="theme-desc">ألوان نيون، أنمي، حركة fluidity</div>
           <div class="theme-tags">
             <span class="tag">أنمي</span>
             <span class="tag">نيون</span>
@@ -36,7 +53,7 @@
       </div>
 
       <!-- Classic Royal -->
-      <div class="theme-card theme-classic" data-theme-name="كلاسيك رويال" onclick="selectTheme(this,'كلاسيك رويال')">
+      <div class="theme-card theme-classic" data-theme-id="classic-royal" onclick="selectTheme(this,'classic-royal')">
         <div class="active-badge">✓ نشط</div>
         <div class="theme-preview">
           <div class="char">👑</div>
@@ -53,7 +70,7 @@
       </div>
 
       <!-- Cyber 2077 -->
-      <div class="theme-card theme-cyber" data-theme-name="سايبر 2077" onclick="selectTheme(this,'سايبر 2077')">
+      <div class="theme-card theme-cyber" data-theme-id="cyber-2077" onclick="selectTheme(this,'cyber-2077')">
         <div class="active-badge">✓ نشط</div>
         <div class="theme-preview">
           <div class="theme-grid-lines"></div>
@@ -70,7 +87,7 @@
       </div>
 
       <!-- Dark Fantasy -->
-      <div class="theme-card theme-fantasy" data-theme-name="داك فانتازيا" onclick="selectTheme(this,'داك فانتازيا')">
+      <div class="theme-card theme-fantasy" data-theme-id="dark-fantasy" onclick="selectTheme(this,'dark-fantasy')">
         <div class="active-badge">✓ نشط</div>
         <div class="theme-preview">
           <div class="theme-runes">◈ ◇ △</div>
@@ -88,9 +105,12 @@
     </div>
   </div>
 
-  <!-- Animations -->
-  <div class="panel" style="margin-bottom: 24px;">
-    <div class="section-title">تأثيرات فتح الصندوق</div>
+  <!-- Animations Section -->
+  <div class="panel admin-only" style="margin-bottom: 24px;">
+    <div class="section-title">
+      🎬 تأثيرات فتح الصندوق
+      <span style="font-size: 11px; color: var(--text2); font-weight: 400;">(لجميع المستخدمين)</span>
+    </div>
     <div class="anim-grid">
       <div class="anim-card" data-anim-id="float" onclick="selectAnimation('float')">
         <div class="anim-preview">🪶</div>
@@ -120,16 +140,16 @@
     </div>
   </div>
 
-  <!-- Additional Settings -->
-  <div class="panel">
-    <div class="section-title">إعدادات إضافية</div>
+  <!-- Settings (Admin only) -->
+  <div class="panel admin-only">
+    <div class="section-title">⚙️ إعدادات المؤثرات</div>
     
     <div class="control-row">
       <div>
         <div class="control-label">الصوت</div>
-        <div class="control-sub">تشغيل المؤثرات الصوتية</div>
+        <div class="control-sub">تشغيل المؤثرات الصوتية للجميع</div>
       </div>
-      <div class="toggle on" id="toggle-sound" onclick="this.classList.toggle('on'); toggleSound(this.classList.contains('on'))"></div>
+      <div class="toggle on" id="toggle-sound" onclick="this.classList.toggle('on')"></div>
     </div>
 
     <div class="control-row">
@@ -137,7 +157,7 @@
         <div class="control-label">الاهتزاز</div>
         <div class="control-sub">اهتزاز عند فتح الصندوق</div>
       </div>
-      <div class="toggle on" id="toggle-haptics" onclick="this.classList.toggle('on'); toggleHaptics(this.classList.contains('on'))"></div>
+      <div class="toggle on" id="toggle-haptics" onclick="this.classList.toggle('on')"></div>
     </div>
 
     <div class="control-row">
@@ -145,23 +165,23 @@
         <div class="control-label">الجزيئات</div>
         <div class="control-sub">تأثيرات جزيئات عند الفوز</div>
       </div>
-      <div class="toggle on" id="toggle-particles" onclick="this.classList.toggle('on'); toggleParticles(this.classList.contains('on'))"></div>
+      <div class="toggle on" id="toggle-particles" onclick="this.classList.toggle('on')"></div>
     </div>
   </div>
 </div>
 
-<!-- Apply Theme Bar -->
-<div id="apply-bar" class="apply-bar" style="display: none;">
+<!-- Apply Theme Bar (Admin only) -->
+<div id="apply-bar" class="apply-bar admin-only" style="display: none;">
   <div class="apply-text">
     الثيم المحدد: <span id="selected-theme-name">أنمي نيون</span>
   </div>
-  <button class="btn btn-primary" onclick="applyTheme()">تطبيق ✓</button>
+  <button class="btn btn-primary" onclick="applyTheme()">تطبيق على الجميع ✓</button>
   <button class="btn" onclick="cancelTheme()" style="background:var(--surface2)">إلغاء</button>
 </div>
 
 <!-- Toast Notification -->
 <div id="toast" class="toast">
-  ✅ تم تطبيق الثيم بنجاح!
+  ✅ تم!
 </div>
 
 <style>
