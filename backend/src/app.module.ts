@@ -10,6 +10,9 @@ import { NotificationsModule } from './modules/notifications/notification.module
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { ReferralModule } from './modules/referral/referral.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { QueueModule } from './modules/queue/queue.module';
+import { WebsocketModule } from './modules/websocket/websocket.module';
+import { CacheModule } from './modules/cache/cache.module';
 
 @Module({
   imports: [
@@ -23,6 +26,7 @@ import { PaymentModule } from './modules/payment/payment.module';
       }),
       inject: [ConfigService],
     }),
+    CacheModule,
     AuthModule,
     UsersModule,
     BoxesModule,
@@ -32,6 +36,8 @@ import { PaymentModule } from './modules/payment/payment.module';
     SubscriptionModule,
     ReferralModule,
     PaymentModule,
+    QueueModule,
+    WebsocketModule,
   ],
 })
 export class AppModule {}
