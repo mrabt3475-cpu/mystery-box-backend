@@ -1,5 +1,5 @@
-// 🎁 Realistic 3D Box Component for PuzzleChain
-// Advanced CSS 3D with realistic lighting and physics
+// 🎁 Realistic 3D Box with Advanced Lighting for PuzzleChain
+// Dynamic lighting, reflections, and volumetric effects
 
 class Box3D {
   constructor(element, options = {}) {
@@ -14,11 +14,15 @@ class Box3D {
     };
     
     this.isOpening = false;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.lightX = 0.5;
+    this.lightY = 0.5;
     this.init();
   }
 
   init() {
-    this.element.classList.add('realistic-box-container');
+    this.element.classList.add('advanced-box-container');
     if (this.options.rarity) {
       this.element.classList.add(`rarity-${this.options.rarity}`);
     }
@@ -26,49 +30,55 @@ class Box3D {
     this.render();
     this.addEventListeners();
     this.startIdleAnimation();
+    this.startDynamicLighting();
   }
 
   getRarityConfig() {
     const configs = {
       common: {
-        primary: '#8b8b8b',
-        secondary: '#5a5a5a',
-        accent: '#a0a0a0',
-        glow: 'rgba(139, 139, 139, 0.3)',
-        particleColor: '#c0c0c0',
-        shine: 'rgba(255,255,255,0.1)'
+        primary: '#7a7a7a',
+        secondary: '#4a4a4a',
+        accent: '#9a9a9a',
+        glow: 'rgba(122, 122, 122, 0.3)',
+        lightColor: 'rgba(255, 255, 255, 0.15)',
+        particleColor: '#d0d0d0',
+        emissive: '#505050'
       },
       uncommon: {
-        primary: '#22c55e',
-        secondary: '#15803d',
-        accent: '#4ade80',
-        glow: 'rgba(34, 197, 94, 0.4)',
-        particleColor: '#4ade80',
-        shine: 'rgba(255,255,255,0.2)'
+        primary: '#10b981',
+        secondary: '#047857',
+        accent: '#34d399',
+        glow: 'rgba(16, 185, 129, 0.5)',
+        lightColor: 'rgba(52, 211, 153, 0.2)',
+        particleColor: '#34d399',
+        emissive: '#065f46'
       },
       rare: {
         primary: '#3b82f6',
         secondary: '#1d4ed8',
         accent: '#60a5fa',
-        glow: 'rgba(59, 130, 246, 0.5)',
+        glow: 'rgba(59, 130, 246, 0.6)',
+        lightColor: 'rgba(96, 165, 250, 0.25)',
         particleColor: '#60a5fa',
-        shine: 'rgba(255,255,255,0.25)'
+        emissive: '#1e3a8a'
       },
       epic: {
-        primary: '#a855f7',
-        secondary: '#7c3aed',
-        accent: '#c084fc',
-        glow: 'rgba(168, 85, 247, 0.6)',
-        particleColor: '#c084fc',
-        shine: 'rgba(255,255,255,0.3)'
+        primary: '#8b5cf6',
+        secondary: '#6d28d9',
+        accent: '#a78bfa',
+        glow: 'rgba(139, 92, 246, 0.7)',
+        lightColor: 'rgba(167, 139, 250, 0.3)',
+        particleColor: '#a78bfa',
+        emissive: '#4c1d95'
       },
       legendary: {
         primary: '#f59e0b',
         secondary: '#b45309',
         accent: '#fbbf24',
-        glow: 'rgba(245, 158, 11, 0.7)',
+        glow: 'rgba(245, 158, 11, 0.8)',
+        lightColor: 'rgba(251, 191, 36, 0.35)',
         particleColor: '#fbbf24',
-        shine: 'rgba(255,255,255,0.4)'
+        emissive: '#78350f'
       }
     };
     return configs[this.options.rarity] || configs.common;
@@ -78,62 +88,97 @@ class Box3D {
     const config = this.getRarityConfig();
     
     this.element.innerHTML = `
-      <div class="realistic-box" style="--primary: ${config.primary}; --secondary: ${config.secondary}; --accent: ${config.accent}; --glow: ${config.glow};">
-        <!-- Ambient Glow -->
-        <div class="box-ambient-glow"></div>
+      <div class="advanced-box" style="
+        --primary: ${config.primary}; 
+        --secondary: ${config.secondary}; 
+        --accent: ${config.accent}; 
+        --glow: ${config.glow};
+        --light-color: ${config.lightColor};
+        --emissive: ${config.emissive};
+      ">
+        <!-- Dynamic Light Source -->
+        <div class="dynamic-light"></div>
+        
+        <!-- Volumetric Light Rays -->
+        <div class="light-rays"></div>
+        
+        <!-- Ambient Occlusion -->
+        <div class="ambient-occlusion"></div>
         
         <!-- Main Box Structure -->
         <div class="box-structure">
           <!-- Lid -->
           <div class="box-lid">
             <div class="lid-surface">
+              <div class="lid-highlight"></div>
+              <div class="lid-specular"></div>
               <div class="lid-shine"></div>
               <div class="lid-detail"></div>
-              <div class="lid-edge"></div>
+              <div class="lid-rim-light"></div>
             </div>
-            <div class="lid-front"></div>
-            <div class="lid-left"></div>
-            <div class="lid-right"></div>
-            <div class="lid-back"></div>
+            <div class="lid-side lid-front"></div>
+            <div class="lid-side lid-left"></div>
+            <div class="lid-side lid-right"></div>
+            <div class="lid-side lid-back"></div>
           </div>
           
           <!-- Box Body -->
           <div class="box-body">
             <div class="body-front">
               <div class="front-surface">
+                <div class="front-highlight"></div>
+                <div class="front-specular"></div>
                 <div class="front-shine"></div>
-                <div class="front-design"></div>
+                <div class="front-fresnel"></div>
               </div>
               <div class="front-panel">
-                ${this.options.image ? `<img src="${this.options.image}" alt="${this.options.title}" class="box-icon" />` : '<div class="box-icon-placeholder">📦</div>'}
+                <div class="panel-glow"></div>
+                ${this.options.image ? 
+                  `<img src="${this.options.image}" alt="${this.options.title}" class="box-icon" />` : 
+                  '<div class="box-icon-placeholder">🎁</div>'
+                }
                 <div class="box-label">${this.options.title}</div>
                 <div class="box-value">${this.options.price} 🪙</div>
               </div>
             </div>
-            <div class="body-left">
-              <div class="side-surface"></div>
+            <div class="body-side body-left">
+              <div class="side-surface">
+                <div class="side-highlight"></div>
+              </div>
             </div>
-            <div class="body-right">
-              <div class="side-surface"></div>
+            <div class="body-side body-right">
+              <div class="side-surface">
+                <div class="side-highlight"></div>
+              </div>
             </div>
-            <div class="body-back">
+            <div class="body-side body-back">
               <div class="back-surface"></div>
             </div>
-            <div class="body-bottom">
+            <div class="body-side body-bottom">
               <div class="bottom-surface"></div>
             </div>
           </div>
         </div>
         
-        <!-- Shadow -->
-        <div class="box-shadow"></div>
+        <!-- Environment Reflection -->
+        <div class="environment-reflection"></div>
         
-        <!-- Particles Container -->
+        <!-- Shadow System -->
+        <div class="shadow-group">
+          <div class="shadow-main"></div>
+          <div class="shadow-ambient"></div>
+        </div>
+        
+        <!-- Particles -->
         <div class="particles-container"></div>
+        
+        <!-- Rarity Glow -->
+        <div class="rarity-glow"></div>
         
         <!-- Rarity Badge -->
         <div class="rarity-badge">
           <span class="rarity-text">${this.getRarityText()}</span>
+          <span class="rarity-sparkle"></span>
         </div>
       </div>
     `;
@@ -151,41 +196,84 @@ class Box3D {
   }
 
   addEventListeners() {
-    this.element.addEventListener('mouseenter', () => this.onHover());
-    this.element.addEventListener('mouseleave', () => this.onLeave());
+    this.element.addEventListener('mouseenter', (e) => this.onHover(e));
+    this.element.addEventListener('mouseleave', (e) => this.onLeave(e));
     this.element.addEventListener('click', () => this.open());
     this.element.addEventListener('mousemove', (e) => this.onMouseMove(e));
   }
 
-  onHover() {
+  onHover(e) {
     if (!this.isOpening) {
       this.element.classList.add('hovering');
     }
   }
 
-  onLeave() {
+  onLeave(e) {
     this.element.classList.remove('hovering');
-    this.resetRotation();
+    this.resetLighting();
   }
 
   onMouseMove(e) {
     if (this.isOpening) return;
     
     const rect = this.element.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    this.mouseX = (e.clientX - rect.left) / rect.width;
+    this.mouseY = (e.clientY - rect.top) / rect.height;
     
-    const box = this.element.querySelector('.realistic-box');
-    if (box) {
-      box.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 15}deg)`;
+    this.updateDynamicLighting();
+  }
+
+  updateDynamicLighting() {
+    const box = this.element.querySelector('.advanced-box');
+    if (!box) return;
+    
+    // Calculate light position based on mouse
+    const lightX = this.mouseX * 100;
+    const lightY = this.mouseY * 100;
+    
+    // Update CSS custom properties for dynamic lighting
+    box.style.setProperty('--light-x', `${lightX}%`);
+    box.style.setProperty('--light-y', `${lightY}%`);
+    
+    // Update dynamic light element
+    const dynamicLight = box.querySelector('.dynamic-light');
+    if (dynamicLight) {
+      dynamicLight.style.background = `radial-gradient(circle at ${lightX}% ${lightY}%, var(--light-color), transparent 60%)`;
     }
   }
 
-  resetRotation() {
-    const box = this.element.querySelector('.realistic-box');
+  resetLighting() {
+    const box = this.element.querySelector('.advanced-box');
     if (box) {
-      box.style.transform = '';
+      box.style.setProperty('--light-x', '50%');
+      box.style.setProperty('--light-y', '30%');
     }
+  }
+
+  startDynamicLighting() {
+    // Subtle automatic light movement when idle
+    let angle = 0;
+    const animate = () => {
+      if (this.isOpening) return;
+      
+      angle += 0.02;
+      const x = 50 + Math.sin(angle) * 20;
+      const y = 30 + Math.cos(angle * 0.7) * 15;
+      
+      const box = this.element.querySelector('.advanced-box');
+      if (box && !this.element.classList.contains('hovering')) {
+        box.style.setProperty('--light-x', `${x}%`);
+        box.style.setProperty('--light-y', `${y}%`);
+        
+        const dynamicLight = box.querySelector('.dynamic-light');
+        if (dynamicLight) {
+          dynamicLight.style.background = `radial-gradient(circle at ${x}% ${y}%, var(--light-color), transparent 60%)`;
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    };
+    animate();
   }
 
   startIdleAnimation() {
@@ -196,7 +284,7 @@ class Box3D {
     if (this.isOpening) return;
     this.isOpening = true;
     
-    const box = this.element.querySelector('.realistic-box');
+    const box = this.element.querySelector('.advanced-box');
     const lid = this.element.querySelector('.box-lid');
     
     // Play sound
@@ -204,12 +292,16 @@ class Box3D {
       window.audioService.playSound('open-box');
     }
     
-    // Pre-open shake
+    // Pre-open intense lighting
+    box.classList.add('pre-open');
+    await this.delay(400);
+    
+    // Shake
     box.classList.add('shaking');
     await this.delay(600);
-    box.classList.remove('shaking');
+    box.classList.remove('shaking', 'pre-open');
     
-    // Open animation
+    // Open with flash
     box.classList.add('opening');
     lid.classList.add('lid-opening');
     
@@ -218,10 +310,9 @@ class Box3D {
     
     await this.delay(800);
     
-    // Flash effect
+    // Intense flash
     box.classList.add('flash');
-    
-    await this.delay(300);
+    await this.delay(400);
     
     // Callback
     this.options.onOpen();
@@ -232,22 +323,21 @@ class Box3D {
   createParticles() {
     const container = this.element.querySelector('.particles-container');
     const config = this.getRarityConfig();
-    const particleCount = this.options.rarity === 'legendary' ? 50 : 
-                         this.options.rarity === 'epic' ? 40 : 
-                         this.options.rarity === 'rare' ? 30 : 20;
+    const particleCount = this.options.rarity === 'legendary' ? 60 : 
+                         this.options.rarity === 'epic' ? 45 : 
+                         this.options.rarity === 'rare' ? 35 : 25;
     
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
       
-      // Random properties
-      const angle = (Math.PI * 2 * i) / particleCount;
-      const velocity = 150 + Math.random() * 150;
+      const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+      const velocity = 120 + Math.random() * 180;
       const tx = Math.cos(angle) * velocity;
-      const ty = Math.sin(angle) * velocity - 100;
-      const rz = (Math.random() - 0.5) * 720;
-      const delay = Math.random() * 0.2;
-      const size = 4 + Math.random() * 8;
+      const ty = Math.sin(angle) * velocity - 80;
+      const rz = (Math.random() - 0.5) * 1080;
+      const delay = Math.random() * 0.15;
+      const size = 3 + Math.random() * 10;
       
       particle.style.cssText = `
         --tx: ${tx}px;
@@ -259,8 +349,7 @@ class Box3D {
       `;
       
       container.appendChild(particle);
-      
-      setTimeout(() => particle.remove(), 2500);
+      setTimeout(() => particle.remove(), 3000);
     }
   }
 
@@ -275,173 +364,5 @@ class Box3D {
   }
 }
 
-// Prize Reveal Component
-class PrizeReveal {
-  constructor(prize) {
-    this.prize = prize;
-  }
-
-  show() {
-    const overlay = document.createElement('div');
-    overlay.className = 'prize-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.95) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      animation: fadeIn 0.5s ease;
-    `;
-
-    const container = document.createElement('div');
-    container.className = 'prize-container';
-    container.style.cssText = `
-      text-align: center;
-      padding: 60px;
-      max-width: 550px;
-      animation: prizeReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-    `;
-
-    const rarityColors = {
-      common: '#8b8b8b',
-      uncommon: '#22c55e',
-      rare: '#3b82f6',
-      epic: '#a855f7',
-      legendary: '#f59e0b'
-    };
-    
-    const color = rarityColors[this.prize.rarity] || '#8b8b8b';
-    const glowIntensity = this.prize.rarity === 'legendary' ? '50px' : 
-                         this.prize.rarity === 'epic' ? '40px' : '30px';
-
-    container.innerHTML = `
-      <div class="prize-glow" style="box-shadow: 0 0 ${glowIntensity} ${color};"></div>
-      <h2 class="prize-title" style="color: ${color};">
-        <span class="title-text">🎉 تهانينا! 🎉</span>
-      </h2>
-      <div class="prize-image-wrapper">
-        <div class="prize-sparkle"></div>
-        <img src="${this.prize.image}" alt="${this.prize.name}" 
-          class="prize-image" 
-          style="filter: drop-shadow(0 0 ${glowIntensity} ${color});" />
-      </div>
-      <h3 class="prize-name">${this.prize.name}</h3>
-      <div class="prize-value" style="color: ${color};">
-        <span class="value-icon">💰</span>
-        <span class="value-amount">${this.prize.value}</span>
-        <span class="value-currency">🪙</span>
-      </div>
-      <button class="prize-close-btn" onclick="this.closest('.prize-overlay').remove()">
-        <span>إغلاق</span>
-        <span class="btn-icon">✕</span>
-      </button>
-    `;
-
-    overlay.appendChild(container);
-    document.body.appendChild(overlay);
-
-    // Add styles
-    this.addStyles();
-
-    // Play win sound
-    if (window.audioService) {
-      window.audioService.playSound('win');
-    }
-  }
-
-  addStyles() {
-    if (document.getElementById('prize-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'prize-styles';
-    style.textContent = `
-      @keyframes prizeReveal {
-        0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-        50% { transform: scale(1.1) rotate(2deg); }
-        100% { transform: scale(1) rotate(0); opacity: 1; }
-      }
-      .prize-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 300px;
-        height: 300px;
-        border-radius: 50%;
-        background: transparent;
-        animation: glowPulse 2s ease-in-out infinite;
-        pointer-events: none;
-      }
-      @keyframes glowPulse {
-        0%, 100% { opacity: 0.5; }
-        50% { opacity: 1; }
-      }
-      .prize-title {
-        font-size: 36px;
-        margin-bottom: 30px;
-        text-shadow: 0 0 30px currentColor;
-      }
-      .prize-image-wrapper {
-        position: relative;
-        display: inline-block;
-        margin: 20px 0;
-      }
-      .prize-image {
-        width: 220px;
-        height: 220px;
-        object-fit: contain;
-        animation: prizeFloat 3s ease-in-out infinite;
-      }
-      @keyframes prizeFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
-      }
-      .prize-name {
-        color: #fff;
-        font-size: 28px;
-        margin: 20px 0;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      }
-      .prize-value {
-        font-size: 32px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin: 20px 0;
-      }
-      .prize-close-btn {
-        margin-top: 30px;
-        padding: 16px 50px;
-        border-radius: 50px;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        border: none;
-        color: #fff;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 0 auto;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
-      }
-      .prize-close-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(99, 102, 241, 0.7);
-      }
-    `;
-    document.head.appendChild(style);
-  }
-}
-
 // Export
 window.Box3D = Box3D;
-window.PrizeReveal = PrizeReveal;
