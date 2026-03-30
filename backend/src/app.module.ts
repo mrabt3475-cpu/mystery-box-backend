@@ -13,12 +13,11 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { CacheModule } from './modules/cache/cache.module';
+import { ThemeModule } from './modules/theme/theme.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -38,6 +37,7 @@ import { CacheModule } from './modules/cache/cache.module';
     PaymentModule,
     QueueModule,
     WebsocketModule,
+    ThemeModule,
   ],
 })
 export class AppModule {}

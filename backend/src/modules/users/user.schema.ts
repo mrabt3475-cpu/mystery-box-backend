@@ -1,69 +1,93 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, unique: true })
-  username: string;
-
-  @Prop({ required: true, unique: true })
-  email: string;
+  telegramId: string;
 
   @Prop({ required: true })
-  password: string;
+  username: string;
+
+  @Prop()
+  firstName: string;
+
+  @Prop()
+  lastName: string;
+
+  @Prop()
+  avatar: string;
+
+  @Prop({ default: 0 })
+  balance: number;
 
   @Prop({ default: 0 })
   points: number;
 
   @Prop({ default: 0 })
-  balance: number;
+  totalWins: number;
+
+  @Prop({ default: 0 })
+  totalSpent: number;
 
   @Prop({ default: 1 })
   level: number;
 
-  @Prop({ default: 0 })
-  boxesOpened: number;
+  @Prop({ type: Object, default: () => ({
+    name: 'أنمي نيون',
+    animation: 'float',
+    soundEnabled: true,
+    hapticsEnabled: true,
+    particlesEnabled: true
+  }) })
+  themeSettings: {
+    name: string;
+    animation: string;
+    soundEnabled: boolean;
+    hapticsEnabled: boolean;
+    particlesEnabled: boolean;
+  };
 
-  @Prop({ default: 0 })
-  totalWins: number;
+  @Prop({ type: [Types.ObjectId], ref: 'Box', default: [] })
+  ownedBoxes: Types.ObjectId[];
 
-  @Prop({ default: 0 })
-  totalPointsEarned: number;
+  @Prop({ type: [Types.ObjectId], ref: 'Prize', default: [] })
+  prizes: Types.ObjectId[];
 
-  @Prop({ default: 0 })
-  dailyStreak: number;
+  @Prop({ type: [Types.ObjectId], ref: 'Transaction', default: [] })
+  transactions: Types.ObjectId[];
 
-  @Prop()
-  lastDailyReward: Date;
-
-  @Prop({ type: [String], default: [] })
-  achievements: string[];
-
-  @Prop({ type: Array, default: [] })
-  inventory: any[];
-
-  @Prop()
-  referralCode: string;
-
-  @Prop()
-  referredBy: string;
-
-  @Prop({ default: false })
-  isVerified: boolean;
+  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
+  referredBy: Types.ObjectId;
 
   @Prop({ default: false })
-  isBanned: boolean;
+  isVip: boolean;
 
   @Prop()
-  lastLoginAt: Date;
+  vipExpiresAt: Date;
+
+  @Prop({ default: true })
+  isActive: boolean;
 
   @Prop()
-  createdAt: Date;
+  lastActiveAt: Date;
 
-  @Prop()
-  updatedAt: Date;
+  @Prop({ type: Object })
+  settings: {
+    language: string;
+    notifications: boolean;
+    twoFactorEnabled: boolean;
+  };
+
+  @Prop({ type: Object })
+  stats: {
+    boxesOpened: number;
+    totalPrizeValue: number;
+    biggestWin: number;
+    referralEarnings: number;
+  };
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
