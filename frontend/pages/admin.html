@@ -46,7 +46,7 @@
   </div>
 
   <!-- Theme Control Section -->
-  <div id="admin-theme" class="admin-section">
+  <div id="admin-theme" class="admin-section" style="display: none;">
     <div class="panel" style="margin-bottom: 24px;">
       <div class="section-title">
         🎨 التحكم في ثيم المنصة
@@ -186,10 +186,17 @@
     <div class="panel">
       <div class="section-title">👥 إدارة المستخدمين</div>
       
-      <!-- Search -->
+      <!-- Search and Filters -->
       <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-        <input type="text" class="input" placeholder="البحث بالاسم أو الـ ID..." id="user-search" style="flex: 1;">
+        <input type="text" class="input" placeholder="البحث بالاسم أو الـ ID أو اليوزر..." id="user-search" style="flex: 1;" onkeyup="if(event.key==='Enter')searchUsers()">
+        <select class="input" id="user-filter" style="width: 150px;" onchange="searchUsers()">
+          <option value="">الكل</option>
+          <option value="active">نشط</option>
+          <option value="banned">محظور</option>
+          <option value="vip">VIP</option>
+        </select>
         <button class="btn btn-primary" onclick="searchUsers()">🔍 بحث</button>
+        <button class="btn" onclick="userManager.loadUsers(1,'')" style="background: var(--surface2)">🔄 تحديث</button>
       </div>
 
       <!-- Users Table -->
@@ -198,7 +205,7 @@
           <thead>
             <tr>
               <th>المستخدم</th>
-              <th>الـ ID</th>
+              <th>Telegram ID</th>
               <th>الرصيد</th>
               <th>النقاط</th>
               <th>المستوى</th>
@@ -210,6 +217,11 @@
             <!-- Users will be loaded here -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;" id="users-pagination">
+        <!-- Pagination will be loaded here -->
       </div>
     </div>
   </div>
@@ -231,6 +243,8 @@
     </div>
   </div>
 </div>
+
+<!-- User Details Modal (dynamically created) -->
 
 <!-- Toast -->
 <div id="admin-toast" class="toast"></div>
@@ -315,6 +329,11 @@
   font-size: 13px;
 }
 
+.table tr {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
 .table tr:hover {
   background: var(--surface2);
 }
@@ -375,5 +394,92 @@
 .box-actions .btn {
   padding: 6px 12px;
   font-size: 11px;
+}
+
+/* User Row */
+.user-row {
+  cursor: pointer;
+}
+
+.user-row:hover {
+  background: rgba(124, 92, 252, 0.1) !important;
+}
+
+/* Badges */
+.badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-active {
+  background: #34d399;
+  color: white;
+}
+
+.badge-banned {
+  background: #ef4444;
+  color: white;
+}
+
+.badge-vip {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-action {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-edit { background: var(--surface2); }
+.btn-edit:hover { background: var(--accent); }
+
+.btn-ban { background: var(--surface2); }
+.btn-ban:hover { background: #ef4444; }
+
+.btn-unban { background: var(--surface2); }
+.btn-unban:hover { background: #34d399; }
+
+.btn-vip { background: var(--surface2); }
+.btn-vip:hover { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+.btn-delete { background: var(--surface2); }
+.btn-delete:hover { background: #ef4444; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 300;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 </style>
