@@ -14,6 +14,7 @@ import { QueueModule } from './modules/queue/queue.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ThemeModule } from './modules/theme/theme.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ThemeModule } from './modules/theme/theme.module';
     QueueModule,
     WebsocketModule,
     ThemeModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
