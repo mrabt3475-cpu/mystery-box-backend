@@ -1,0 +1,379 @@
+<!-- ========================================
+     Admin Dashboard - PuzzleChain
+     لوحة تحكم الأدمن الشاملة
+     ======================================== -->
+
+<!-- Page: Admin Dashboard -->
+<div id="page-admin" class="page">
+  <!-- Admin Header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">🎛 لوحة تحكم الأدمن</div>
+      <div class="page-sub">إدارة المنصة والإعدادات</div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn" onclick="adminNavigate('stats')" style="background: var(--surface2)">📊 الإحصائيات</button>
+      <button class="btn" onclick="adminNavigate('users')" style="background: var(--surface2)">👥 المستخدمين</button>
+      <button class="btn" onclick="adminNavigate('boxes')" style="background: var(--surface2)">📦 الصناديق</button>
+      <button class="btn" onclick="adminNavigate('theme')" style="background: var(--accent)">🎨 الثيمات</button>
+    </div>
+  </div>
+
+  <!-- Admin Stats -->
+  <div id="admin-stats" class="admin-section">
+    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="stat-card">
+        <div class="stat-label">👥 إجمالي المستخدمين</div>
+        <div class="stat-value" id="stat-total-users">0</div>
+        <div class="stat-change" id="stat-users-change">+0 اليوم</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📦 صناديق مفتوحة</div>
+        <div class="stat-value" id="stat-total-boxes">0</div>
+        <div class="stat-change" id="stat-boxes-change">+0 اليوم</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">💰 الإيرادات</div>
+        <div class="stat-value" id="stat-revenue">$0</div>
+        <div class="stat-change" id="stat-revenue-change">+0 اليوم</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🎁 الجوائز الموزعة</div>
+        <div class="stat-value" id="stat-prizes">$0</div>
+        <div class="stat-change" id="stat-prizes-change">+0 اليوم</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Control Section -->
+  <div id="admin-theme" class="admin-section">
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="section-title">
+        🎨 التحكم في ثيم المنصة
+        <span style="font-size: 11px; color: var(--text2); font-weight: 400;">
+          ← هذا الثيم يظهر لجميع المستخدمين
+        </span>
+      </div>
+
+      <!-- Current Theme Display -->
+      <div id="current-theme-display" style="margin-bottom: 20px;">
+        <div class="live-preview" style="height: 120px;">
+          <span id="preview-char" style="font-size:36px;">🌸</span>
+          <span id="preview-name" style="font-size:14px;font-weight:700;color:#ff6eb4;">PuzzleChain</span>
+        </div>
+      </div>
+
+      <!-- Theme Selection -->
+      <div class="themes-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="theme-card theme-anime" data-theme-id="anime-neon" onclick="selectTheme(this,'anime-neon')">
+          <div class="active-badge">✓ نشط</div>
+          <div class="theme-preview">
+            <div class="theme-stars"></div>
+            <div class="char">🌸</div>
+          </div>
+          <div class="theme-info">
+            <div class="theme-name" style="color:#ff6eb4">🌸 أنمي نيون</div>
+            <div class="theme-tags">
+              <span class="tag">أنمي</span>
+              <span class="tag">نيون</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-card theme-classic" data-theme-id="classic-royal" onclick="selectTheme(this,'classic-royal')">
+          <div class="active-badge">✓ نشط</div>
+          <div class="theme-preview">
+            <div class="char">👑</div>
+            <div class="theme-sparkles" style="color:gold">✦</div>
+          </div>
+          <div class="theme-info">
+            <div class="theme-name" style="color:#c8963c">🏰 كلاسيك رويال</div>
+            <div class="theme-tags">
+              <span class="tag">ملكي</span>
+              <span class="tag">ذهبي</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-card theme-cyber" data-theme-id="cyber-2077" onclick="selectTheme(this,'cyber-2077')">
+          <div class="active-badge">✓ نشط</div>
+          <div class="theme-preview">
+            <div class="theme-grid-lines"></div>
+            <div class="char">🤖</div>
+          </div>
+          <div class="theme-info">
+            <div class="theme-name" style="color:#00ffc8">🤖 سايبر 2077</div>
+            <div class="theme-tags">
+              <span class="tag">سايبر</span>
+              <span class="tag">مستقبلي</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-card theme-fantasy" data-theme-id="dark-fantasy" onclick="selectTheme(this,'dark-fantasy')">
+          <div class="active-badge">✓ نشط</div>
+          <div class="theme-preview">
+            <div class="theme-runes">◈ ◇ △</div>
+            <div class="char">🔮</div>
+          </div>
+          <div class="theme-info">
+            <div class="theme-name" style="color:#c084fc">🔮 داك فانتازيا</div>
+            <div class="theme-tags">
+              <span class="tag">فانتازيا</span>
+              <span class="tag">سحري</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animation Selection -->
+      <div style="margin-top: 24px;">
+        <div class="section-title" style="font-size: 14px;">🎬 تأثير فتح الصندوق</div>
+        <div class="anim-grid" style="grid-template-columns: repeat(5, 1fr);">
+          <div class="anim-card" data-anim-id="float" onclick="selectAnimation('float')">
+            <div class="anim-preview">🪶</div>
+            <div class="anim-name">Float</div>
+          </div>
+          <div class="anim-card" data-anim-id="pulse" onclick="selectAnimation('pulse')">
+            <div class="anim-preview">💗</div>
+            <div class="anim-name">نبض</div>
+          </div>
+          <div class="anim-card" data-anim-id="shake" onclick="selectAnimation('shake')">
+            <div class="anim-preview">📳</div>
+            <div class="anim-name">هز</div>
+          </div>
+          <div class="anim-card" data-anim-id="sparkle" onclick="selectAnimation('sparkle')">
+            <div class="anim-preview">✨</div>
+            <div class="anim-name">لمعان</div>
+          </div>
+          <div class="anim-card" data-anim-id="rotate" onclick="selectAnimation('rotate')">
+            <div class="anim-preview">🔄</div>
+            <div class="anim-name">دوران</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div style="margin-top: 24px;">
+        <div class="section-title" style="font-size: 14px;">⚙️ إعدادات المؤثرات</div>
+        <div style="display: flex; gap: 24px; margin-top: 12px;">
+          <div class="control-row" style="border: none; padding: 0;">
+            <div class="control-label">🔊 الصوت</div>
+            <div class="toggle on" id="admin-toggle-sound" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="control-row" style="border: none; padding: 0;">
+            <div class="control-label">📳 الاهتزاز</div>
+            <div class="toggle on" id="admin-toggle-haptics" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="control-row" style="border: none; padding: 0;">
+            <div class="control-label">✨ الجزيئات</div>
+            <div class="toggle on" id="admin-toggle-particles" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apply Button -->
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="btn btn-primary" onclick="applyGlobalTheme()" style="padding: 14px 40px; font-size: 15px;">
+          ✅ تطبيق الثيم على جميع المستخدمين
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Management -->
+  <div id="admin-users" class="admin-section" style="display: none;">
+    <div class="panel">
+      <div class="section-title">👥 إدارة المستخدمين</div>
+      
+      <!-- Search -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <input type="text" class="input" placeholder="البحث بالاسم أو الـ ID..." id="user-search" style="flex: 1;">
+        <button class="btn btn-primary" onclick="searchUsers()">🔍 بحث</button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>الـ ID</th>
+              <th>الرصيد</th>
+              <th>النقاط</th>
+              <th>المستوى</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <!-- Users will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boxes Management -->
+  <div id="admin-boxes" class="admin-section" style="display: none;">
+    <div class="panel">
+      <div class="section-title">📦 إدارة الصناديق</div>
+      
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <button class="btn btn-primary" onclick="showAddBoxModal()">➕ إضافة صندوق</button>
+        <button class="btn" onclick="refreshBoxes()" style="background: var(--surface2)">🔄 تحديث</button>
+      </div>
+
+      <!-- Boxes Grid -->
+      <div class="boxes-grid" id="admin-boxes-grid">
+        <!-- Boxes will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="admin-toast" class="toast"></div>
+
+<style>
+/* Admin Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 0 14px 0 60px;
+  opacity: 0.15;
+}
+
+.stat-card:nth-child(1)::before { background: #7c5cfc; }
+.stat-card:nth-child(2)::before { background: #fc5c7d; }
+.stat-card:nth-child(3)::before { background: #fbbf24; }
+.stat-card:nth-child(4)::before { background: #34d399; }
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.stat-change {
+  font-size: 11px;
+  color: #34d399;
+  margin-top: 4px;
+}
+
+/* Table */
+.table-container {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+.table th {
+  font-size: 11px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table td {
+  font-size: 13px;
+}
+
+.table tr:hover {
+  background: var(--surface2);
+}
+
+/* Input */
+.input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+/* Boxes Grid */
+.boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.box-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.box-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.box-name {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.box-price {
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.box-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.box-actions .btn {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+</style>
