@@ -2,19 +2,23 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { UsersModule } from '../users/users.module';
-import { BoxesModule } from '../boxes/boxes.module';
-import { RewardsModule } from '../rewards/rewards.module';
-import { WalletModule } from '../wallet/wallet.module';
-import { LegalModule } from './legal.module';
+import { User, UserSchema } from '../users/user.schema';
+import { Box, BoxSchema } from '../boxes/box.schema';
+import { Prize, PrizeSchema } from '../boxes/prize.schema';
+import { Transaction, TransactionSchema } from '../wallet/transaction.schema';
+import { CacheModule } from '../cache/cache.module';
+import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
-    UsersModule,
-    BoxesModule,
-    RewardsModule,
-    WalletModule,
-    LegalModule,
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Box.name, schema: BoxSchema },
+      { name: Prize.name, schema: PrizeSchema },
+      { name: Transaction.name, schema: TransactionSchema },
+    ]),
+    CacheModule,
+    WebsocketModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],
