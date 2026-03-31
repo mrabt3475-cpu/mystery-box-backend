@@ -1,6 +1,6 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { User, UserDocument } from '../users/user.schema';
 import { Box, BoxDocument } from '../boxes/box.schema';
 import { Prize, PrizeDocument } from '../boxes/prize.schema';
@@ -51,16 +51,26 @@ export class AdminService {
   }
 
   // ========== Users ==========
-  async getUsers(page: number, limit: number, search: string) {
-    const query = search
-      ? {
-          $or: [
-            { username: { $regex: search, $options: 'i' } },
-            { telegramId: { $regex: search, $options: 'i' } },
-            { firstName: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+  async getUsers(page: number, limit: number, search: string, filter: string) {
+    const query: any = {};
+
+    // Search filter
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { telegramId: { $regex: search, $options: 'i' } },
+        { firstName: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Status filter
+    if (filter === 'active') {
+      query.isActive = true;
+    } else if (filter === 'banned') {
+      query.isActive = false;
+    } else if (filter === 'vip') {
+      query.isVip = true;
+    }
 
     const [users, total] = await Promise.all([
       this.userModel
@@ -196,7 +206,6 @@ export class AdminService {
 
   // ========== Broadcast ==========
   async broadcastNotification(message: string, type: string = 'info') {
-    // Broadcast to all connected users via WebSocket
     this.wsGateway.broadcastToAll('notification', {
       message,
       type,

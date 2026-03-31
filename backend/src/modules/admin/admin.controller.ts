@@ -22,8 +22,9 @@ export class AdminController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
     @Query('search') search = '',
+    @Query('filter') filter = '',
   ) {
-    return this.adminService.getUsers(parseInt(page), parseInt(limit), search);
+    return this.adminService.getUsers(parseInt(page), parseInt(limit), search, filter);
   }
 
   @Get('users/:id')
