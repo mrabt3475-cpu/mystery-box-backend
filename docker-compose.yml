@@ -3,30 +3,66 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:6
-    ports:
-      - "27017:27017"
+    container_name: puzzlechain-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - puzzlechain
 
   redis:
     image: redis:7-alpine
+    container_name: puzzlechain-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
     ports:
       - "6379:6379"
+    networks:
+      - puzzlechain
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: puzzlechain-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/puzzlechain
+      REDIS_URL: redis://redis:6379
     ports:
       - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/puzzlechain
     depends_on:
       - mongodb
       - redis
+    networks:
+      - puzzlechain
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: puzzlechain-frontend
+    restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - puzzlechain
 
 volumes:
   mongodb_data:
+  redis_data:
+
+networks:
+  puzzlechain:
+    driver: bridge
