@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user.model');
 const PointsTransaction = require('../models/pointsTransaction.model');
-const { auth } = require('../middleware/auth.middleware');
-const { catchAsync } = require('../middleware/errorHandler.middleware');
-const { NotFoundError, ValidationError } = require('../utils/AppError');
-const { formatSuccess, formatPaginated } = require('../utils/responseFormatter');
+const User = require('../models/user.model');
+const { auth, requireRole } = require('../middleware/auth.middleware');
+const { pointsLimiter } = require('../middleware/rateLimiter.middleware');
+const { catchAsync } = require('../utils/errorHandler');
+const { NotFoundError, ValidationError } = require('../utils/errors');
+const mongoose = require('mongoose');
 
 // Get user's points with transactions
 router.get('/', auth, catchAsync(async (req, res) => {
@@ -19,31 +20,36 @@ router.get('/', auth, catchAsync(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(50);
   
-  res.json(formatSuccess({
-    balance: user.pointsBalance,
-    lifetime: user.lifetimePoints,
-    transactions
-  }));
+  res.json({ 
+    success: true, 
+    data: { 
+      balance: user.pointsBalance, 
+      lifetime: user.lifetimePoints, 
+      transactions 
+    } 
+  });
 }));
 
-// Add points (Admin only) - WITH TRANSACTION
-router.post('/add', auth, catchAsync(async (req, res) => {
-  if (req.user.role !== 'admin') {
-    throw new ValidationError('غير مصرح لك');
-  }
-  
+// Add points (Admin only) - with rate limiting
+router.post('/add', auth, requireRole('admin'), pointsLimiter, catchAsync(async (req, res) => {
   const { userId, amount, type, description } = req.body;
   
-  if (!userId || !amount || amount <= 0) {
-    throw new ValidationError('بيانات غير صالحة');
+  // Validate userId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ValidationError('معرف المستخدم غير صالح');
+  }
+  
+  if (amount < 1) {
+    throw new ValidationError('المبلغ يجب أن يكون 1 على الأقل');
   }
   
   const user = await User.findById(userId);
+  
   if (!user) {
     throw new NotFoundError('المستخدم');
   }
 
-  // Use atomic update
+  // Atomic update
   user.pointsBalance += amount;
   user.lifetimePoints += amount;
   await user.save();
@@ -56,22 +62,24 @@ router.post('/add', auth, catchAsync(async (req, res) => {
     balanceAfter: user.pointsBalance
   });
 
-  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم إضافة النقاط بنجاح'));
+  res.json({ success: true, data: { newBalance: user.pointsBalance } });
 }));
 
-// Deduct points (Admin only) - WITH TRANSACTION
-router.post('/deduct', auth, catchAsync(async (req, res) => {
-  if (req.user.role !== 'admin') {
-    throw new ValidationError('غير مصرح لك');
-  }
-  
+// Deduct points (Admin only)
+router.post('/deduct', auth, requireRole('admin'), pointsLimiter, catchAsync(async (req, res) => {
   const { userId, amount, reason } = req.body;
   
-  if (!userId || !amount || amount <= 0) {
-    throw new ValidationError('بيانات غير صالحة');
+  // Validate userId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ValidationError('معرف المستخدم غير صالح');
+  }
+  
+  if (amount < 1) {
+    throw new ValidationError('المبلغ يجب أن يكون 1 على الأقل');
   }
   
   const user = await User.findById(userId);
+  
   if (!user) {
     throw new NotFoundError('المستخدم');
   }
@@ -91,8 +99,7 @@ router.post('/deduct', auth, catchAsync(async (req, res) => {
     balanceAfter: user.pointsBalance
   });
 
-
-  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم خصم النقاط بنجاح'));
+  res.json({ success: true, data: { newBalance: user.pointsBalance } });
 }));
 
 module.exports = router;
