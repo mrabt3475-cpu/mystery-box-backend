@@ -107,6 +107,7 @@ const connectDB = async () => {
 // API ROUTES
 // =======================
 
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
@@ -180,5 +181,6 @@ process.on('unhandledRejection', (err) => {
 });
 
 startServer();
+
 
 module.exports = app;
