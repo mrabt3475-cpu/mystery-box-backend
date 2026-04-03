@@ -1,44 +1,192 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/ui/Toast/ToastProvider';
+import Layout from './components/layout/Layout';
+
+// Pages
 import Home from './pages/Home';
-import Boxes from './pages/Boxes';
-import Products from './pages/Products';
-import BoxDetail from './pages/BoxDetail';
-import ProductDetail from './pages/ProductDetail';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import Dashboard from './pages/Dashboard';
+import Boxes from './pages/Boxes';
+import OpenBox from './pages/OpenBox';
 import Wallet from './pages/Wallet';
 import Profile from './pages/Profile';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import './index.css';
+import Leaderboard from './pages/Leaderboard';
+import Settings from './pages/Settings';
+import ServicesMarketplace from './pages/services/ServicesMarketplace';
+import CreateService from './pages/services/CreateService';
+import ServiceDetail from './pages/services/ServiceDetail';
+import MyServices from './pages/services/MyServices';
+import GiftPoints from './pages/gift/GiftPoints';
+import ApiKeys from './pages/ApiKeys';
+import NotFound from './pages/NotFound';
 
-function App() {
-  const [user, setUser] = useState(null);
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
+// Public Route (redirect if logged in)
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
+const App = () => {
   return (
-    <BrowserRouter>
-      <div className="app">
-        <Navbar user={user} setUser={setUser} />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/boxes" element={<Boxes />} />
-            <Route path="/boxes/:id" element={<BoxDetail />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/dashboard" element={<Dashboard user={user} />} />
-            <Route path="/wallet" element={<Wallet user={user} />} />
-            <Route path="/profile" element={<Profile user={user} />} />
-            <Route path="/login" element={<Login setUser={setUser} />} />
-            <Route path="/register" element={<Register setUser={setUser} />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <Router>
+      <AuthProvider>
+        <ToastProvider>
+          <Layout>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route 
+                path="/login" 
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/register" 
+                element={
+                  <PublicRoute>
+                    <Register />
+                  </PublicRoute>
+                } 
+              />
+
+              {/* Protected Routes */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/boxes" 
+                element={
+                  <ProtectedRoute>
+                    <Boxes />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/boxes/:id" 
+                element={
+                  <ProtectedRoute>
+                    <OpenBox />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/wallet" 
+                element={
+                  <ProtectedRoute>
+                    <Wallet />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/leaderboard" 
+                element={
+                  <ProtectedRoute>
+                    <Leaderboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Services Routes */}
+              <Route 
+                path="/services" 
+                element={
+                  <ProtectedRoute>
+                    <ServicesMarketplace />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/services/create" 
+                element={
+                  <ProtectedRoute>
+                    <CreateService />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/services/my" 
+                element={
+                  <ProtectedRoute>
+                    <MyServices />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/services/:id" 
+                element={
+                  <ProtectedRoute>
+                    <ServiceDetail />
+                  </ProtectedRoute>
+                } 
+              />
+
+              {/* Gift Points */}
+              <Route 
+                path="/gift" 
+                element={
+                  <ProtectedRoute>
+                    <GiftPoints />
+                  </ProtectedRoute>
+                } 
+              />
+
+              {/* API Keys */}
+              <Route 
+                path="/api-keys" 
+                element={
+                  <ProtectedRoute>
+                    <ApiKeys />
+                  </ProtectedRoute>
+                } 
+              />
+
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </ToastProvider>
+      </AuthProvider>
+    </Router>
   );
-}
+};
 
 export default App;
