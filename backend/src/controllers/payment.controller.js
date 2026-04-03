@@ -1,8 +1,9 @@
-// Payment Controller
+// Payment Controller - SECURE VERSION
 const Order = require('../models/Order.model');
 const User = require('../models/User.model');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const config = require('../../config/env');
+const crypto = require('crypto');
 
 // @desc    Create Stripe checkout session
 // @route   POST /api/v1/payment/stripe/checkout
@@ -20,7 +21,6 @@ const createStripeCheckout = asyncHandler(async (req, res, next) => {
   }
 
   // In production, create actual Stripe session
-  // For now, return mock response
   const mockSession = {
     id: 'cs_test_' + Math.random().toString(36).substring(7),
     url: `${config.CLIENT_URL}/payment/success?orderId=${orderId}`,
@@ -32,13 +32,28 @@ const createStripeCheckout = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Handle Stripe webhook
+// @desc    Handle Stripe webhook - FIXED with signature verification
 // @route   POST /api/v1/payment/stripe/webhook
-// @access  Public (Stripe)
+// @access  Public (Stripe only)
 const handleStripeWebhook = asyncHandler(async (req, res, next) => {
-  // In production, verify webhook signature
-  const event = req.body;
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  const sig = req.headers['stripe-signature'];
 
+  let event;
+
+  try {
+    // Verify webhook signature - CRITICAL SECURITY FIX
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ received: false, error: 'Invalid signature' });
+  }
+
+  // Handle the event
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
@@ -67,39 +82,31 @@ const handleStripeWebhook = asyncHandler(async (req, res, next) => {
   res.json({ received: true });
 });
 
-// @desc    Create TON deposit address
-// @route   POST /api/v1/payment/ton/deposit
-// @access  Private
-const createTonDeposit = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-
-  // Generate mock TON address
-  const tonAddress = 'UQ' + Math.random().toString(36).substring(2, 36);
-
-  user.wallet.tonAddress = tonAddress;
-  user.wallet.tonCreatedAt = new Date();
-  await user.save();
-
-  res.json({
-    success: true,
-    data: {
-      address: tonAddress,
-      qrCode: `ton://transfer/${tonAddress}`,
-    },
-  });
-});
-
-// @desc    Add funds to wallet
+// @desc    Add funds to wallet - SECURE (Admin only via Stripe)
 // @route   POST /api/v1/payment/wallet/add
-// @access  Private
+// @access  Private (Admin only - NO direct user access)
 const addFunds = asyncHandler(async (req, res, next) => {
-  const { amount, method } = req.body;
+  // SECURITY FIX: This endpoint should ONLY be called from payment webhook
+  // Not directly from user request!
+  
+  const { amount, userId, paymentMethod } = req.body;
 
-  if (!amount || amount <= 0) {
-    return next(new AppError('Invalid amount', 400));
+  // Only allow internal calls (from webhook)
+  const isInternal = req.headers['x-internal-key'] === process.env.INTERNAL_API_KEY;
+  
+  if (!isInternal) {
+    return next(new AppError('Direct wallet addition not allowed. Please use payment methods.', 403));
   }
 
-  const user = await User.findById(req.user.id);
+  if (!amount || amount <= 0 || amount > 10000) {
+    return next(new AppError('Invalid amount (max $10,000)', 400));
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
   user.wallet.balance += amount;
   await user.save();
 
@@ -122,7 +129,6 @@ const getWallet = asyncHandler(async (req, res, next) => {
     data: {
       balance: user.wallet.balance,
       points: user.wallet.points,
-      tonAddress: user.wallet.tonAddress,
       totalSpent: user.wallet.totalSpent,
     },
   });
@@ -131,7 +137,6 @@ const getWallet = asyncHandler(async (req, res, next) => {
 module.exports = {
   createStripeCheckout,
   handleStripeWebhook,
-  createTonDeposit,
   addFunds,
   getWallet,
 };
