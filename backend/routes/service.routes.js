@@ -3,21 +3,12 @@ const router = express.Router();
 const ServiceService = require('../services/service.service');
 const { auth } = require('../middleware/auth.middleware');
 
-// Get all services with pagination
+// Get all services
 router.get('/', auth, async (req, res) => {
   try {
     const { page = 1, limit = 12, type, search } = req.query;
-    
-    const result = await ServiceService.getServices(
-      { type, search },
-      parseInt(page),
-      parseInt(limit)
-    );
-
-    res.json({
-      success: true,
-      data: result
-    });
+    const result = await ServiceService.getServices({ type, search }, parseInt(page), parseInt(limit));
+    res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -37,11 +28,7 @@ router.get('/my', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const service = await ServiceService.getServiceById(req.params.id);
-    
-    if (!service) {
-      return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
-    }
-
+    if (!service) return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
     res.json({ success: true, data: service });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -73,37 +60,6 @@ router.post('/:id/leave', auth, async (req, res) => {
   try {
     await ServiceService.leaveService(req.params.id, req.user.id);
     res.json({ success: true, message: 'تم المغادرة بنجاح' });
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-// Add post to service
-router.post('/:id/posts', auth, async (req, res) => {
-  try {
-    const { content } = req.body;
-    const service = await ServiceService.addPost(req.params.id, req.user.id, content);
-    res.json({ success: true, data: service });
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-// Update service
-router.put('/:id', auth, async (req, res) => {
-  try {
-    const service = await ServiceService.updateService(req.params.id, req.user.id, req.body);
-    res.json({ success: true, data: service });
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-// Delete service
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    await ServiceService.deleteService(req.params.id, req.user.id);
-    res.json({ success: true, message: 'تم حذف الخدمة' });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

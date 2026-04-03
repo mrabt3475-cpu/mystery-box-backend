@@ -17,9 +17,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const prize = await Prize.findById(req.params.id);
-    if (!prize) {
-      return res.status(404).json({ success: false, error: 'الجائزة غير موجودة' });
-    }
+    if (!prize) return res.status(404).json({ success: false, error: 'الجائزة غير موجودة' });
     res.json({ success: true, data: prize });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -29,9 +27,7 @@ router.get('/:id', async (req, res) => {
 // Admin: Create prize
 router.post('/', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: 'غير مصرح' });
-    }
+    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
     const prize = await Prize.create(req.body);
     res.status(201).json({ success: true, data: prize });
   } catch (error) {
@@ -42,9 +38,7 @@ router.post('/', auth, async (req, res) => {
 // Admin: Update prize
 router.put('/:id', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: 'غير مصرح' });
-    }
+    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
     const prize = await Prize.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, data: prize });
   } catch (error) {
@@ -55,9 +49,7 @@ router.put('/:id', auth, async (req, res) => {
 // Admin: Delete prize
 router.delete('/:id', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: 'غير مصرح' });
-    }
+    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
     await Prize.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'تم حذف الجائزة' });
   } catch (error) {
