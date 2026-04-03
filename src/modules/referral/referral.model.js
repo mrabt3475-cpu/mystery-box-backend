@@ -11,37 +11,24 @@ const referralSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  code: {
-    type: String,
-    required: true
-  },
   reward: {
-    type: Number,
-    default: 0
+    referrer: { type: Number, default: 0 },
+    referred: { type: Number, default: 0 }
   },
   status: {
     type: String,
     enum: ['pending', 'completed', 'cancelled'],
     default: 'pending'
+  },
+  level: {
+    type: Number,
+    default: 1
   }
 }, {
   timestamps: true
 });
 
-export const Referral = mongoose.model('Referral', referralSchema);
+// Prevent duplicate referrals
+referralSchema.index({ referrer: 1, referred: 1 }, { unique: true });
 
-// Generate referral code
-export const generateReferralCode = () => {
-  return 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
-};
-
-// Get referral stats
-export const getReferralStats = async (userId) => {
-  const referrals = await Referral.find({ referrer: userId, status: 'completed' });
-  
-  return {
-    totalReferrals: referrals.length,
-    totalEarnings: referrals.reduce((sum, r) => sum + r.reward, 0),
-    pendingReferrals: await Referral.countDocuments({ referrer: userId, status: 'pending' })
-  };
-};
+export default mongoose.model('Referral', referralSchema);

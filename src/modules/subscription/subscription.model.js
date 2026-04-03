@@ -4,74 +4,47 @@ const subscriptionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
   tier: {
     type: String,
     enum: ['free', 'basic', 'premium', 'vip'],
     default: 'free'
   },
+  plan: {
+    name: String,
+    price: Number,
+    duration: Number // in days
+  },
   status: {
     type: String,
     enum: ['active', 'cancelled', 'expired'],
     default: 'active'
   },
-  startDate: {
+  startedAt: {
     type: Date,
     default: Date.now
   },
-  endDate: Date,
-  monthlyPrice: {
-    type: Number,
-    default: 0
+  expiresAt: {
+    type: Date,
+    required: true
   },
-  features: {
-    dailyBoxOpens: { type: Number, default: 1 },
-    maxChannels: { type: Number, default: 1 },
-    discount: { type: Number, default: 0 }
+  autoRenew: {
+    type: Boolean,
+    default: false
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['card', 'crypto', 'wallet']
   }
 }, {
   timestamps: true
 });
 
-export const Subscription = mongoose.model('Subscription', subscriptionSchema);
-
-// Subscription plans
-export const PLANS = {
-  free: {
-    name: 'Free',
-    monthlyPrice: 0,
-    features: {
-      dailyBoxOpens: 1,
-      maxChannels: 1,
-      discount: 0
-    }
-  },
-  basic: {
-    name: 'Basic',
-    monthlyPrice: 9.99,
-    features: {
-      dailyBoxOpens: 5,
-      maxChannels: 3,
-      discount: 5
-    }
-  },
-  premium: {
-    name: 'Premium',
-    monthlyPrice: 24.99,
-    features: {
-      dailyBoxOpens: 20,
-      maxChannels: 10,
-      discount: 15
-    }
-  },
-  vip: {
-    name: 'VIP',
-    monthlyPrice: 49.99,
-    features: {
-      dailyBoxOpens: 100,
-      maxChannels: 50,
-      discount: 30
-    }
-  }
+// Check if subscription is valid
+subscriptionSchema.methods.isValid = function() {
+  return this.status === 'active' && this.expiresAt > new Date();
 };
+
+export default mongoose.model('Subscription', subscriptionSchema);
