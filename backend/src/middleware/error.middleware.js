@@ -1,4 +1,6 @@
-// Error Handling Middleware
+// Error Handling Middleware - SECURE VERSION
+const config = require('../config/env');
+
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
@@ -11,7 +13,7 @@ class AppError extends Error {
 }
 
 // Global Error Handler
-exports.errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -50,28 +52,33 @@ exports.errorHandler = (err, req, res, next) => {
     error = new AppError(message, 401);
   }
 
-  res.status(error.statusCode || 500).json({
+  // SECURITY: Don't expose stack trace in production
+  const response = {
     success: false,
     message: error.message || 'Server Error',
-    ...(config.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+  };
+
+  // Only show stack trace in development
+  if (config.NODE_ENV === 'development') {
+    response.stack = err.stack;
+  }
+
+  res.status(error.statusCode || 500).json(response);
 };
 
 // Async Handler Wrapper
-exports.asyncHandler = (fn) => (req, res, next) =>
+const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
 // Not Found Handler
-exports.notFound = (req, res, next) => {
+const notFound = (req, res, next) => {
   const err = new AppError(`Not Found - ${req.originalUrl}`, 404);
   next(err);
 };
 
 module.exports = {
   AppError,
-  errorHandler: exports.errorHandler,
-  asyncHandler: exports.asyncHandler,
-  notFound: exports.notFound,
+  errorHandler,
+  asyncHandler,
+  notFound,
 };
-
-const config = require('../config/env');

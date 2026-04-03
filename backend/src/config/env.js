@@ -1,44 +1,59 @@
-// Environment Configuration
+// Environment Configuration - SECURE VERSION
 require('dotenv').config();
 
+const requiredVars = [
+  'NODE_ENV',
+  'PORT',
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'JWT_REFRESH_SECRET'
+];
+
+// Check for required environment variables on startup
+const missingVars = requiredVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  console.error('Please copy .env.example to .env and fill in the values');
+  process.exit(1);
+}
+
+// Generate secure random secrets if not provided
+const generateSecret = (length = 32) => {
+  return require('crypto').randomBytes(length).toString('hex');
+};
+
 module.exports = {
-  // Server
-  PORT: process.env.PORT || 3000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-
+  PORT: parseInt(process.env.PORT) || 3000,
+  
   // Database
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/puzzlechain',
-
-  // JWT
-  JWT_SECRET: process.env.JWT_SECRET || 'your-super-secret-key',
+  MONGODB_URI: process.env.MONGODB_URI,
+  MONGODB_URI_TEST: process.env.MONGODB_URI_TEST,
+  
+  // JWT - SECURE: No fallback secrets
+  JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRE: process.env.JWT_EXPIRE || '7d',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '30d',
-
-  // Redis
-  REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
-
-  // Stripe
+  
+  // Redis (for rate limiting and sessions)
+  REDIS_URL: process.env.REDIS_URL,
+  
+  // Client URL
+  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
+  
+  // Stripe - Required for production
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
-
-  // TON
-  TON_API_KEY: process.env.TON_API_KEY,
-  TON_CENTER_API_KEY: process.env.TON_CENTER_API_KEY,
-  TON_WALLET_ADDRESS: process.env.TON_WALLET_ADDRESS,
-
-  // Email
-  SMTP_HOST: process.env.SMTP_HOST,
-  SMTP_PORT: process.env.SMTP_PORT || 587,
-  SMTP_USER: process.env.SMTP_USER,
-  SMTP_PASS: process.env.SMTP_PASS,
-  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@puzzlechain.com',
-
-  // Client
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
-
+  
+  // Internal API Key (for admin operations)
+  INTERNAL_API_KEY: process.env.INTERNAL_API_KEY || generateSecret(32),
+  
   // Rate Limiting
-  RATE_LIMIT_WINDOW: process.env.RATE_LIMIT_WINDOW || 15 * 60 * 1000,
-  RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX || 100,
+  RATE_LIMIT_WINDOW: parseInt(process.env.RATE_LIMIT_WINDOW) || 15 * 60 * 1000,
+  RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+  
+  // Logging
+  LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 };

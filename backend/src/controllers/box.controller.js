@@ -1,10 +1,11 @@
-// Box Controller - SECURE VERSION with Race Condition Fix
+// Box Controller - SECURE VERSION with proper verification
 const MysteryBox = require('../models/MysteryBox.model');
+const BoxOpening = require('../models/BoxOpening.model');
 const User = require('../models/User.model');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const crypto = require('crypto');
 
-// Provably Fair RNG - Server Seed
+// Generate cryptographically secure random seed
 const generateServerSeed = () => {
   return crypto.randomBytes(32).toString('hex');
 };
@@ -32,7 +33,63 @@ const determinePrize = (hash, prizes) => {
   return prizes[0];
 };
 
-// @desc    Open box - FIXED Race Condition (Double-Spend)
+// @desc    Get all boxes
+// @route   GET /api/v1/boxes
+// @access  Public
+const getBoxes = asyncHandler(async (req, res, next) => {
+  const { page = 1, limit = 12, type, status = 'active' } = req.query;
+
+  const query = { status };
+  if (type) query.type = type;
+
+  const boxes = await MysteryBox.find(query)
+    .populate('channel', 'name logo')
+    .sort('-createdAt')
+    .skip((page - 1) * limit)
+    .limit(parseInt(limit));
+
+  const total = await MysteryBox.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: boxes,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / limit),
+    },
+  });
+});
+
+// @desc    Get single box
+// @route   GET /api/v1/boxes/:id
+// @access  Public
+const getBox = asyncHandler(async (req, res, next) => {
+  const box = await MysteryBox.findById(req.params.id)
+    .populate('channel', 'name logo owner');
+
+  if (!box) {
+    return next(new AppError('Box not found', 404));
+  }
+
+  // Hide prizes for client
+  const boxResponse = box.toObject();
+  boxResponse.prizes = boxResponse.prizes.map(p => ({
+    name: p.isSecret ? '???' : p.name,
+    type: p.type,
+    rarity: p.rarity,
+    probability: p.probability,
+    isSecret: p.isSecret,
+  }));
+
+  res.json({
+    success: true,
+    data: boxResponse,
+  });
+});
+
+// @desc    Open box - FIXED with atomic operation and seed storage
 // @route   POST /api/v1/boxes/:id/open
 // @access  Private
 const openBox = asyncHandler(async (req, res, next) => {
@@ -47,22 +104,17 @@ const openBox = asyncHandler(async (req, res, next) => {
     return next(new AppError('This box is not available', 400));
   }
 
-  // SECURITY FIX: Use atomic operation to prevent double-spend
-  // This ensures balance check and deduction happen atomically
+  // Use atomic operation to prevent double-spend
   const user = await User.findOneAndUpdate(
     { 
       _id: req.user.id, 
-      'wallet.balance': { $gte: box.price } // Atomic check
+      'wallet.balance': { $gte: box.price }
     },
-    { 
-      $inc: { 'wallet.balance': -box.price } // Atomic deduction
-    },
+    { $inc: { 'wallet.balance': -box.price } },
     { new: true }
   );
 
-  // If user is null, either user doesn't exist or insufficient balance
   if (!user) {
-    // Check if user exists but has insufficient balance
     const checkUser = await User.findById(req.user.id);
     if (checkUser && checkUser.wallet.balance < box.price) {
       return next(new AppError('Insufficient balance', 400));
@@ -84,7 +136,29 @@ const openBox = asyncHandler(async (req, res, next) => {
   box.stats.lastOpenedAt = new Date();
   await box.save();
 
-  // Return result
+  // Save opening record with seeds for verification (SECURE)
+  await BoxOpening.create({
+    user: req.user.id,
+    box: box._id,
+    prize: {
+      name: prize.name,
+      type: prize.type,
+      value: prize.value,
+      rarity: prize.rarity,
+    },
+    rng: {
+      serverSeed,
+      clientSeed: clientSeed || '',
+      nonce,
+      hash,
+    },
+    cost: {
+      amount: box.price,
+    },
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent'),
+  });
+
   res.json({
     success: true,
     data: {
@@ -99,6 +173,46 @@ const openBox = asyncHandler(async (req, res, next) => {
       hash,
       nonce,
       remainingBalance: user.wallet.balance,
+    },
+  });
+});
+
+// @desc    Verify box result - FIXED
+// @route   GET /api/v1/boxes/:id/verify/:openingId
+// @access  Public
+const verifyResult = asyncHandler(async (req, res, next) => {
+  const { openingId } = req.params;
+
+  const opening = await BoxOpening.findById(openingId)
+    .populate('box', 'name prizes');
+
+  if (!opening) {
+    return next(new AppError('Opening not found', 404));
+  }
+
+  // Verify hash
+  const { serverSeed, clientSeed, nonce, hash } = opening.rng;
+  const expectedHash = generateHash(serverSeed, clientSeed, nonce);
+  
+  // Compare with stored hash
+  const isValid = expectedHash === hash;
+
+  // Recalculate prize to verify
+  const prize = determinePrize(hash, opening.box.prizes);
+
+  res.json({
+    success: true,
+    data: {
+      isValid,
+      prize: {
+        name: prize.name,
+        type: prize.type,
+        value: prize.value,
+        rarity: prize.rarity,
+      },
+      serverSeed,
+      clientSeed,
+      nonce,
     },
   });
 });
