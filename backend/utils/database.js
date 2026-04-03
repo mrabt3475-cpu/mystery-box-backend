@@ -1,61 +1,44 @@
-// MongoDB Transaction Helper
 const mongoose = require('mongoose');
+
+// Database Transaction Helper
+// Wraps operations in a transaction for atomic updates
 
 const runTransaction = async (operations, options = {}) => {
   const session = await mongoose.startSession();
-  
+  session.startTransaction(options);
+
   try {
-    let result;
-    await session.withTransaction(async () => {
-      result = await operations(session);
-    });
-    
-    session.endSession();
+    const result = await operations(session);
+    await session.commitTransaction();
+    await session.endSession();
     return result;
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
     throw error;
   }
 };
 
-// Atomic operations for points
-const atomicPointsDeduction = async (userId, amount, session = null) => {
-  const user = await mongoose.model('User').findById(userId);
-  
-  if (!user) {
-    throw new Error('المستخدم غير موجود');
-  }
-  
-  if (user.pointsBalance < amount) {
-    throw new Error('رصيدك غير كافٍ');
-  }
-  
-  user.pointsBalance -= amount;
-  
-  const options = session ? { session } : {};
-  await user.save(options);
-  
-  return user;
-};
+// Transaction wrapper for withTransaction
+const withTransaction = (fn) => {
+  return async (...args) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-const atomicPointsAddition = async (userId, amount, session = null) => {
-  const user = await mongoose.model('User').findById(userId);
-  
-  if (!user) {
-    throw new Error('المستخدم غير موجود');
-  }
-  
-  user.pointsBalance += amount;
-  
-  const options = session ? { session } : {};
-  await user.save(options);
-  
-  return user;
+    try {
+      const result = await fn(...args, session);
+      await session.commitTransaction();
+      await session.endSession();
+      return result;
+    } catch (error) {
+      await session.abortTransaction();
+      await session.endSession();
+      throw error;
+    }
+  };
 };
 
 module.exports = {
   runTransaction,
-  atomicPointsDeduction,
-  atomicPointsAddition
+  withTransaction
 };
