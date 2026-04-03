@@ -22,7 +22,6 @@ const generateTokens = (userId) => {
 router.post('/register', validators.register, catchAsync(async (req, res) => {
   const { username, password, name, email, referralCode } = req.body;
   
-  // Check if user exists
   const existingUser = await User.findOne({ 
     $or: [{ username }, { email: email || null }] 
   });
@@ -31,27 +30,19 @@ router.post('/register', validators.register, catchAsync(async (req, res) => {
     throw new ConflictError('المستخدم موجود مسبقاً');
   }
 
-  // Check referral
   let referredByUser = null;
   if (referralCode) {
     referredByUser = await User.findOne({ referralCode });
   }
 
-  // Create user
   const user = await User.create({
-    username, 
-    password, 
-    name, 
-    email,
+    username, password, name, email,
     referralCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
     referredBy: referredByUser?._id
   });
 
-  // Generate tokens
   const { accessToken, refreshToken } = generateTokens(user._id);
 
-
-  // Add referral bonus
   if (referredByUser) {
     referredByUser.pointsBalance += 10;
     referredByUser.lifetimePoints += 10;
@@ -73,9 +64,8 @@ router.post('/login', validators.login, catchAsync(async (req, res) => {
     throw new UnauthorizedError('بيانات الدخول غير صحيحة');
   }
 
-  // Check if account is locked
   if (user.isLocked()) {
-    throw new UnauthorizedError('الحساب مقفل مؤقتاً، يرجى المحاولة لاحقاً');
+    throw new UnauthorizedError('الحساب مقفل مؤقتاً');
   }
 
   const isMatch = await user.comparePassword(password);
@@ -84,9 +74,7 @@ router.post('/login', validators.login, catchAsync(async (req, res) => {
     throw new UnauthorizedError('بيانات الدخول غير صحيحة');
   }
 
-  // Reset login attempts on success
   await user.resetLoginAttempts();
-  
   user.lastLogin = new Date();
   await user.save();
 
@@ -146,7 +134,7 @@ router.put('/password', authMiddleware, catchAsync(async (req, res) => {
   }
   
   if (newPassword.length < 6) {
-    throw new ValidationError('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+    throw new ValidationError('كلمة المرور الجديدة 6 أحرف على الأقل');
   }
   
   const user = await User.findById(req.user.id);
