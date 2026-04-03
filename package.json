@@ -1,0 +1,32 @@
+{
+  "name": "puzzlechain-backend",
+  "version": "2.0.0",
+  "description": "Mystery Box Backend with Points System",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "keywords": [
+    "mystery-box",
+    "points",
+    "telegram-bot",
+    "nodejs"
+  ],
+  "author": "PuzzleChain",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
