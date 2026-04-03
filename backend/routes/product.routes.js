@@ -3,110 +3,152 @@ const router = express.Router();
 const Product = require('../models/Product.model');
 const Order = require('../models/Order.model');
 const User = require('../models/user.model');
+const PointsTransaction = require('../models/pointsTransaction.model');
 const { auth } = require('../middleware/auth.middleware');
+const { catchAsync } = require('../middleware/errorHandler.middleware');
+const { validators } = require('../utils/validation');
+const { NotFoundError, ValidationError } = require('../utils/AppError');
+const { formatSuccess, formatPaginated } = require('../utils/responseFormatter');
 
-// Get all products
-router.get('/', async (req, res) => {
-  try {
-    const { page = 1, limit = 20, category, search } = req.query;
-    const query = { isActive: true };
-    if (category) query.category = category;
-    if (search) query.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
-
-    const products = await Product.find(query).sort({ order: 1 }).skip((page - 1) * limit).limit(parseInt(limit));
-    const total = await Product.countDocuments(query);
-    res.json({ success: true, data: { products, pagination: { page: parseInt(page), limit: parseInt(limit), total, totalPages: Math.ceil(total / limit) } } });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+// Get all products with pagination
+router.get('/', catchAsync(async (req, res) => {
+  const { page = 1, limit = 20, category, search } = req.query;
+  const query = { isActive: true };
+  
+  if (category) query.category = category;
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
   }
-});
+
+  const products = await Product.find(query)
+    .sort({ order: 1 })
+    .skip((parseInt(page) - 1) * parseInt(limit))
+    .limit(parseInt(limit));
+    
+  const total = await Product.countDocuments(query);
+  
+  res.json(formatPaginated(products, { page: parseInt(page), limit: parseInt(limit), total }));
+}));
 
 // Get single product
-router.get('/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ success: false, error: 'المنتج غير موجود' });
-    res.json({ success: true, data: product });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  
+  if (!product) {
+    throw new NotFoundError('المنتج');
   }
-});
+  
+  res.json(formatSuccess(product));
+}));
 
-// Create order
-router.post('/order', auth, async (req, res) => {
-  try {
-    const { items, paymentMethod } = req.body;
-    const user = await User.findById(req.user.id);
-
-    let total = 0;
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) return res.status(400).json({ success: false, error: `المنتج ${item.product} غير موجود` });
-      total += product.price * item.quantity;
+// Create order with transaction
+router.post('/order', auth, catchAsync(async (req, res) => {
+  const { items, paymentMethod } = req.body;
+  
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    throw new ValidationError('يجب إضافة منتجات للطلب');
+  }
+  
+  const user = await User.findById(req.user.id);
+  let total = 0;
+  
+  // Calculate total and validate products
+  for (const item of items) {
+    const product = await Product.findById(item.product);
+    if (!product) {
+      throw new NotFoundError(`المنتج: ${item.product}`);
     }
+    total += product.price * item.quantity;
+  }
 
-    if (paymentMethod === 'points' && user.pointsBalance < total) {
-      return res.status(400).json({ success: false, error: 'رصيدك غير كافٍ' });
-    }
+  // Check balance for points payment
+  if (paymentMethod === 'points' && user.pointsBalance < total) {
+    throw new ValidationError('رصيدك غير كافٍ');
+  }
 
-    if (paymentMethod === 'points') {
-      user.pointsBalance -= total;
-      await user.save();
-    }
-
-    const order = await Order.create({
-      user: user._id,
-      items: items.map(item => ({ product: item.product, name: item.name, price: item.price, quantity: item.quantity, image: item.image })),
-      total, paymentMethod, status: 'pending'
+  // Deduct points if using points payment
+  if (paymentMethod === 'points') {
+    user.pointsBalance -= total;
+    user.lifetimePoints += Math.floor(total * 0.05); // 5% back as points
+    await user.save();
+    
+    await PointsTransaction.create({
+      user: req.user.id,
+      amount: -total,
+      type: 'purchase',
+      description: 'شراء منتج',
+      balanceAfter: user.pointsBalance
     });
-
-    res.status(201).json({ success: true, data: order });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+
+  const order = await Order.create({
+    user: req.user.id,
+    items: items.map(item => ({
+      product: item.product,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image
+    })),
+    total,
+    paymentMethod,
+    status: 'pending'
+  });
+
+
+  res.status(201).json(formatSuccess(order, '✅ تم إنشاء الطلب بنجاح'));
+}));
 
 // Get user's orders
-router.get('/orders/my', auth, async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user.id }).populate('items.product').sort({ createdAt: -1 });
-    res.json({ success: true, data: orders });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+router.get('/orders/my', auth, catchAsync(async (req, res) => {
+  const orders = await Order.find({ user: req.user.id })
+    .populate('items.product')
+    .sort({ createdAt: -1 });
+  
+  res.json(formatSuccess(orders));
+}));
 
 // Admin: Create product
-router.post('/', auth, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
-    const product = await Product.create(req.body);
-    res.status(201).json({ success: true, data: product });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+router.post('/', auth, validators.product, catchAsync(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    throw new ValidationError('غير مصرح لك');
   }
-});
+  
+  const product = await Product.create(req.body);
+  res.status(201).json(formatSuccess(product, '✅ تم إنشاء المنتج'));
+}));
 
 // Admin: Update product
-router.put('/:id', auth, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ success: true, data: product });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+router.put('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    throw new ValidationError('غير مصرح لك');
   }
-});
+  
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  
+  if (!product) {
+    throw new NotFoundError('المنتج');
+  }
+  
+  res.json(formatSuccess(product, '✅ تم تحديث المنتج'));
+}));
 
 // Admin: Delete product
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') return res.status(403).json({ success: false, error: 'غير مصرح' });
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'تم حذف المنتج' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+router.delete('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    throw new ValidationError('غير مصرح لك');
   }
-});
+  
+  const product = await Product.findByIdAndDelete(req.params.id);
+  
+  if (!product) {
+    throw new NotFoundError('المنتج');
+  }
+  
+  res.json(formatSuccess(null, '✅ تم حذف المنتج'));
+}));
 
 module.exports = router;
