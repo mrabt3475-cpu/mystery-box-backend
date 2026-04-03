@@ -1,114 +1,98 @@
-// Input Validation Rules
+// Validation Utilities
+const { validationResult, body, param, query } = require('express-validator');
+const { ValidationError } = require('../utils/AppError');
 
-const { body, param, query } = require('express-validator');
-
-// Common validation rules
-const ObjectId = (field = 'id') => 
-  param(field).isMongoId().withMessage(`معرف ${field} غير صالح`);
-
-const required = (field, minLength = 1) => 
-  body(field).trim().isLength({ min: minLength }).withMessage(`حقل ${field} مطلوب`);
-
-const optional = (field) => 
-  body(field).optional();
-
-const email = (field = 'email') => 
-  body(field).isEmail().withMessage('بريد إلكتروني غير صالح').normalizeEmail();
-
-const minLength = (field, min) => 
-  body(field).isLength({ min }).withMessage(`حقل ${field} يجب أن يكون ${min} أحرف على الأقل`);
-
-const maxLength = (field, max) => 
-  body(field).isLength({ max }).withMessage(`حقل ${field} يجب أن يكون ${max} أحرف على الأكثر`);
-
-const isNumber = (field, min = undefined, max = undefined) => {
-  let validator = body(field).isNumeric().withMessage(`حقل ${field} يجب أن يكون رقم`);
-  if (min !== undefined) validator = validator.isInt({ min }).withMessage(`حقل ${field} يجب أن يكون ${min} على الأقل`);
-  if (max !== undefined) validator = validator.isInt({ max }).withMessage(`حقل ${field} يجب أن يكون ${max} على الأكثر`);
-  return validator;
+// Validate request
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const message = errors.array()[0].msg;
+    throw new ValidationError(message);
+  }
+  next();
 };
 
-const isBoolean = (field) => 
-  body(field).isBoolean().withMessage(`حقل ${field} يجب أن يكون true أو false`);
+// Common validators
+const validators = {
+  // ObjectId validation
+  isObjectId: (field = 'id') => [
+    param(field).isMongoId().withMessage('معرف غير صالح')
+  ],
 
-const isEnum = (field, allowedValues) => 
-  body(field).isIn(allowedValues).withMessage(`حقل ${field} يجب أن يكون واحد من: ${allowedValues.join(', ')}`);
+  // User registration
+  register: [
+    body('username')
+      .isLength({ min: 3, max: 30 })
+      .withMessage('اسم المستخدم يجب أن يكون 3-30 حرف')
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .withMessage('اسم المستخدم يجب أن يكون حروف وأرقام وشرطات فقط'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
+    body('name')
+      .notEmpty()
+      .withMessage('الاسم مطلوب')
+      .isLength({ min: 2, max: 50 })
+      .withMessage('الاسم يجب أن يكون 2-50 حرف'),
+    body('email')
+      .optional()
+      .isEmail())
+      .withMessage('بريد إلكتروني غير صالح'),
+    validate
+  ],
 
-// Auth validations
-exports.registerValidation = [
-  required('username', 3),
-  maxLength('username', 30),
-  body('username').matches(/^[a-zA-Z0-9_]+$/).withMessage('اسم المستخدم يجب أن يكون حروف وأرقام و underscore فقط'),
-  required('password', 6),
-  maxLength('password', 50),
-  required('name', 2),
-  maxLength('name', 100),
-  email('email').optional({ nullable: true })
-];
+  // Login
+  login: [
+    body('username').notEmpty().withMessage('اسم المستخدم مطلوب'),
+    body('password').notEmpty().withMessage('كلمة المرور مطلوبة'),
+    validate
+  ],
 
-exports.loginValidation = [
-  required('username'),
-  required('password')
-];
+  // Box creation/update
+  box: [
+    body('name').notEmpty().withMessage('اسم الصندوق مطلوب'),
+    body('cost').isInt({ min: 1 }).withMessage('التكلفة يجب أن تكون رقم موجب'),
+    body('prizes').isArray({ min: 1 }).withMessage('يجب إضافة جوائز للصندوق'),
+    validate
+  ],
 
-// Box validations
-exports.openBoxValidation = [
-  ObjectId('id'),
-  body('clientSeed').optional().isString().isLength({ min: 16, max: 64 })
-];
+  // Product
+  product: [
+    body('name').notEmpty().withMessage('اسم المنتج مطلوب'),
+    body('price').isFloat({ min: 0 }).withMessage('السعر يجب أن يكون رقم موجب'),
+    validate
+  ],
 
-// Product validations
-exports.createProductValidation = [
-  required('name', 2),
-  maxLength('name', 100),
-  isNumber('price', 0),
-  isNumber('pointsReward', 0),
-  optional('description'),
-  maxLength('description', 1000)
-];
+  // Gift
+  gift: [
+    body('receiverId').isMongoId().withMessage('معرف المستلم غير صالح'),
+    body('amount').isInt({ min: 1, max: 100000 }).withMessage('المبلغ يجب أن يكون 1-100000'),
+    body('message').optional().isLength({ max: 500 }).withMessage('الرسالة يجب أن تكون أقل من 500 حرف'),
+    validate
+  ],
 
-// Order validations
-exports.createOrderValidation = [
-  body('items').isArray({ min: 1 }).withMessage('يجب إضافة منتج واحد على الأقل'),
-  body('items.*.product').isMongoId().withMessage('معرف المنتج غير صالح'),
-  body('items.*.quantity').isInt({ min: 1 }).withMessage('الكمية يجب أن تكون 1 على الأقل'),
-  isEnum('paymentMethod', ['points', 'stripe', 'ton', 'wallet'])
-];
+  // Service
+  service: [
+    body('name').notEmpty().withMessage('اسم الخدمة مطلوب').isLength({ max: 100 }),
+    body('serviceType').isIn(['group', 'channel', 'bot']).withMessage('نوع الخدمة غير صالح'),
+    body('cost').optional().isInt({ min: 0 }),
+    body('pointsRequired').optional().isInt({ min: 0 }),
+    validate
+  ],
 
-// Gift validations
-exports.sendGiftValidation = [
-  ObjectId('receiverId'),
-  isNumber('amount', 1),
-  maxLength('message', 500),
-  isBoolean('isAnonymous').optional()
-];
+  // Pagination
+  pagination: [
+    query('page').optional().isInt({ min: 1 }).withMessage('الصفحة يجب أن تكون رقم موجب'),
+    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('الحد يجب أن يكون 1-100'),
+    validate
+  ],
 
-// Service validations
-exports.createServiceValidation = [
-  required('name', 2),
-  maxLength('name', 50),
-  maxLength('description', 500),
-  isEnum('serviceType', ['group', 'channel', 'bot']),
-  isNumber('cost', 0).optional(),
-  isNumber('pointsRequired', 0).optional(),
-  isEnum('joinMode', ['free', 'points', 'invite']).optional()
-];
+  // Object ID array
+  isObjectIdArray: (field = 'ids') => [
+    body(field).isArray().withMessage('يجب أن يكون مصفوفة'),
+    body(field + '.*').isMongoId().withMessage('معرف غير صالح'),
+    validate
+  ]
+};
 
-// Points validations
-exports.addPointsValidation = [
-  ObjectId('userId'),
-  isNumber('amount', 1),
-  optional('type'),
-  maxLength('description', 200)
-];
-
-// Pagination
-exports.paginationValidation = [
-  query('page').optional().isInt({ min: 1 }).toInt(),
-  query('limit').optional().isInt({ min: 1, max: 100 }).toInt()
-];
-
-// Search
-exports.searchValidation = [
-  query('search').optional().isLength({ min: 2, max: 50 })
-];
+module.exports = { validate, validators };
