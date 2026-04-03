@@ -46,14 +46,8 @@ class InsufficientFundsError extends AppError {
   }
 }
 
-class RateLimitError extends AppError {
-  constructor() {
-    super('تجاوزت الحد المسموح من الطلبات', 429);
-  }
-}
-
 class TooManyRequestsError extends AppError {
-  constructor(message = 'طلبات كثيرة جداً، يرجى المحاولة لاحقاً') {
+  constructor(message = 'طلبات كثيرة جداً') {
     super(message, 429);
   }
 }
@@ -66,6 +60,5 @@ module.exports = {
   ForbiddenError,
   ConflictError,
   InsufficientFundsError,
-  RateLimitError,
   TooManyRequestsError
 };

@@ -1,6 +1,4 @@
 // Input Sanitization
-const sanitizeHtml = require('sanitize-html');
-
 const sanitizeInput = (input) => {
   if (typeof input === 'string') {
     return input
@@ -51,18 +49,10 @@ const preventNoSQLInjection = (req, res, next) => {
     for (const key in obj) {
       const value = obj[key];
       if (typeof value === 'string') {
-        // Check for MongoDB operators
-        if (value.startsWith('$')) {
-          return false;
-        }
-        // Check for regex patterns that could be injection
-        if (value.includes('{"$')) {
-          return false;
-        }
+        if (value.startsWith('$')) return false;
+        if (value.includes('{"$')) return false;
       }
-      if (typeof value === 'object' && !checkForInjection(value)) {
-        return false;
-      }
+      if (typeof value === 'object' && !checkForInjection(value)) return false;
     }
     return true;
   };

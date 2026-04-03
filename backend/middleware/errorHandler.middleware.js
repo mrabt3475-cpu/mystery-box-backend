@@ -41,7 +41,6 @@ const notFoundHandler = (req, res, next) => {
 // Error Logger
 const errorLogger = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
-    // In production, log to file or monitoring service
     const logData = {
       timestamp: new Date().toISOString(),
       method: req.method,
