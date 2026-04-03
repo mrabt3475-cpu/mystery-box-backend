@@ -1,13 +1,17 @@
-import { Router } from 'express';
-import { getLeaderboard, getUserRank } from '../leaderboard/leaderboard.service.js';
+import express from 'express';
+import { authenticate } from '../common/auth.middleware.js';
+import * as leaderboardService from '../modules/leaderboard/leaderboard.service.js';
 
-const router = Router();
+const router = express.Router();
 
 // Get leaderboard
 router.get('/', async (req, res) => {
   try {
-    const { type, limit } = req.query;
-    const leaderboard = await getLeaderboard(type, parseInt(limit) || 100);
+    const { type = 'points', limit = 100 } = req.query;
+    const leaderboard = await leaderboardService.getLeaderboard(
+      type,
+      parseInt(limit)
+    );
     res.json({ success: true, data: leaderboard });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -17,8 +21,8 @@ router.get('/', async (req, res) => {
 // Get user rank
 router.get('/rank/:userId', async (req, res) => {
   try {
-    const { type } = req.query;
-    const rank = await getUserRank(req.params.userId, type);
+    const { type = 'points' } = req.query;
+    const rank = await leaderboardService.getUserRank(req.params.userId, type);
     res.json({ success: true, data: rank });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
