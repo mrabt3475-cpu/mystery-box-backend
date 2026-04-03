@@ -2,13 +2,12 @@
 const Order = require('../models/Order.model');
 const Product = require('../models/Product.model');
 const User = require('../models/User.model');
-const Coupon = require('../models/Coupon.model');
-const { asyncHandler } = require('../middleware/error.middleware');
+const { asyncHandler, AppError } = require('../middleware/error.middleware');
 
 // @desc    Get user orders
 // @route   GET /api/v1/orders
 // @access  Private
-exports.getOrders = asyncHandler(async (req, res) => {
+const getOrders = asyncHandler(async (req, res, next) => {
   const { page = 1, limit = 10, status } = req.query;
 
   const query = { user: req.user.id };
@@ -25,59 +24,61 @@ exports.getOrders = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: {
-      orders,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit),
-      },
+    data: orders,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / limit),
     },
   });
 });
 
-// @desc    Get order by ID
+// @desc    Get single order
 // @route   GET /api/v1/orders/:id
 // @access  Private
-exports.getOrder = asyncHandler(async (req, res) => {
-  const order = await Order.findOne({
-    _id: req.params.id,
-    user: req.user.id,
-  })
-    .populate('items.product', 'name image type')
+const getOrder = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById(req.params.id)
+    .populate('items.product', 'name image description')
     .populate('channel', 'name logo');
 
   if (!order) {
-    return res.status(404).json({
-      success: false,
-      message: 'Order not found',
-    });
+    return next(new AppError('Order not found', 404));
+  }
+
+  // Check ownership
+  if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new AppError('Not authorized to view this order', 403));
   }
 
   res.json({
     success: true,
-    data: { order },
+    data: order,
   });
 });
 
-// @desc    Create new order
+// @desc    Create order
 // @route   POST /api/v1/orders
 // @access  Private
-exports.createOrder = asyncHandler(async (req, res) => {
-  const { items, channel, couponCode, notes } = req.body;
+const createOrder = asyncHandler(async (req, res, next) => {
+  const { items, channel, paymentMethod, couponCode } = req.body;
 
-  // Get product details and calculate total
+  if (!items || items.length === 0) {
+    return next(new AppError('No items in order', 400));
+  }
+
+  // Calculate totals
   let subtotal = 0;
   const orderItems = [];
 
   for (const item of items) {
-    const product = await Product.findById(item.product);
-    if (!product || product.status !== 'active') {
-      return res.status(400).json({
-        success: false,
-        message: `Product ${item.product} not found or unavailable`,
-      });
+    const product = await Product.findById(item.productId);
+    if (!product) {
+      return next(new AppError(`Product ${item.productId} not found`, 404));
+    }
+
+    if (product.status !== 'active') {
+      return next(new AppError(`Product ${product.name} is not available`, 400));
     }
 
     orderItems.push({
@@ -91,100 +92,74 @@ exports.createOrder = asyncHandler(async (req, res) => {
     subtotal += product.price * (item.quantity || 1);
   }
 
-  // Apply coupon discount
+  // Apply coupon discount (simplified)
   let discount = 0;
   if (couponCode) {
-    const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-    if (coupon) {
-      const validation = coupon.validate(subtotal, req.user.id, 0);
-      if (validation.valid) {
-        discount = validation.discount;
-      }
-    }
+    // Add coupon logic here
   }
 
   const total = subtotal - discount;
 
-  // Generate order number
-  const orderNumber = await Order.generateOrderNumber();
-
   const order = await Order.create({
-    orderNumber,
     user: req.user.id,
     channel,
     items: orderItems,
     subtotal,
     discount,
     total,
-    notes,
-    ipAddress: req.ip,
-    userAgent: req.get('user-agent'),
+    payment: {
+      method: paymentMethod,
+      status: 'pending',
+    },
+    customer: {
+      email: req.user.email,
+      name: req.user.name,
+    },
   });
 
   res.status(201).json({
     success: true,
-    message: 'Order created successfully',
-    data: { order },
+    data: order,
   });
 });
 
-// @desc    Cancel order
-// @route   PUT /api/v1/orders/:id/cancel
-// @access  Private
-exports.cancelOrder = asyncHandler(async (req, res) => {
-  const order = await Order.findOne({
-    _id: req.params.id,
-    user: req.user.id,
-  });
+// @desc    Update order status
+// @route   PUT /api/v1/orders/:id/status
+// @access  Private (Admin)
+const updateOrderStatus = asyncHandler(async (req, res, next) => {
+  const { status } = req.body;
+
+  const order = await Order.findById(req.params.id);
 
   if (!order) {
-    return res.status(404).json({
-      success: false,
-      message: 'Order not found',
-    });
+    return next(new AppError('Order not found', 404));
   }
 
-  if (order.status !== 'pending' && order.status !== 'processing') {
-    return res.status(400).json({
-      success: false,
-      message: 'Cannot cancel this order',
-    });
-  }
-
-  order.status = 'cancelled';
+  order.status = status;
   await order.save();
 
-  res.json({
-    success: true,
-    message: 'Order cancelled successfully',
-  });
-});
+  // Update product stats
+  if (status === 'completed') {
+    for (const item of order.items) {
+      await Product.incrementPurchases(item.product, item.price * item.quantity);
+    }
 
-// @desc    Download order product
-// @route   GET /api/v1/orders/:id/download
-// @access  Private
-exports.downloadProduct = asyncHandler(async (req, res) => {
-  const order = await Order.findOne({
-    _id: req.params.id,
-    user: req.user.id,
-    status: 'completed',
-  });
-
-  if (!order) {
-    return res.status(404).json({
-      success: false,
-      message: 'Order not found or not completed',
+    // Add points to user
+    const pointsEarned = Order.calculatePointsEarned(order.total);
+    await User.findByIdAndUpdate(order.user, {
+      $inc: { 'wallet.points': pointsEarned },
     });
   }
 
-  // Return download links for digital products
-  const downloads = order.items.map((item) => ({
-    name: item.name,
-    downloadUrl: `/api/v1/products/${item.product}/file`,
-  }));
-
   res.json({
     success: true,
-    data: { downloads },
+    data: order,
   });
 });
+
+module.exports = {
+  getOrders,
+  getOrder,
+  createOrder,
+  updateOrderStatus,
+};
