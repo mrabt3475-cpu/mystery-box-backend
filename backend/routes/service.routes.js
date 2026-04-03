@@ -1,47 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const Service = require('../models/Service.model');
-const User = require('../models/user.model');
+const ServiceService = require('../services/service.service');
 const { auth } = require('../middleware/auth.middleware');
 
-// Get all services
+// Get all services with pagination
 router.get('/', auth, async (req, res) => {
   try {
     const { page = 1, limit = 12, type, search } = req.query;
-    const query = { status: 'active' };
-    if (type) query.serviceType = type;
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const services = await Service.find(query)
-      .populate('owner', 'name username avatar')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-
-    const total = await Service.countDocuments(query);
+    
+    const result = await ServiceService.getServices(
+      { type, search },
+      parseInt(page),
+      parseInt(limit)
+    );
 
     res.json({
       success: true,
-      data: {
-        services,
-        pagination: { page: parseInt(page), limit: parseInt(limit), total, totalPages: Math.ceil(total / limit) }
-      }
+      data: result
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Get my services
+// Get user's services
 router.get('/my', auth, async (req, res) => {
   try {
-    const services = await Service.find({ owner: req.user.id })
-      .sort({ createdAt: -1 });
+    const services = await ServiceService.getUserServices(req.user.id);
     res.json({ success: true, data: services });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -51,17 +36,11 @@ router.get('/my', auth, async (req, res) => {
 // Get service by ID
 router.get('/:id', auth, async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id)
-      .populate('owner', 'name username avatar')
-      .populate('members.user', 'name username avatar');
+    const service = await ServiceService.getServiceById(req.params.id);
     
     if (!service) {
       return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
     }
-
-    // Increment views
-    service.stats.views += 1;
-    await service.save();
 
     res.json({ success: true, data: service });
   } catch (error) {
@@ -72,20 +51,7 @@ router.get('/:id', auth, async (req, res) => {
 // Create service
 router.post('/', auth, async (req, res) => {
   try {
-    const { name, description, serviceType, cost, pointsRequired, joinMode, settings } = req.body;
-    
-    const service = await Service.create({
-      name,
-      description,
-      serviceType,
-      owner: req.user.id,
-      cost,
-      pointsRequired,
-      joinMode,
-      settings,
-      members: [{ user: req.user.id, role: 'owner' }]
-    });
-
+    const service = await ServiceService.createService(req.user.id, req.body);
     res.status(201).json({ success: true, data: service });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -95,92 +61,51 @@ router.post('/', auth, async (req, res) => {
 // Join service
 router.post('/:id/join', auth, async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
-    if (!service) {
-      return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
-    }
-
-    const isMember = service.members.some(m => m.user.toString() === req.user.id);
-    if (isMember) {
-      return res.status(400).json({ success: false, error: 'أنت عضو بالفعل' });
-    }
-
-    const user = await User.findById(req.user.id);
-    
-    // Check points required
-    if (service.pointsRequired > 0 && user.pointsBalance < service.pointsRequired) {
-      return res.status(400).json({ success: false, error: 'رصيدك غير كافٍ' });
-    }
-
-    // Deduct points
-    if (service.pointsRequired > 0) {
-      user.pointsBalance -= service.pointsRequired;
-      await user.save();
-    }
-
-    service.members.push({ user: req.user.id, role: 'member' });
-    await service.save();
-
-    res.json({ success: true, message: 'تم الانضمام بنجاح' });
+    const service = await ServiceService.joinService(req.params.id, req.user.id);
+    res.json({ success: true, message: 'تم الانضمام بنجاح', data: service });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
 // Leave service
 router.post('/:id/leave', auth, async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
-    if (!service) {
-      return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
-    }
-
-    service.members = service.members.filter(m => m.user.toString() !== req.user.id);
-    await service.save();
-
+    await ServiceService.leaveService(req.params.id, req.user.id);
     res.json({ success: true, message: 'تم المغادرة بنجاح' });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Add post to service
+router.post('/:id/posts', auth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    const service = await ServiceService.addPost(req.params.id, req.user.id, content);
+    res.json({ success: true, data: service });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
 // Update service
 router.put('/:id', auth, async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
-    if (!service) {
-      return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
-    }
-
-    if (service.owner.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, error: 'غير مصرح' });
-    }
-
-    Object.assign(service, req.body);
-    await service.save();
-
+    const service = await ServiceService.updateService(req.params.id, req.user.id, req.body);
     res.json({ success: true, data: service });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
 // Delete service
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
-    if (!service) {
-      return res.status(404).json({ success: false, error: 'الخدمة غير موجودة' });
-    }
-
-    if (service.owner.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, error: 'غير مصرح' });
-    }
-
-    await Service.findByIdAndDelete(req.params.id);
+    await ServiceService.deleteService(req.params.id, req.user.id);
     res.json({ success: true, message: 'تم حذف الخدمة' });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
