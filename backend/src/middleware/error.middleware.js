@@ -1,20 +1,17 @@
 // Error Handling Middleware
-const config = require('../config/env');
-
-// Custom Error Class
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
-    this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
+    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
     this.isOperational = true;
 
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
-// Error Handler
-const errorHandler = (err, req, res, next) => {
+// Global Error Handler
+exports.errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -44,12 +41,12 @@ const errorHandler = (err, req, res, next) => {
 
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
-    const message = 'Invalid token. Please log in again';
+    const message = 'Invalid token';
     error = new AppError(message, 401);
   }
 
   if (err.name === 'TokenExpiredError') {
-    const message = 'Your token has expired. Please log in again';
+    const message = 'Token expired';
     error = new AppError(message, 401);
   }
 
@@ -61,11 +58,20 @@ const errorHandler = (err, req, res, next) => {
 };
 
 // Async Handler Wrapper
-const asyncHandler = (fn) => (req, res, next) =>
+exports.asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
+
+// Not Found Handler
+exports.notFound = (req, res, next) => {
+  const err = new AppError(`Not Found - ${req.originalUrl}`, 404);
+  next(err);
+};
 
 module.exports = {
   AppError,
-  errorHandler,
-  asyncHandler,
+  errorHandler: exports.errorHandler,
+  asyncHandler: exports.asyncHandler,
+  notFound: exports.notFound,
 };
+
+const config = require('../config/env');
