@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   description: String,
   price: {
@@ -12,36 +13,45 @@ const productSchema = new mongoose.Schema({
     min: 0
   },
   originalPrice: Number,
-  category: {
-    type: String,
-    required: true
+  category: String,
+  channel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Channel'
   },
-  images: [String],
-  stock: {
-    type: Number,
-    default: 0
+  images: [{
+    url: String,
+    isPrimary: { type: Boolean, default: false }
+  }],
+  type: {
+    type: String,
+    enum: ['digital', 'subscription', 'gift_card', 'crypto'],
+    default: 'digital'
   },
   status: {
     type: String,
     enum: ['active', 'inactive', 'out_of_stock'],
     default: 'active'
   },
-  digital: {
-    type: Boolean,
-    default: false
+  stock: {
+    type: Number,
+    default: -1 // -1 means unlimited
   },
-  downloadLink: String,
+  sku: String,
+  tags: [String],
+  features: [String],
   stats: {
     views: { type: Number, default: 0 },
     purchases: { type: Number, default: 0 },
     revenue: { type: Number, default: 0 }
   },
-  tags: [String]
+  isFeatured: { type: Boolean, default: false },
+  isFree: { type: Boolean, default: false },
+  pointsPrice: { type: Number, default: 0 }
 }, {
   timestamps: true
 });
 
-productSchema.index({ name: 'text', description: 'text', tags: 'text' });
+productSchema.index({ name: 'text', description: 'text' });
 productSchema.index({ category: 1, status: 1 });
 
 export default mongoose.model('Product', productSchema);
