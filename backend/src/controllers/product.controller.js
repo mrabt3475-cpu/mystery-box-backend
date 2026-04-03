@@ -1,21 +1,37 @@
 // Product Controller
 const Product = require('../models/Product.model');
-const { asyncHandler } = require('../middleware/error.middleware');
+const { asyncHandler, AppError } = require('../middleware/error.middleware');
 
 // @desc    Get all products
 // @route   GET /api/v1/products
 // @access  Public
-exports.getProducts = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 12, channel, category, minPrice, maxPrice, sort = '-createdAt' } = req.query;
+const getProducts = asyncHandler(async (req, res, next) => {
+  const { 
+    page = 1, 
+    limit = 12, 
+    search, 
+    category, 
+    channel,
+    minPrice,
+    maxPrice,
+    sort = '-createdAt',
+    status = 'active'
+  } = req.query;
 
-  const query = { status: 'active' };
-
-  if (channel) query.channel = channel;
+  const query = { status };
+  
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
+  }
   if (category) query.category = category;
+  if (channel) query.channel = channel;
   if (minPrice || maxPrice) {
     query.price = {};
-    if (minPrice) query.price.$gte = minPrice;
-    if (maxPrice) query.price.$lte = maxPrice;
+    if (minPrice) query.price.$gte = parseFloat(minPrice);
+    if (maxPrice) query.price.$lte = parseFloat(maxPrice);
   }
 
   const products = await Product.find(query)
@@ -29,168 +45,86 @@ exports.getProducts = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: {
-      products,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit),
-      },
+    data: products,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / limit),
     },
   });
 });
 
-// @desc    Get product by ID
+// @desc    Get single product
 // @route   GET /api/v1/products/:id
 // @access  Public
-exports.getProduct = asyncHandler(async (req, res) => {
+const getProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id)
-    .populate('channel', 'name slug logo')
+    .populate('channel', 'name slug logo owner')
     .populate('category', 'name slug');
 
   if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: 'Product not found',
-    });
+    return next(new AppError('Product not found', 404));
   }
 
   // Increment views
-  await Product.incrementViews(req.params.id);
+  await Product.incrementViews(product._id);
 
   res.json({
     success: true,
-    data: { product },
+    data: product,
   });
 });
 
 // @desc    Create product
 // @route   POST /api/v1/products
 // @access  Private
-exports.createProduct = asyncHandler(async (req, res) => {
-  const Channel = require('../models/Channel.model');
-  const { name, description, price, originalPrice, channel: channelId, category, images, type, stock, tags, features, isFree, pointsPrice } = req.body;
+const createProduct = asyncHandler(async (req, res, next) => {
+  const productData = {
+    ...req.body,
+    channel: req.body.channel || req.user.channel,
+  };
 
-  // Verify channel ownership
-  const channel = await Channel.findById(channelId);
-  if (!channel) {
-    return res.status(404).json({
-      success: false,
-      message: 'Channel not found',
-    });
-  }
-
-  const isOwner = channel.owner.toString() === req.user.id;
-  const isAdmin = req.user.role === 'admin';
-
-  if (!isOwner && !isAdmin) {
-    return res.status(403).json({
-      success: false,
-      message: 'Not authorized to create products in this channel',
-    });
-  }
-
-  const product = await Product.create({
-    name,
-    description,
-    price,
-    originalPrice,
-    channel: channelId,
-    category,
-    images,
-    type,
-    stock,
-    tags,
-    features,
-    isFree,
-    pointsPrice,
-  });
-
-  // Update channel stats
-  await Channel.findByIdAndUpdate(channelId, {
-    $inc: { 'stats.totalProducts': 1 },
-  });
-
+  const product = await Product.create(productData);
 
   res.status(201).json({
     success: true,
-    message: 'Product created successfully',
-    data: { product },
+    data: product,
   });
 });
 
 // @desc    Update product
 // @route   PUT /api/v1/products/:id
 // @access  Private
-exports.updateProduct = asyncHandler(async (req, res) => {
-  const Channel = require('../models/Channel.model');
-  const product = await Product.findById(req.params.id);
+const updateProduct = asyncHandler(async (req, res, next) => {
+  let product = await Product.findById(req.params.id);
 
   if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: 'Product not found',
-    });
+    return next(new AppError('Product not found', 404));
   }
 
-  // Verify channel ownership
-  const channel = await Channel.findById(product.channel);
-  const isOwner = channel.owner.toString() === req.user.id;
-  const isAdmin = req.user.role === 'admin';
-
-  if (!isOwner && !isAdmin) {
-    return res.status(403).json({
-      success: false,
-      message: 'Not authorized to update this product',
-    });
-  }
-
-  const updatedProduct = await Product.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  );
+  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   res.json({
     success: true,
-    message: 'Product updated successfully',
-    data: { product: updatedProduct },
+    data: product,
   });
 });
 
 // @desc    Delete product
 // @route   DELETE /api/v1/products/:id
 // @access  Private
-exports.deleteProduct = asyncHandler(async (req, res) => {
-  const Channel = require('../models/Channel.model');
+const deleteProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: 'Product not found',
-    });
-  }
-
-  // Verify channel ownership
-  const channel = await Channel.findById(product.channel);
-  const isOwner = channel.owner.toString() === req.user.id;
-  const isAdmin = req.user.role === 'admin';
-
-  if (!isOwner && !isAdmin) {
-    return res.status(403).json({
-      success: false,
-      message: 'Not authorized to delete this product',
-    });
+    return next(new AppError('Product not found', 404));
   }
 
   await product.deleteOne();
-
-  // Update channel stats
-  await Channel.findByIdAndUpdate(product.channel, {
-    $inc: { 'stats.totalProducts': -1 },
-  });
 
   res.json({
     success: true,
@@ -198,60 +132,10 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get featured products
-// @route   GET /api/v1/products/featured
-// @access  Public
-exports.getFeaturedProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({ isFeatured: true, status: 'active' })
-    .populate('channel', 'name slug logo')
-    .limit(12);
-
-  res.json({
-    success: true,
-    data: { products },
-  });
-});
-
-// @desc    Search products
-// @route   GET /api/v1/products/search
-// @access  Public
-exports.searchProducts = asyncHandler(async (req, res) => {
-  const { q, limit = 20 } = req.query;
-
-  if (!q) {
-    return res.status(400).json({
-      success: false,
-      message: 'Search query is required',
-    });
-  }
-
-  const products = await Product.find(
-    { $text: { $search: q }, status: 'active' },
-    { score: { $meta: 'textScore' } }
-  )
-    .sort({ score: { $meta: 'textScore' } })
-    .limit(parseInt(limit))
-    .populate('channel', 'name slug logo');
-
-  res.json({
-    success: true,
-    data: { products },
-  });
-});
-
-// @desc    Get products by category
-// @route   GET /api/v1/products/category/:categoryId
-// @access  Public
-exports.getProductsByCategory = asyncHandler(async (req, res) => {
-  const products = await Product.find({
-    category: req.params.categoryId,
-    status: 'active',
-  })
-    .populate('channel', 'name slug logo')
-    .sort('-stats.purchases');
-
-  res.json({
-    success: true,
-    data: { products },
-  });
-});
+module.exports = {
+  getProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
