@@ -1,41 +1,89 @@
 const crypto = require('crypto');
 const ApiKey = require('../models/ApiKey.model');
+const { UnauthorizedError } = require('../utils/errors');
 
+// Generate API key
+const generateApiKey = (prefix = 'pk') => {
+  const timestamp = Date.now().toString(36);
+  const random = crypto.randomBytes(16).toString('hex');
+  return `${prefix}_${timestamp}_${random}`;
+};
+
+// API Key authentication middleware
 const apiKeyAuth = async (req, res, next) => {
   try {
     const apiKey = req.headers['x-api-key'];
     
     if (!apiKey) {
-      return res.status(401).json({ success: false, error: 'API key required' });
+      throw new UnauthorizedError('API key مطلوب');
     }
 
+    // Find key in database
     const keyDoc = await ApiKey.findOne({ key: apiKey, isActive: true });
     
     if (!keyDoc) {
-      return res.status(401).json({ success: false, error: 'Invalid API key' });
+      throw new UnauthorizedError('API key غير صالح');
     }
 
     // Check expiration
-    if (keyDoc.expiresAt && new Date(keyDoc.expiresAt) < new Date()) {
-      return res.status(401).json({ success: false, error: 'API key expired' });
+    if (keyDoc.expiresAt && new Date() > keyDoc.expiresAt) {
+      throw new UnauthorizedError('API key منتهي الصلاحية');
     }
 
-    // Update last used
+    // Check rate limit
+    const now = Date.now();
+    const windowMs = 60 * 1000; // 1 minute
+    const rateLimit = keyDoc.rateLimit || 100;
+    
+    // Simple rate limit check
+    if (keyDoc.lastUsed) {
+      const timeSinceLastUse = now - new Date(keyDoc.lastUsed).getTime();
+      if (timeSinceLastUse < windowMs && keyDoc.usageCount >= rateLimit) {
+        throw new UnauthorizedError('Rate limit exceeded');
+      }
+    }
+
+    // Update usage
     keyDoc.lastUsed = new Date();
-    keyDoc.usageCount += 1;
+    keyDoc.usageCount = keyDoc.lastUsed && (now - new Date(keyDoc.lastUsed).getTime() < windowMs) 
+      ? keyDoc.usageCount + 1 
+      : 1;
     await keyDoc.save();
 
-    req.apiKey = keyDoc;
+    // Attach key info to request
+    req.apiKey = {
+      id: keyDoc._id,
+      user: keyDoc.user,
+      permissions: keyDoc.permissions
+    };
+
     next();
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    if (error.statusCode === 401) {
+      res.status(401).json({ success: false, error: error.message });
+    } else {
+      next(error);
+    }
   }
 };
 
-// Generate new API key
-const generateApiKey = (prefix = 'pk') => {
-  const key = crypto.randomBytes(32).toString('hex');
-  return `${prefix}_${key}`;
+// Check permission
+const checkPermission = (...requiredPermissions) => {
+  return (req, res, next) => {
+    if (!req.apiKey) {
+      return next(new UnauthorizedError('API key مطلوب'));
+    }
+
+    const hasPermission = requiredPermissions.every(perm => 
+      req.apiKey.permissions.includes(perm)
+    );
+
+    if (!hasPermission) {
+      return next(new UnauthorizedError('صلاحيات غير كافية'));
+    }
+
+    next();
+  };
 };
 
-module.exports = { apiKeyAuth, generateApiKey };
+module.exports = { generateApiKey, apiKeyAuth, checkPermission };
