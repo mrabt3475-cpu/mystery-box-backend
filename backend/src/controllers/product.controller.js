@@ -6,19 +6,9 @@ const { asyncHandler, AppError } = require('../middleware/error.middleware');
 // @route   GET /api/v1/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res, next) => {
-  const { 
-    page = 1, 
-    limit = 12, 
-    search, 
-    category, 
-    channel,
-    minPrice,
-    maxPrice,
-    sort = '-createdAt',
-    status = 'active'
-  } = req.query;
+  const { page = 1, limit = 12, search, category, channel, minPrice, maxPrice, sort = '-createdAt' } = req.query;
 
-  const query = { status };
+  const query = { status: 'active' };
   
   if (search) {
     query.$or = [
@@ -82,7 +72,7 @@ const getProduct = asyncHandler(async (req, res, next) => {
 const createProduct = asyncHandler(async (req, res, next) => {
   const productData = {
     ...req.body,
-    channel: req.body.channel || req.user.channel,
+    sku: `SKU-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
   };
 
   const product = await Product.create(productData);
@@ -97,16 +87,20 @@ const createProduct = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/products/:id
 // @access  Private
 const updateProduct = asyncHandler(async (req, res, next) => {
-  let product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id);
 
   if (!product) {
     return next(new AppError('Product not found', 404));
   }
 
-  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
+  const allowedFields = ['name', 'description', 'price', 'originalPrice', 'images', 'stock', 'status', 'tags', 'features'];
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      product[field] = req.body[field];
+    }
   });
+
+  await product.save();
 
   res.json({
     success: true,

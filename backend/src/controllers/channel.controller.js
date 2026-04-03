@@ -1,6 +1,7 @@
 // Channel Controller
 const Channel = require('../models/Channel.model');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
+const config = require('../../config/constants');
 
 // @desc    Get all channels
 // @route   GET /api/v1/channels
@@ -18,8 +19,8 @@ const getChannels = asyncHandler(async (req, res, next) => {
   if (category) query.category = category;
 
   const channels = await Channel.find(query)
-    .populate('owner', 'name avatar')
-    .sort('-stats.membersCount')
+    .populate('owner', 'name email avatar')
+    .sort('-createdAt')
     .skip((page - 1) * limit)
     .limit(parseInt(limit));
 
@@ -42,8 +43,8 @@ const getChannels = asyncHandler(async (req, res, next) => {
 // @access  Public
 const getChannel = asyncHandler(async (req, res, next) => {
   const channel = await Channel.findById(req.params.id)
-    .populate('owner', 'name avatar')
-    .populate('members.user', 'name avatar');
+    .populate('owner', 'name email avatar')
+    .populate('members.user', 'name email avatar');
 
   if (!channel) {
     return next(new AppError('Channel not found', 404));
@@ -59,22 +60,24 @@ const getChannel = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/channels
 // @access  Private
 const createChannel = asyncHandler(async (req, res, next) => {
-  const { name, description, category, logo, banner, isPrivate } = req.body;
+  const { name, description, category, isPrivate } = req.body;
 
-  // Generate slug from name
-  const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+  // Check if name exists
+  const existingChannel = await Channel.findOne({ name });
+  if (existingChannel) {
+    return next(new AppError('Channel name already exists', 400));
+  }
+
+  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
   const channel = await Channel.create({
     name,
     slug,
     description,
     category,
-    logo,
-    banner,
     isPrivate,
     owner: req.user.id,
     members: [{ user: req.user.id, role: 'owner' }],
-    stats: { membersCount: 1 },
   });
 
   res.status(201).json({
@@ -87,24 +90,28 @@ const createChannel = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/channels/:id
 // @access  Private (Owner/Admin)
 const updateChannel = asyncHandler(async (req, res, next) => {
-  const { name, description, category, logo, banner, isPrivate, settings } = req.body;
-
-  let channel = await Channel.findById(req.params.id);
+  const channel = await Channel.findById(req.params.id);
 
   if (!channel) {
     return next(new AppError('Channel not found', 404));
   }
 
   // Check ownership
-  if (channel.owner.toString() !== req.user.id && req.user.role !== 'admin') {
+  const isOwner = channel.owner.toString() === req.user.id;
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
     return next(new AppError('Not authorized to update this channel', 403));
   }
 
-  channel = await Channel.findByIdAndUpdate(
-    req.params.id,
-    { name, description, category, logo, banner, isPrivate, settings },
-    { new: true, runValidators: true }
-  );
+  const allowedFields = ['name', 'description', 'category', 'logo', 'banner', 'settings'];
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      channel[field] = req.body[field];
+    }
+  });
+
+  await channel.save();
 
   res.json({
     success: true,
@@ -114,7 +121,7 @@ const updateChannel = asyncHandler(async (req, res, next) => {
 
 // @desc    Delete channel
 // @route   DELETE /api/v1/channels/:id
-// @access  Private (Owner)
+// @access  Private (Owner only)
 const deleteChannel = asyncHandler(async (req, res, next) => {
   const channel = await Channel.findById(req.params.id);
 
@@ -122,7 +129,7 @@ const deleteChannel = asyncHandler(async (req, res, next) => {
     return next(new AppError('Channel not found', 404));
   }
 
-  if (channel.owner.toString() !== req.user.id && req.user.role !== 'admin') {
+  if (channel.owner.toString() !== req.user.id) {
     return next(new AppError('Not authorized to delete this channel', 403));
   }
 
@@ -144,7 +151,10 @@ const joinChannel = asyncHandler(async (req, res, next) => {
     return next(new AppError('Channel not found', 404));
   }
 
-  // Check if already a member
+  if (channel.isPrivate) {
+    return next(new AppError('This channel is private', 403));
+  }
+
   const isMember = channel.members.find(
     (m) => m.user.toString() === req.user.id
   );
