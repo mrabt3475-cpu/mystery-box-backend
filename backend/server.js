@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 
 // Import routes
@@ -17,10 +18,8 @@ const serviceRoutes = require('./routes/service.routes');
 const apiKeyRoutes = require('./routes/apiKey.routes');
 
 // Import middleware
-const { apiLimiter, authLimiter, boxLimiter, giftLimiter, pointsLimiter } = require('./middleware/rateLimiter.middleware');
-const { globalErrorHandler, notFoundHandler } = require('./utils/errorHandler');
-const { requestLogger } = require('./utils/logger');
-const { sanitizeObject, sanitizeQuery } = require('./utils/sanitization');
+const { globalErrorHandler, notFoundHandler, errorLogger } = require('./middleware/errorHandler.middleware');
+const { sanitizeRequest, preventNoSQLInjection } = require('./middleware/sanitize.middleware');
 
 const app = express();
 
@@ -36,7 +35,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https:", "wss:"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -46,49 +45,69 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS configuration - restrict in production
+// CORS configuration - SECURE
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : ['http://localhost:5173', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    const allowedOrigins = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',')
+      : ['http://localhost:5173', 'http://localhost:3000'];
+    
+    // Allow requests with no origin (mobile apps, postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('غير مسموح بـ CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 app.use(cors(corsOptions));
 
-// Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Request logging
-app.use(requestLogger);
-
-// Input sanitization
-app.use((req, res, next) => {
-  res.removeHeader('x-powered-by');
-  
-  if (req.body) {
-    req.body = sanitizeObject(req.body);
-  }
-  
-  if (req.query) {
-    req.query = sanitizeQuery(req.query);
-  }
-  
-  next();
+// Rate limiting - SECURE
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { success: false, error: 'تجاوزت الحد المسموح من الطلبات' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health'
 });
 
-// =======================
-// RATE LIMITING
-// =======================
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, error: 'طلبات تسجيل دخول كثيرة' },
+});
+
+const sensitiveLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  message: { success: false, error: 'طلبات كثيرة' },
+});
 
 app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
-app.use('/api/boxes', boxLimiter);
-app.use('/api/gifts', giftLimiter);
-app.use('/api/points', pointsLimiter);
+app.use('/api/points/add', sensitiveLimiter);
+app.use('/api/points/deduct', sensitiveLimiter);
+app.use('/api/gifts/send', sensitiveLimiter);
+
+// Body parsing with limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input sanitization
+app.use(sanitizeRequest);
+app.use(preventNoSQLInjection);
+
+// Remove sensitive headers
+app.use((req, res, next) => {
+  res.removeHeader('x-powered-by');
+  res.removeHeader('X-Powered-By');
+  next();
+});
 
 // =======================
 // DATABASE CONNECTION
@@ -97,10 +116,16 @@ app.use('/api/points', pointsLimiter);
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/puzzlechain';
-    await mongoose.connect(mongoUri, {
+    
+    const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    };
+    
+    await mongoose.connect(mongoUri, options);
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
@@ -112,13 +137,13 @@ const connectDB = async () => {
 // API ROUTES
 // =======================
 
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -138,6 +163,7 @@ app.use('/api/api-keys', apiKeyRoutes);
 // ERROR HANDLING
 // =======================
 
+app.use(errorLogger);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
@@ -153,7 +179,8 @@ const startServer = async () => {
   app.listen(PORT, () => {
     console.log(`\n🚀 Server running on port ${PORT}`);
     console.log(`📱 Health check: http://localhost:${PORT}/health`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}\n`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔒 Security: Enabled\n`);
   });
 };
 

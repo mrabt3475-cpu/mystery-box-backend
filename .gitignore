@@ -46,3 +46,8 @@ pids/
 *.pid
 *.seed
 *.pid.lock
+
+# Secrets
+*.pem
+*.key
+secrets/
