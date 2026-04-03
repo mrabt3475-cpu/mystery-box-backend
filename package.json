@@ -1,7 +1,7 @@
 {
   "name": "puzzlechain-backend",
   "version": "2.0.0",
-  "description": "Mystery Box Backend with Points System",
+  "description": "Mystery Box Backend with Points System - Secure Edition",
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
@@ -26,7 +26,8 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.3"
+    "mongoose": "^8.0.3",
+    "sanitize-html": "^2.11.0"
   },
   "engines": {
     "node": ">=18.0.0"
