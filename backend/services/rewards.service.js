@@ -66,14 +66,6 @@ class RewardsService {
 
     return totalEV;
   }
-
-  // Budget control - check if box is within budget
-  async checkBudget(boxId, dailyBudget, spentToday) {
-    const box = await Box.findById(boxId);
-    if (!box) return false;
-    
-    return (spentToday + box.cost) <= dailyBudget;
-  }
 }
 
 const Prize = require('../models/Prize.model');

@@ -42,7 +42,6 @@ class GiftService {
       isAnonymous: options.isAnonymous || false
     });
 
-
     // Record transactions
     await PointsTransaction.create({
       user: senderId,
@@ -51,7 +50,6 @@ class GiftService {
       description: `إرسال هدية لـ ${receiver.username}`,
       balanceAfter: sender.pointsBalance
     });
-
 
     await PointsTransaction.create({
       user: receiverId,

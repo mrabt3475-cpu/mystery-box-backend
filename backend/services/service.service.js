@@ -7,28 +7,16 @@ class ServiceService {
   async createService(ownerId, data) {
     const { name, description, serviceType, cost, pointsRequired, joinMode, settings } = data;
 
-    // Validate service type
     if (!['group', 'channel', 'bot'].includes(serviceType)) {
-      throw new Error('Invalid service type. Must be group, channel, or bot');
+      throw new Error('Invalid service type');
     }
 
-    // Calculate cost based on type
-    const defaultCosts = {
-      group: 100,
-      channel: 150,
-      bot: 200
-    };
-
+    const defaultCosts = { group: 100, channel: 150, bot: 200 };
     const serviceCost = cost || defaultCosts[serviceType];
-
-    // Generate invite link
     const inviteLink = crypto.randomBytes(16).toString('hex');
 
     const service = await Service.create({
-      name,
-      description,
-      serviceType,
-      owner: ownerId,
+      name, description, serviceType, owner: ownerId,
       cost: serviceCost,
       pointsRequired: pointsRequired || 0,
       joinMode: joinMode || 'free',
@@ -40,174 +28,64 @@ class ServiceService {
     return service;
   }
 
-  // Get default settings for each service type
   getDefaultSettings(serviceType) {
-    const baseSettings = {
-      allowChat: true,
-      allowGifts: true,
-      slowMode: false,
-      color: '#6366f1'
-    };
-
+    const base = { allowChat: true, allowGifts: true, slowMode: false, color: '#6366f1' };
     switch (serviceType) {
-      case 'group':
-        return {
-          ...baseSettings,
-          welcomeMessage: '',
-          requireApproval: false,
-          maxMembers: 500
-        };
-      case 'channel':
-        return {
-          ...baseSettings,
-          enableDonations: true,
-          enableLiveStream: false,
-          allowReactions: true
-        };
-      case 'bot':
-        return {
-          ...baseSettings,
-          autoReply: true,
-          games: true,
-          commands: ['/help', '/stats', '/balance'],
-          welcomeMessage: 'مرحباً! أنا بوت جديد في الخدمة'
-        };
-      default:
-        return baseSettings;
+      case 'group': return { ...base, welcomeMessage: '', requireApproval: false, maxMembers: 500 };
+      case 'channel': return { ...base, enableDonations: true, enableLiveStream: false, allowReactions: true };
+      case 'bot': return { ...base, autoReply: true, games: true, commands: ['/help', '/stats', '/balance'], welcomeMessage: 'مرحباً!' };
+      default: return base;
     }
   }
 
-  // Join a service with points
   async joinService(serviceId, userId) {
     const service = await Service.findById(serviceId);
-    if (!service) {
-      throw new Error('Service not found');
-    }
+    if (!service) throw new Error('Service not found');
+    if (service.status !== 'active') throw new Error('Service is not active');
 
-    if (service.status !== 'active') {
-      throw new Error('Service is not active');
-    }
-
-    // Check if already member
     const isMember = service.members.some(m => m.user.toString() === userId.toString());
-    if (isMember) {
-      throw new Error('Already a member');
-    }
+    if (isMember) throw new Error('Already a member');
 
     const user = await User.findById(userId);
-
-    // Check points required for joining
     if (service.pointsRequired > 0 && user.pointsBalance < service.pointsRequired) {
-      throw new Error('Insufficient points. You need ' + service.pointsRequired + ' points to join');
+      throw new Error('Insufficient points');
     }
 
-    // Deduct points if required
     if (service.pointsRequired > 0) {
       user.pointsBalance -= service.pointsRequired;
       await user.save();
     }
 
-    // Add member
     service.members.push({ user: userId, role: 'member' });
     await service.save();
-
     return service;
   }
 
-  // Leave a service
   async leaveService(serviceId, userId) {
     const service = await Service.findById(serviceId);
-    if (!service) {
-      throw new Error('Service not found');
-    }
-
-    // Check if owner - owner cannot leave
-    if (service.owner.toString() === userId.toString()) {
-      throw new Error('Owner cannot leave their own service');
-    }
+    if (!service) throw new Error('Service not found');
+    if (service.owner.toString() === userId.toString()) throw new Error('Owner cannot leave');
 
     service.members = service.members.filter(m => m.user.toString() !== userId.toString());
     await service.save();
-
     return service;
   }
 
-  // Get user's services
   async getUserServices(userId) {
     return await Service.find({ 'members.user': userId })
       .populate('owner', 'name username avatar')
       .sort({ createdAt: -1 });
   }
 
-  // Get service by ID
   async getServiceById(serviceId) {
     return await Service.findById(serviceId)
       .populate('owner', 'name username avatar')
       .populate('members.user', 'name username avatar');
   }
 
-  // Update service settings
-  async updateService(serviceId, ownerId, updates) {
-    const service = await Service.findById(serviceId);
-    if (!service) {
-      throw new Error('Service not found');
-    }
-
-    if (service.owner.toString() !== ownerId.toString()) {
-      throw new Error('Not authorized. Only owner can update');
-    }
-
-    Object.assign(service, updates);
-    await service.save();
-
-    return service;
-  }
-
-  // Delete service
-  async deleteService(serviceId, ownerId) {
-    const service = await Service.findById(serviceId);
-    if (!service) {
-      throw new Error('Service not found');
-    }
-
-    if (service.owner.toString() !== ownerId.toString()) {
-      throw new Error('Not authorized. Only owner can delete');
-    }
-
-    await Service.findByIdAndDelete(serviceId);
-    return true;
-  }
-
-  // Add post to service (for groups/channels)
-  async addPost(serviceId, userId, content) {
-    const service = await Service.findById(serviceId);
-    if (!service) {
-      throw new Error('Service not found');
-    }
-
-    const isMember = service.members.some(m => m.user.toString() === userId.toString());
-    if (!isMember) {
-      throw new Error('Not a member. Cannot post');
-    }
-
-    service.posts.push({
-      author: userId,
-      content,
-      createdAt: new Date()
-    });
-
-    await service.save();
-    return service;
-  }
-
-  // Get services with pagination and filters
   async getServices(filters = {}, page = 1, limit = 12) {
     const query = { status: 'active' };
-    
-    if (filters.type) {
-      query.serviceType = filters.type;
-    }
-    
+    if (filters.type) query.serviceType = filters.type;
     if (filters.search) {
       query.$or = [
         { name: { $regex: filters.search, $options: 'i' } },
@@ -222,40 +100,7 @@ class ServiceService {
       .limit(limit);
 
     const total = await Service.countDocuments(query);
-
-    return {
-      services,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    };
-  }
-
-  // Bot-specific: Process command
-  async processBotCommand(serviceId, userId, command) {
-    const service = await Service.findById(serviceId);
-    if (!service || service.serviceType !== 'bot') {
-      throw new Error('Service is not a bot');
-    }
-
-    const isMember = service.members.some(m => m.user.toString() === userId);
-    if (!isMember) {
-      throw new Error('Not a member of this bot');
-    }
-
-    const commands = service.settings?.commands || ['/help', '/stats', '/balance'];
-    
-    // Simple command responses
-    const responses = {
-      '/help': 'الأوامر المتاحة: ' + commands.join(', '),
-      '/stats': 'إحصائيات البوت قيد التطوير...',
-      '/balance': 'للتحقق من رصيدك، استخدم /api/points'
-    };
-
-    return responses[command] || 'أمر غير معروف. استخدم /help';
+    return { services, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
   }
 }
 
