@@ -9,6 +9,7 @@ const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { validators } = require('../utils/validation');
 const { NotFoundError, ValidationError } = require('../utils/AppError');
 const { formatSuccess, formatPaginated } = require('../utils/responseFormatter');
+const { logger } = require('../utils/logger');
 
 // Get all products with pagination
 router.get('/', catchAsync(async (req, res) => {
@@ -44,30 +45,49 @@ router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
   res.json(formatSuccess(product));
 }));
 
-// Create order
+// Create order - WITH PROPER VALIDATION
 router.post('/order', auth, catchAsync(async (req, res) => {
   const { items, paymentMethod } = req.body;
   
+  // Validate items
   if (!items || !Array.isArray(items) || items.length === 0) {
-    throw new ValidationError('يجب إضافة منتجات للطلب');
+    throw new ValidationError('يجب إضافة منتج واحد على الأقل');
   }
-  
+
+  // Validate each item
+  for (const item of items) {
+    if (!item.product || !item.quantity || item.quantity < 1) {
+      throw new ValidationError('بيانات المنتج غير صالحة');
+    }
+  }
+
   const user = await User.findById(req.user.id);
   let total = 0;
   
+  // Calculate total and validate products
   for (const item of items) {
     const product = await Product.findById(item.product);
     if (!product) {
       throw new NotFoundError(`المنتج: ${item.product}`);
     }
+    if (!product.isActive) {
+      throw new ValidationError(`المنتج ${product.name} غير متاح`);
+    }
     total += product.price * item.quantity;
   }
 
-  if (paymentMethod === 'points' && user.pointsBalance < total) {
-    throw new ValidationError('رصيدك غير كافٍ');
+  // Validate payment method
+  const validPaymentMethods = ['points', 'stripe', 'ton', 'wallet'];
+  if (!paymentMethod || !validPaymentMethods.includes(paymentMethod)) {
+    throw new ValidationError('طريقة دفع غير صالحة');
   }
 
+  // Check balance for points payment
   if (paymentMethod === 'points') {
+    if (user.pointsBalance < total) {
+      throw new ValidationError('رصيدك غير كافٍ');
+    }
+
     user.pointsBalance -= total;
     user.lifetimePoints += Math.floor(total * 0.05);
     await user.save();
@@ -79,6 +99,8 @@ router.post('/order', auth, catchAsync(async (req, res) => {
       description: 'شراء منتج',
       balanceAfter: user.pointsBalance
     });
+
+    logger.info(`Order created for user ${req.user.id}, amount: ${total} points`);
   }
 
   const order = await Order.create({
@@ -95,7 +117,7 @@ router.post('/order', auth, catchAsync(async (req, res) => {
     status: 'pending'
   });
 
-  res.status(201).json(formatSuccess(order, '✅ تم إنشاء الطلب'));
+  res.status(201).json(formatSuccess(order, '✅ تم إنشاء الطلب بنجاح'));
 }));
 
 // Get user's orders
@@ -111,6 +133,12 @@ router.get('/orders/my', auth, catchAsync(async (req, res) => {
 router.post('/', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
+  }
+  
+  const { name, price, description } = req.body;
+  
+  if (!name || !price) {
+    throw new ValidationError('الاسم والسعر مطلوبان');
   }
   
   const product = await Product.create(req.body);

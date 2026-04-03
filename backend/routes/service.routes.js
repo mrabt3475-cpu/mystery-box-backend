@@ -37,22 +37,42 @@ router.get('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res
   res.json(formatSuccess(service));
 }));
 
-// Create service
+// Create service - WITH VALIDATION
 router.post('/', auth, catchAsync(async (req, res) => {
+  const { name, description, serviceType, cost, pointsRequired, joinMode, settings } = req.body;
+
+  // Validate required fields
+  if (!name || name.trim().length < 2) {
+    throw new ValidationError('اسم الخدمة مطلوب (حرفان على الأقل)');
+  }
+  
+  if (!serviceType || !['group', 'channel', 'bot'].includes(serviceType)) {
+    throw new ValidationError('نوع الخدمة غير صالح');
+  }
+
+  // Validate cost and points
+  if (cost !== undefined && (cost < 0 || typeof cost !== 'number')) {
+    throw new ValidationError('التكلفة يجب أن تكون رقم موجب');
+  }
+  
+  if (pointsRequired !== undefined && (pointsRequired < 0 || typeof pointsRequired !== 'number')) {
+    throw new ValidationError('النقاط المطلوبة يجب أن تكون رقم موجب');
+  }
+
   const service = await ServiceService.createService(req.user.id, req.body);
-  res.status(201).json(formatSuccess(service, '✅ تم إنشاء الخدمة'));
+  res.status(201).json(formatSuccess(service, '✅ تم إنشاء الخدمة بنجاح'));
 }));
 
 // Join service
 router.post('/:id/join', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
   const service = await ServiceService.joinService(req.params.id, req.user.id);
-  res.json(formatSuccess(service, '✅ تم الانضمام'));
+  res.json(formatSuccess(service, '✅ تم الانضمام بنجاح'));
 }));
 
 // Leave service
 router.post('/:id/leave', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
   await ServiceService.leaveService(req.params.id, req.user.id);
-  res.json(formatSuccess(null, '✅ تم المغادرة'));
+  res.json(formatSuccess(null, '✅ تم المغادرة بنجاح'));
 }));
 
 module.exports = router;

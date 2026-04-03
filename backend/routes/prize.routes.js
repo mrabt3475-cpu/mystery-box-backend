@@ -22,11 +22,27 @@ router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
   res.json(formatSuccess(prize));
 }));
 
-// Admin: Create prize
+// Admin: Create prize - WITH VALIDATION
 router.post('/', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
   }
+  
+  const { name, type, value, rarity } = req.body;
+  
+  // Validate required fields
+  if (!name || name.trim().length < 2) {
+    throw new ValidationError('اسم الجائزة مطلوب');
+  }
+  
+  if (!type || !['points', 'coupon', 'product', 'gift', 'badge', 'nothing'].includes(type)) {
+    throw new ValidationError('نوع الجائزة غير صالح');
+  }
+  
+  if (value !== undefined && (value < 0 || typeof value !== 'number')) {
+    throw new ValidationError('قيمة الجائزة يجب أن تكون رقم موجب');
+  }
+
   const prize = await Prize.create(req.body);
   res.status(201).json(formatSuccess(prize, '✅ تم إنشاء الجائزة'));
 }));
@@ -36,6 +52,7 @@ router.put('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
   }
+  
   const prize = await Prize.findByIdAndUpdate(req.params.id, req.body, { new: true });
   if (!prize) {
     throw new NotFoundError('الجائزة');
@@ -48,6 +65,7 @@ router.delete('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, 
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
   }
+  
   const prize = await Prize.findByIdAndDelete(req.params.id);
   if (!prize) {
     throw new NotFoundError('الجائزة');

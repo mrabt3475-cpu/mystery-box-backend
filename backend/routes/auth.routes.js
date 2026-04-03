@@ -9,18 +9,32 @@ const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { validators } = require('../utils/validation');
 const { ConflictError, ValidationError, UnauthorizedError } = require('../utils/AppError');
 const { formatSuccess } = require('../utils/responseFormatter');
+const config = require('../config');
+const { logger } = require('../utils/logger');
 
 const generateTokens = (userId) => {
-  const jwtSecret = process.env.JWT_SECRET || 'default-secret';
-  const refreshSecret = process.env.JWT_REFRESH_SECRET || 'default-refresh-secret';
-  const accessToken = jwt.sign({ id: userId }, jwtSecret, { expiresIn: process.env.JWT_EXPIRE || '15m' });
-  const refreshToken = jwt.sign({ id: userId }, refreshSecret, { expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d' });
+  const accessToken = jwt.sign({ id: userId }, config.jwtSecret, { 
+    expiresIn: config.jwtExpire 
+  });
+  const refreshToken = jwt.sign({ id: userId }, config.jwtRefreshSecret, { 
+    expiresIn: config.jwtRefreshExpire 
+  });
   return { accessToken, refreshToken };
 };
 
 // Register
 router.post('/register', validators.register, catchAsync(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new ValidationError(errors.array()[0].msg);
+  }
+  
   const { username, password, name, email, referralCode } = req.body;
+  
+  // Validate inputs
+  if (!username || !password || !name) {
+    throw new ValidationError('جميع الحقول مطلوبة');
+  }
   
   const existingUser = await User.findOne({ 
     $or: [{ username }, { email: email || null }] 
@@ -49,6 +63,8 @@ router.post('/register', validators.register, catchAsync(async (req, res) => {
     await referredByUser.save();
   }
 
+  logger.info(`New user registered: ${username}`);
+
   res.status(201).json(formatSuccess(
     { user, accessToken, refreshToken },
     '✅ تم التسجيل بنجاح'
@@ -57,6 +73,11 @@ router.post('/register', validators.register, catchAsync(async (req, res) => {
 
 // Login
 router.post('/login', validators.login, catchAsync(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new ValidationError(errors.array()[0].msg);
+  }
+  
   const { username, password } = req.body;
   
   const user = await User.findOne({ username });
@@ -65,12 +86,13 @@ router.post('/login', validators.login, catchAsync(async (req, res) => {
   }
 
   if (user.isLocked()) {
-    throw new UnauthorizedError('الحساب مقفل مؤقتاً');
+    throw new UnauthorizedError('الحساب مقفل مؤقتاً، يرجى المحاولة لاحقاً');
   }
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
     await user.incrementLoginAttempts();
+    logger.warn(`Failed login attempt for user: ${username}`);
     throw new UnauthorizedError('بيانات الدخول غير صحيحة');
   }
 
@@ -79,6 +101,8 @@ router.post('/login', validators.login, catchAsync(async (req, res) => {
   await user.save();
 
   const { accessToken, refreshToken } = generateTokens(user._id);
+  
+  logger.info(`User logged in: ${username}`);
   
   res.json(formatSuccess(
     { user, accessToken, refreshToken },
@@ -94,8 +118,7 @@ router.post('/refresh', catchAsync(async (req, res) => {
     throw new ValidationError('Refresh token مطلوب');
   }
   
-  const refreshSecret = process.env.JWT_REFRESH_SECRET || 'default-refresh-secret';
-  const decoded = jwt.verify(refreshToken, refreshSecret);
+  const decoded = jwt.verify(refreshToken, config.jwtRefreshSecret);
   
   const user = await User.findById(decoded.id);
   if (!user) {
@@ -116,6 +139,14 @@ router.get('/me', authMiddleware, catchAsync(async (req, res) => {
 router.put('/profile', authMiddleware, catchAsync(async (req, res) => {
   const { name, email, avatar, phone, preferences } = req.body;
   
+  // Validate email if provided
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new ValidationError('بريد إلكتروني غير صالح');
+    }
+  }
+  
   const user = await User.findByIdAndUpdate(
     req.user.id, 
     { name, email, avatar, phone, preferences }, 
@@ -134,7 +165,7 @@ router.put('/password', authMiddleware, catchAsync(async (req, res) => {
   }
   
   if (newPassword.length < 6) {
-    throw new ValidationError('كلمة المرور الجديدة 6 أحرف على الأقل');
+    throw new ValidationError('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
   }
   
   const user = await User.findById(req.user.id);
@@ -146,6 +177,8 @@ router.put('/password', authMiddleware, catchAsync(async (req, res) => {
 
   user.password = newPassword;
   await user.save();
+  
+  logger.info(`Password changed for user: ${user.username}`);
   
   res.json(formatSuccess(null, '✅ تم تغيير كلمة المرور'));
 }));
