@@ -1,169 +1,99 @@
-# 🎮 PuzzleChain - Mystery Box Platform
+# 🎰 PuzzleChain - Mystery Box Backend
 
-A full-stack mystery box platform with live streaming support.
+منصة صناديق الألغاز مع نظام نقاط متكامل.
 
-![Node.js](https://img.shields.io/badge/Node.js-18+-green)
-![MongoDB](https://img.shields.io/badge/MongoDB-6+-green)
-![React](https://img.shields.io/badge/React-18-blue)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+## 🚀 الميزات
 
----
+- **نظام الصناديق** - فتح صناديق للحصول على جوائز
+- **نقاط الشراء** - شراء منتجات واكسب نقاط (5% من السعر)
+- **نقاط الصندوق** - استخدام النقاط لفتح الصناديق مجاناً
+- **نظام الهدايا** - إرسال نقاط كهدية للآخرين
+- **الخدمات** - مجموعات وقنوات وبوتات مدفوعة بالنقاط
+- **API Keys** - مفاتيح API للمطورين
+- **Provably Fair RNG** - نظام عشوائي عادل
 
-## 🚀 Features
+## 📁 الهيكل
 
-### Core Features
-- ✅ User Authentication (JWT)
-- ✅ Channels & Products Management
-- ✅ Shopping Cart & Orders
-- ✅ Mystery Boxes with Provably Fair RNG
-- ✅ Live Streaming Support
-- ✅ Payment Integration (Stripe + TON Wallet)
-- ✅ Admin Dashboard
-- ✅ Analytics & Reporting
-- ✅ Referral System
-- ✅ Subscription Plans
-- ✅ Notifications
+```
+backend/
+├── models/           # نماذج البيانات
+│   ├── user.model.js
+│   ├── Box.model.js
+│   ├── Prize.model.js
+│   ├── BoxOpening.model.js
+│   ├── Product.model.js
+│   ├── Order.model.js
+│   ├── Service.model.js
+│   ├── GiftTransaction.model.js
+│   ├── ApiKey.model.js
+│   ├── Coupon.model.js
+│   └── pointsTransaction.model.js
+│
+├── services/         # الخدمات
+│   ├── rewards.service.js
+│   └── gift.service.js
+│
+├── routes/           # مسارات API
+│   ├── auth.routes.js
+│   ├── user.routes.js
+│   ├── box.routes.js
+│   ├── prize.routes.js
+│   ├── product.routes.js
+│   ├── order.routes.js
+│   ├── points.routes.js
+│   ├── gift.routes.js
+│   ├── service.routes.js
+│   └── apiKey.routes.js
+│
+├── middleware/       # البرمجيات الوسيطة
+│   ├── auth.middleware.js
+│   ├── rateLimiter.middleware.js
+│   └── apiKey.middleware.js
+│
+├── server.js         # نقطة الدخول
+└── .env.example     # متغيرات البيئة
+```
 
----
-
-## 💻 Tech Stack
-
-### Backend
-- **Runtime:** Node.js 18+
-- **Framework:** NestJS
-- **Database:** MongoDB 6+
-- **Cache:** Redis
-- **Authentication:** JWT
-- **Payment:** Stripe, TON Wallet
-
-### Frontend
-- **Framework:** React 18
-- **Build Tool:** Vite
-- **Styling:** Tailwind CSS
-- **State:** Zustand
-
----
-
-## 🏃 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- MongoDB 6+
-- npm or yarn
-
-### Installation
+## 🛠️ التثبيت والتشغيل
 
 ```bash
-# Clone the repository
+# استنساخ المشروع
 git clone https://github.com/mrabt3475-cpu/mystery-box-backend.git
 cd mystery-box-backend
 
-# Backend setup
-cd backend
+# تثبيت المتطلبات
 npm install
-cp .env.example .env
-# Edit .env with your configuration
 
-# Frontend setup
-cd ../frontend
-npm install
-```
+# إنشاء ملف البيئة
+cp backend/.env.example backend/.env
 
-### Running
-
-```bash
-# Backend
-cd backend
-npm run start
-
-# Frontend
-cd frontend
+# تشغيل السيرفر
 npm run dev
 ```
 
----
+## 🔐 مسارات API
 
-## 🐳 Docker
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| POST | `/api/auth/register` | تسجيل مستخدم جديد |
+| POST | `/api/auth/login` | تسجيل الدخول |
+| GET | `/api/boxes` | جلب جميع الصناديق |
+| POST | `/api/boxes/:id/open` | فتح صندوق |
+| GET | `/api/products` | جلب المنتجات |
+| POST | `/api/products/order` | طلب منتج |
+| GET | `/api/points` | جلب الرصيد |
+| POST | `/api/gifts/send` | إرسال هدية |
+| GET | `/api/services` | جلب الخدمات |
+| POST | `/api/services/:id/join` | الانضمام لخدمة |
 
-```bash
-# Start all services
-docker-compose up -d
+## 🔒 الأمان
 
-# View logs
-docker-compose logs -f
+- JWT Authentication
+- Rate Limiting
+- Helmet Security
+- Input Sanitization
+- Password Hashing (bcryptjs)
 
-# Stop all services
-docker-compose down
-```
+## 📝 الترخيص
 
----
-
-## 📁 Project Structure
-
-```
-puzzlechain/
-├── backend/
-│   ├── src/
-│   │   ├── modules/        # Feature modules
-│   │   ├── common/         # Shared utilities
-│   │   └── main.ts          # Entry point
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── Dockerfile
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/          # Page components
-│   │   └── App.jsx         # Main app
-│   ├── public/
-│   ├── package.json
-│   └── vite.config.js
-│
-├── docker-compose.yml
-└── README.md
-```
-
----
-
-## 📚 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Get current user
-
-### Channels
-- `GET /api/channels` - List channels
-- `POST /api/channels` - Create channel
-- `GET /api/channels/:id` - Get channel details
-
-### Products
-- `GET /api/products` - List products
-- `POST /api/products` - Create product
-- `GET /api/products/:id` - Get product details
-
-### Orders
-- `GET /api/orders` - Get user orders
-- `POST /api/orders` - Create order
-
-### Payment
-- `POST /api/payment/stripe/checkout` - Stripe checkout
-- `POST /api/payment/ton/deposit` - TON deposit
-
-### Mystery Boxes
-- `GET /api/boxes` - List boxes
-- `POST /api/boxes/open` - Open box
-
----
-
-## 💰 Revenue
-
-Expected: ~$57,000/month
-
----
-
-## 📄 License
-
-MIT
+MIT License
