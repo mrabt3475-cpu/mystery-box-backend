@@ -3,13 +3,13 @@ const User = require('../models/user.model');
 const crypto = require('crypto');
 
 class ServiceService {
-  // Create a new service
+  // Create a new service (group/channel/bot)
   async createService(ownerId, data) {
     const { name, description, serviceType, cost, pointsRequired, joinMode, settings } = data;
 
     // Validate service type
     if (!['group', 'channel', 'bot'].includes(serviceType)) {
-      throw new Error('Invalid service type');
+      throw new Error('Invalid service type. Must be group, channel, or bot');
     }
 
     // Calculate cost based on type
@@ -40,7 +40,7 @@ class ServiceService {
     return service;
   }
 
-  // Get default settings for each type
+  // Get default settings for each service type
   getDefaultSettings(serviceType) {
     const baseSettings = {
       allowChat: true,
@@ -70,14 +70,14 @@ class ServiceService {
           autoReply: true,
           games: true,
           commands: ['/help', '/stats', '/balance'],
-          welcomeMessage: 'مرحباً! أنا بوت جديد'
+          welcomeMessage: 'مرحباً! أنا بوت جديد في الخدمة'
         };
       default:
         return baseSettings;
     }
   }
 
-  // Join a service
+  // Join a service with points
   async joinService(serviceId, userId) {
     const service = await Service.findById(serviceId);
     if (!service) {
@@ -96,9 +96,9 @@ class ServiceService {
 
     const user = await User.findById(userId);
 
-    // Check points required
+    // Check points required for joining
     if (service.pointsRequired > 0 && user.pointsBalance < service.pointsRequired) {
-      throw new Error('Insufficient points');
+      throw new Error('Insufficient points. You need ' + service.pointsRequired + ' points to join');
     }
 
     // Deduct points if required
@@ -121,9 +121,9 @@ class ServiceService {
       throw new Error('Service not found');
     }
 
-    // Check if owner
+    // Check if owner - owner cannot leave
     if (service.owner.toString() === userId.toString()) {
-      throw new Error('Owner cannot leave');
+      throw new Error('Owner cannot leave their own service');
     }
 
     service.members = service.members.filter(m => m.user.toString() !== userId.toString());
@@ -146,7 +146,7 @@ class ServiceService {
       .populate('members.user', 'name username avatar');
   }
 
-  // Update service
+  // Update service settings
   async updateService(serviceId, ownerId, updates) {
     const service = await Service.findById(serviceId);
     if (!service) {
@@ -154,7 +154,7 @@ class ServiceService {
     }
 
     if (service.owner.toString() !== ownerId.toString()) {
-      throw new Error('Not authorized');
+      throw new Error('Not authorized. Only owner can update');
     }
 
     Object.assign(service, updates);
@@ -171,14 +171,14 @@ class ServiceService {
     }
 
     if (service.owner.toString() !== ownerId.toString()) {
-      throw new Error('Not authorized');
+      throw new Error('Not authorized. Only owner can delete');
     }
 
     await Service.findByIdAndDelete(serviceId);
     return true;
   }
 
-  // Add post to service
+  // Add post to service (for groups/channels)
   async addPost(serviceId, userId, content) {
     const service = await Service.findById(serviceId);
     if (!service) {
@@ -187,7 +187,7 @@ class ServiceService {
 
     const isMember = service.members.some(m => m.user.toString() === userId.toString());
     if (!isMember) {
-      throw new Error('Not a member');
+      throw new Error('Not a member. Cannot post');
     }
 
     service.posts.push({
@@ -200,7 +200,7 @@ class ServiceService {
     return service;
   }
 
-  // Get services with pagination
+  // Get services with pagination and filters
   async getServices(filters = {}, page = 1, limit = 12) {
     const query = { status: 'active' };
     
@@ -232,6 +232,30 @@ class ServiceService {
         totalPages: Math.ceil(total / limit)
       }
     };
+  }
+
+  // Bot-specific: Process command
+  async processBotCommand(serviceId, userId, command) {
+    const service = await Service.findById(serviceId);
+    if (!service || service.serviceType !== 'bot') {
+      throw new Error('Service is not a bot');
+    }
+
+    const isMember = service.members.some(m => m.user.toString() === userId);
+    if (!isMember) {
+      throw new Error('Not a member of this bot');
+    }
+
+    const commands = service.settings?.commands || ['/help', '/stats', '/balance'];
+    
+    // Simple command responses
+    const responses = {
+      '/help': 'الأوامر المتاحة: ' + commands.join(', '),
+      '/stats': 'إحصائيات البوت قيد التطوير...',
+      '/balance': 'للتحقق من رصيدك، استخدم /api/points'
+    };
+
+    return responses[command] || 'أمر غير معروف. استخدم /help';
   }
 }
 
