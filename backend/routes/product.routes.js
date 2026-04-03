@@ -44,7 +44,7 @@ router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
   res.json(formatSuccess(product));
 }));
 
-// Create order with transaction
+// Create order
 router.post('/order', auth, catchAsync(async (req, res) => {
   const { items, paymentMethod } = req.body;
   
@@ -55,7 +55,6 @@ router.post('/order', auth, catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id);
   let total = 0;
   
-  // Calculate total and validate products
   for (const item of items) {
     const product = await Product.findById(item.product);
     if (!product) {
@@ -64,15 +63,13 @@ router.post('/order', auth, catchAsync(async (req, res) => {
     total += product.price * item.quantity;
   }
 
-  // Check balance for points payment
   if (paymentMethod === 'points' && user.pointsBalance < total) {
     throw new ValidationError('رصيدك غير كافٍ');
   }
 
-  // Deduct points if using points payment
   if (paymentMethod === 'points') {
     user.pointsBalance -= total;
-    user.lifetimePoints += Math.floor(total * 0.05); // 5% back as points
+    user.lifetimePoints += Math.floor(total * 0.05);
     await user.save();
     
     await PointsTransaction.create({
@@ -98,8 +95,7 @@ router.post('/order', auth, catchAsync(async (req, res) => {
     status: 'pending'
   });
 
-
-  res.status(201).json(formatSuccess(order, '✅ تم إنشاء الطلب بنجاح'));
+  res.status(201).json(formatSuccess(order, '✅ تم إنشاء الطلب'));
 }));
 
 // Get user's orders
@@ -112,7 +108,7 @@ router.get('/orders/my', auth, catchAsync(async (req, res) => {
 }));
 
 // Admin: Create product
-router.post('/', auth, validators.product, catchAsync(async (req, res) => {
+router.post('/', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
   }
