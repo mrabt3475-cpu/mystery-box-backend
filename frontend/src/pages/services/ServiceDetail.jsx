@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../components/ui/Toast/ToastProvider';
+import Modal from '../../components/ui/Modal/Modal';
 import './ServiceDetail.css';
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const toast = useToast();
+  
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [showExtendModal, setShowExtendModal] = useState(false);
   const [extendDays, setExtendDays] = useState(30);
   const [activeTab, setActiveTab] = useState('posts');
+  const [posts, setPosts] = useState([]);
+  const [newPost, setNewPost] = useState('');
+  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     fetchService();
@@ -29,9 +36,11 @@ const ServiceDetail = () => {
       
       if (data.success) {
         setService(data.data);
+        setPosts(data.data.posts || []);
       }
     } catch (error) {
       console.error('Error fetching service:', error);
+      toast.error('فشل تحميل الخدمة');
     } finally {
       setLoading(false);
     }
@@ -53,12 +62,13 @@ const ServiceDetail = () => {
       const data = await response.json();
       
       if (data.success) {
+        toast.success('تم الانضمام بنجاح!');
         fetchService();
       } else {
-        alert(data.error);
+        toast.error(data.error);
       }
     } catch (error) {
-      alert('حدث خطأ');
+      toast.error('حدث خطأ');
     } finally {
       setJoining(false);
     }
@@ -76,10 +86,11 @@ const ServiceDetail = () => {
       const data = await response.json();
       
       if (data.success) {
+        toast.success('تم المغادرة بنجاح');
         fetchService();
       }
     } catch (error) {
-      alert('حدث خطأ');
+      toast.error('حدث خطأ');
     }
   };
 
@@ -99,12 +110,44 @@ const ServiceDetail = () => {
       if (data.success) {
         setShowExtendModal(false);
         fetchService();
-        alert('تم تمديد الخدمة بنجاح');
+        await refreshUser();
+        toast.success('تم تمديد الخدمة بنجاح');
       } else {
-        alert(data.error);
+        toast.error(data.error);
       }
     } catch (error) {
-      alert('حدث خطأ');
+      toast.error('حدث خطأ');
+    }
+  };
+
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+    if (!newPost.trim()) return;
+
+    setPosting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/services/${id}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: newPost })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setNewPost('');
+        fetchService();
+        toast.success('تم نشر المنشور');
+      } else {
+        toast.error(data.error);
+      }
+    } catch (error) {
+      toast.error('حدث خطأ');
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -127,6 +170,15 @@ const ServiceDetail = () => {
       case 'bot': return '#f59e0b';
       default: return '#6366f1';
     }
+  };
+
+  const getExtendCost = () => {
+    const costPerDay = {
+      group: 3,
+      channel: 5,
+      bot: 7
+    };
+    return extendDays * (costPerDay[service?.serviceType] || 5);
   };
 
   if (loading) {
@@ -220,7 +272,7 @@ const ServiceDetail = () => {
         </div>
         <div className="stat-item">
           <span className="stat-icon">📝</span>
-          <span className="stat-value">{service.stats?.posts || 0}</span>
+          <span className="stat-value">{posts.length}</span>
           <span className="stat-label">منشورات</span>
         </div>
         <div className="stat-item">
@@ -261,14 +313,20 @@ const ServiceDetail = () => {
           {activeTab === 'posts' && (
             <div className="posts-section">
               {isMember ? (
-                <div className="create-post-box">
-                  <textarea placeholder="اكتب منشورك..."></textarea>
+                <form className="create-post-box" onSubmit={handleCreatePost}>
+                  <textarea 
+                    placeholder="اكتب منشورك..." 
+                    value={newPost}
+                    onChange={(e) => setNewPost(e.target.value)}
+                  ></textarea>
                   <div className="post-actions">
-                    <button className="btn-emoji">😊</button>
-                    <button className="btn-image">🖼️</button>
-                    <button className="btn-send">إرسال</button>
+                    <button type="button" className="btn-emoji">😊</button>
+                    <button type="button" className="btn-image">🖼️</button>
+                    <button type="submit" className="btn-send" disabled={posting || !newPost.trim()}>
+                      {posting ? 'جاري...' : 'إرسال'}
+                    </button>
                   </div>
-                </div>
+                </form>
               ) : (
                 <div className="join-to-post">
                   <span>🔒</span>
@@ -277,10 +335,35 @@ const ServiceDetail = () => {
               )}
 
               <div className="posts-list">
-                <div className="empty-posts">
-                  <span>📭</span>
-                  <p>لا توجد منشورات بعد</p>
-                </div>
+                {posts.length === 0 ? (
+                  <div className="empty-posts">
+                    <span>📭</span>
+                    <p>لا توجد منشورات بعد</p>
+                  </div>
+                ) : (
+                  posts.map((post, index) => (
+                    <div key={index} className="post-card">
+                      <div className="post-header">
+                        <div className="post-avatar">
+                          {post.author?.avatar ? (
+                            <img src={post.author.avatar} alt="" />
+                          ) : (
+                            '👤'
+                          )}
+                        </div>
+                        <div className="post-author">
+                          <span className="author-name">{post.author?.name || 'مستخدم'}</span>
+                          <span className="post-time">
+                            {new Date(post.createdAt).toLocaleDateString('ar')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="post-content">
+                        {post.content}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -380,38 +463,36 @@ const ServiceDetail = () => {
       </div>
 
       {/* Extend Modal */}
-      {showExtendModal && (
-        <div className="modal-overlay" onClick={() => setShowExtendModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>تمديد الخدمة</h3>
-            <p>اختر مدة التمديد:</p>
-            
-            <div className="extend-options">
-              {[7, 15, 30, 60, 90].map(days => (
-                <button
-                  key={days}
-                  className={`extend-option ${extendDays === days ? 'selected' : ''}`}
-                  onClick={() => setExtendDays(days)}
-                >
-                  {days} يوم
-                </button>
-              ))}
-            </div>
-            
-            <div className="extend-cost">
-              <span>التكلفة:</span>
-              <span className="cost">
-                {days => days * (service.serviceType === 'group' ? 3 : service.serviceType === 'channel' ? 5 : 7)} {extendDays} نقطة
-              </span>
-            </div>
-            
-            <div className="modal-actions">
-              <button onClick={() => setShowExtendModal(false)}>إلغاء</button>
-              <button className="confirm" onClick={handleExtend}>تمديد</button>
-            </div>
-          </div>
+      <Modal
+        isOpen={showExtendModal}
+        onClose={() => setShowExtendModal(false)}
+        title="تمديد الخدمة"
+        size="small"
+      >
+        <p>اختر مدة التمديد:</p>
+        
+        <div className="extend-options">
+          {[7, 15, 30, 60, 90].map(days => (
+            <button
+              key={days}
+              className={`extend-option ${extendDays === days ? 'selected' : ''}`}
+              onClick={() => setExtendDays(days)}
+            >
+              {days} يوم
+            </button>
+          ))}
         </div>
-      )}
+        
+        <div className="extend-cost">
+          <span>التكلفة:</span>
+          <span className="cost">{getExtendCost()} نقطة</span>
+        </div>
+        
+        <div className="modal-actions">
+          <button onClick={() => setShowExtendModal(false)}>إلغاء</button>
+          <button className="confirm" onClick={handleExtend}>تمديد</button>
+        </div>
+      </Modal>
     </div>
   );
 };

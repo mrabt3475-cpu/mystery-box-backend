@@ -1,26 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../components/ui/Toast/ToastProvider';
+import SearchInput from '../../components/ui/SearchInput/SearchInput';
+import Pagination from '../../components/ui/Pagination/Pagination';
+import { SkeletonCard } from '../../components/ui/Skeleton/Skeleton';
 import './Services.css';
 
 const ServicesMarketplace = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
+  
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0
+  });
 
-  useEffect(() => {
-    fetchServices();
-  }, [filter, search]);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async (page = 1, searchTerm = '') => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', pagination.limit);
       if (filter !== 'all') params.append('type', filter);
-      if (search) params.append('search', search);
+      if (searchTerm) params.append('search', searchTerm);
       
       const response = await fetch(`/api/services?${params}`, {
         headers: {
@@ -30,14 +40,35 @@ const ServicesMarketplace = () => {
       const data = await response.json();
       
       if (data.success) {
-        setServices(data.data);
+        setServices(data.data.services);
+        setPagination(prev => ({
+          ...prev,
+          page: data.data.page,
+          total: data.data.total,
+          totalPages: data.data.totalPages
+        }));
       }
     } catch (error) {
       console.error('Error fetching services:', error);
+      toast.error('فشل تحميل الخدمات');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, pagination.limit, toast]);
+
+  useEffect(() => {
+    fetchServices(1, search);
+  }, [filter]);
+
+  const handleSearch = useCallback((searchTerm) => {
+    setSearch(searchTerm);
+    fetchServices(1, searchTerm);
+  }, [fetchServices]);
+
+  const handlePageChange = useCallback((page) => {
+    fetchServices(page, search);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [fetchServices, search]);
 
   const getServiceIcon = (type) => {
     switch (type) {
@@ -74,13 +105,11 @@ const ServicesMarketplace = () => {
 
       {/* Search & Filter */}
       <div className="services-controls">
-        <div className="search-box">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
+        <div className="search-wrapper">
+          <SearchInput
+            onSearch={handleSearch}
             placeholder="ابحث عن خدمة..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            debounce={600}
           />
         </div>
 
@@ -125,9 +154,10 @@ const ServicesMarketplace = () => {
 
       {/* Services Grid */}
       {loading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>جاري التحميل...</p>
+        <div className="services-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : services.length === 0 ? (
         <div className="empty-state">
@@ -139,51 +169,61 @@ const ServicesMarketplace = () => {
           </button>
         </div>
       ) : (
-        <div className="services-grid">
-          {services.map((service) => (
-            <div 
-              key={service._id} 
-              className="service-card"
-              onClick={() => navigate(`/services/${service._id}`)}
-            >
+        <>
+          <div className="services-grid">
+            {services.map((service) => (
               <div 
-                className="service-icon"
-                style={{ background: getServiceColor(service.serviceType) }}
+                key={service._id} 
+                className="service-card"
+                onClick={() => navigate(`/services/${service._id}`)}
               >
-                {getServiceIcon(service.serviceType)}
-              </div>
-              
-              <div className="service-info">
-                <h3>{service.name}</h3>
-                <p className="service-description">
-                  {service.description || 'لا يوجد وصف'}
-                </p>
+                <div 
+                  className="service-icon"
+                  style={{ background: getServiceColor(service.serviceType) }}
+                >
+                  {getServiceIcon(service.serviceType)}
+                </div>
                 
-                <div className="service-meta">
-                  <span className="service-type">
-                    {service.serviceType === 'group' && 'مجموعة'}
-                    {service.serviceType === 'channel' && 'قناة'}
-                    {service.serviceType === 'bot' && 'بوت'}
-                  </span>
-                  <span className="service-members">
-                    👥 {service.members?.length || 0}
-                  </span>
-                  <span className="service-views">
-                    👁️ {service.stats?.views || 0}
-                  </span>
+                <div className="service-info">
+                  <h3>{service.name}</h3>
+                  <p className="service-description">
+                    {service.description || 'لا يوجد وصف'}
+                  </p>
+                  
+                  <div className="service-meta">
+                    <span className="service-type">
+                      {service.serviceType === 'group' && 'مجموعة'}
+                      {service.serviceType === 'channel' && 'قناة'}
+                      {service.serviceType === 'bot' && 'بوت'}
+                    </span>
+                    <span className="service-members">
+                      👥 {service.members?.length || 0}
+                    </span>
+                    <span className="service-views">
+                      👁️ {service.stats?.views || 0}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="service-actions">
+                  <button className="join-btn">
+                    {service.members?.some(m => m.user === user?._id) 
+                      ? 'دخلت' 
+                      : 'انضم'}
+                  </button>
                 </div>
               </div>
-              
-              <div className="service-actions">
-                <button className="join-btn">
-                  {service.members?.some(m => m.user === user?._id) 
-                    ? 'دخلت' 
-                    : 'انضم'}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            infoText="صفحة"
+          />
+        </>
       )}
 
       {/* My Services Sidebar */}
