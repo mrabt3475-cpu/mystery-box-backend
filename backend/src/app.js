@@ -1,67 +1,76 @@
-/* Main Application - Routes & Models
-**
- * Main entry point for the application
- * Registers all routes, middlewares, and models
-**
-
+// Express App Configuration
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
-
-// Import routes
-const authRouter = require('./sbc/routes/auth.routes');
-const userRouter = require('./sbc/routes/user.routes');
-const boxRouter = require('./sbc/routes/box.routes');
-const productRouter = require('./sbc/routes/product.routes');
-const pointsRouter = require('./sbc/routes/points.routes');
-const purchaseRouter = require('./sbc/routes/purchase.routes');
-
-// Import middlewares
-const authMiddleware = require('./sbc/middleware/auth.middleware');
-const errorMiddleware = require('./sbc/middleware/error.middleware');
-const rateLimiter = require('./sbc/middleware/rateLimiter.middleware');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+const config = require('./config/env');
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Body Parser
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Rate Limiting
-const rateLimit = rateLimiter();
-app.use(rateLimit);
+// Security Headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
-// Connect to Database
-async function connectDatabase() {
-  try {
-    const mongoStr = process.env.MONGO_URL || 'mongodb://localhost:27017/puzzlechain?tls=false';
-    await mongoose.connect(mongoStr);
+// Enable CORS
+app.use(cors({
+  origin: config.CLIENT_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-    console.log('Connected to MongoDB');
+// Compress Responses
+app.use(compression());
 
-    // Sync models
-    await mongoose.syncAll();
-    console.log('Models synced');
-
-  } catch (e) {
-    console.error('Database connection error:', e);
-  }
+// Development Logging
+if (config.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
 }
 
-connectDatabase();
+// Sanitize MongoDB Queries
+app.use(mongoSanitize());
 
-// Routes
-app.use('/api/auth', authRouter);
-app.use('/api/user', userRouter);
-app.use('/api/box', boxRouter);
-app.use('/api/product', productRouter);
-app.use('/api/points', pointsRouter);
-app.use('/api/purchase', purchaseRouter);
+// Prevent XSS
+app.use(xss());
 
-// Health check
-app.get('/', (req, res) => res.json({ status: 'ok', message: 'Puzzlechain Api Running' }));
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
 
-// Error handler
-app.use(errorMiddleware);
+// Health Check Route
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
+// API Routes (will be added in Phase 2)
+app.use('/api/v1', (req, res) => {
+  res.json({ message: 'PuzzleChain API v1', version: '1.0.0' });
+});
+
+// 404 Handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
+  });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    ...(config.NODE_ENV === 'development' && { stack: err.stack }),
+  });
+});
 
 module.exports = app;
