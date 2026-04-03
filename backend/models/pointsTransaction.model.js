@@ -51,7 +51,6 @@ const pointsTransactionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for queries
 pointsTransactionSchema.index({ user: 1, createdAt: -1 });
 pointsTransactionSchema.index({ user: 1, type: 1 });
 

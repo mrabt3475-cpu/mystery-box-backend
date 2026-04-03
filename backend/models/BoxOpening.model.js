@@ -25,7 +25,6 @@ const boxOpeningSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed'],
     default: 'completed'
   },
-  // Provably Fair
   seed: {
     type: String,
     required: true
