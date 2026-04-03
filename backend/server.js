@@ -9,9 +9,8 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const boxRoutes = require('./routes/box.routes');
-const orderRoutes = require('./routes/order.routes');
-const productRoutes = require('./routes/product.routes');
 const prizeRoutes = require('./routes/prize.routes');
+const productRoutes = require('./routes/product.routes');
 const pointsRoutes = require('./routes/points.routes');
 const giftRoutes = require('./routes/gift.routes');
 const serviceRoutes = require('./routes/service.routes');
@@ -28,7 +27,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-eval'"], // Keep for development
+      scriptSrc: ["'self'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
@@ -49,10 +48,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Rate limiting - different limits for different routes
+// Rate limiting
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per 15 minutes
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: { success: false, error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -60,7 +59,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10, // 10 requests per 15 minutes for auth
+  max: 10,
   message: { success: false, error: 'Too many login attempts, please try again later' },
 });
 
@@ -72,13 +71,9 @@ app.use('/api/auth/register', authLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-
 // Request sanitization
 app.use((req, res, next) => {
-  // Remove x-powered-by header
   res.removeHeader('x-powered-by');
-  
-  // Sanitize request body
   if (req.body) {
     for (let key in req.body) {
       if (typeof req.body[key] === 'string') {
@@ -86,7 +81,6 @@ app.use((req, res, next) => {
       }
     }
   }
-  
   next();
 });
 
@@ -112,7 +106,6 @@ const connectDB = async () => {
 // API ROUTES
 // =======================
 
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
@@ -126,9 +119,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/boxes', boxRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/products', productRoutes);
 app.use('/api/prizes', prizeRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/gifts', giftRoutes);
 app.use('/api/services', serviceRoutes);
@@ -149,12 +141,9 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
-  // Don't expose internal errors in production
   const message = process.env.NODE_ENV === 'production' 
     ? 'Internal server error' 
     : err.message;
-  
   res.status(err.status || 500).json({
     success: false,
     error: message

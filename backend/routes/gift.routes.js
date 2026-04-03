@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const giftService = require('../services/gift.service');
+const GiftService = require('../services/gift.service');
 const { auth } = require('../middleware/auth.middleware');
-const { body, query, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
-// Validation middleware
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -18,7 +17,7 @@ router.post('/send',
   auth,
   [
     body('receiverId').isMongoId().withMessage('معرف المستلم غير صالح'),
-    body('amount').isInt({ min: 1 }).withMessage('الحد الأدنى للهدية نقطة واحدة'),
+    body('amount').isInt({ min: 1 }).withMessage('الحد الأدنى نقطة واحدة'),
     body('message').optional().isLength({ max: 500 }),
     body('isAnonymous').optional().isBoolean()
   ],
@@ -27,7 +26,7 @@ router.post('/send',
     try {
       const { receiverId, amount, message, isAnonymous } = req.body;
       
-      const gift = await giftService.sendGift(
+      const gift = await GiftService.sendGift(
         req.user.id,
         receiverId,
         amount,
@@ -51,17 +50,11 @@ router.post('/send',
 // Get gift history
 router.get('/history',
   auth,
-  [
-    query('type').optional().isIn(['all', 'sent', 'received']),
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 50 })
-  ],
-  validate,
   async (req, res) => {
     try {
       const { type = 'all', page = 1, limit = 20 } = req.query;
       
-      const result = await giftService.getGiftHistory(
+      const result = await GiftService.getGiftHistory(
         req.user.id,
         type,
         parseInt(page),
@@ -86,7 +79,7 @@ router.get('/stats',
   auth,
   async (req, res) => {
     try {
-      const stats = await giftService.getGiftStats(req.user.id);
+      const stats = await GiftService.getGiftStats(req.user.id);
       
       res.json({
         success: true,
