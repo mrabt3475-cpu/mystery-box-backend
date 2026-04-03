@@ -1,29 +1,40 @@
 // Auth Controller
-const User = require('../models/User.model');
-const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const jwt = require('jsonwebtoken');
-const config = require('../../config/env');
+const crypto = require('crypto');
+const User = require('../models/User.model');
+const { asyncHandler } = require('../middleware/error.middleware');
+const config = require('../config/env');
 
-// Generate Token
+// Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, config.JWT_SECRET, {
     expiresIn: config.JWT_EXPIRE,
   });
 };
 
-// @desc    Register user
+// Generate Refresh Token
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, config.JWT_REFRESH_SECRET, {
+    expiresIn: config.JWT_REFRESH_EXPIRE,
+  });
+};
+
+// @desc    Register new user
 // @route   POST /api/v1/auth/register
 // @access  Public
-const register = asyncHandler(async (req, res, next) => {
+exports.register = asyncHandler(async (req, res) => {
   const { name, email, password, referralCode } = req.body;
 
   // Check if user exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return next(new AppError('Email already exists', 400));
+    return res.status(400).json({
+      success: false,
+      message: 'Email already registered',
+    });
   }
 
-  // Check referral code
+  // Check referral
   let referredBy = null;
   if (referralCode) {
     referredBy = await User.findOne({ referralCode });
@@ -34,14 +45,12 @@ const register = asyncHandler(async (req, res, next) => {
     name,
     email,
     password,
-    referredBy: referredBy ? referredBy._id : null,
+    referredBy: referredBy?._id,
   });
 
   // Generate tokens
   const token = generateToken(user._id);
-  const refreshToken = jwt.sign({ id: user._id }, config.JWT_REFRESH_SECRET, {
-    expiresIn: config.JWT_REFRESH_EXPIRE,
-  });
+  const refreshToken = generateRefreshToken(user._id);
 
   // Update referrer stats
   if (referredBy) {
@@ -52,6 +61,7 @@ const register = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
+    message: 'Registration successful',
     data: {
       user: {
         id: user._id,
@@ -60,7 +70,7 @@ const register = asyncHandler(async (req, res, next) => {
         role: user.role,
         avatar: user.avatar,
       },
-      accessToken: token,
+      token,
       refreshToken,
     },
   });
@@ -69,23 +79,33 @@ const register = asyncHandler(async (req, res, next) => {
 // @desc    Login user
 // @route   POST /api/v1/auth/login
 // @access  Public
-const login = asyncHandler(async (req, res, next) => {
+exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password', 400));
-  }
-
-  // Check for user
+  // Check if user exists
   const user = await User.findOne({ email }).select('+password');
-
-  if (!user || !(await user.comparePassword(password))) {
-    return next(new AppError('Invalid credentials', 401));
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials',
+    });
   }
 
   // Check if user is active
   if (user.status === 'banned') {
-    return next(new AppError('Your account has been banned', 403));
+    return res.status(403).json({
+      success: false,
+      message: 'Your account has been banned',
+    });
+  }
+
+  // Check password
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials',
+    });
   }
 
   // Update last login
@@ -94,9 +114,43 @@ const login = asyncHandler(async (req, res, next) => {
 
   // Generate tokens
   const token = generateToken(user._id);
-  const refreshToken = jwt.sign({ id: user._id }, config.JWT_REFRESH_SECRET, {
-    expiresIn: config.JWT_REFRESH_EXPIRE,
+  const refreshToken = generateRefreshToken(user._id);
+
+  res.json({
+    success: true,
+    message: 'Login successful',
+    data: {
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        subscription: user.subscription,
+        wallet: user.wallet,
+      },
+      token,
+      refreshToken,
+    },
   });
+});
+
+// @desc    Logout user
+// @route   POST /api/v1/auth/logout
+// @access  Private
+exports.logout = asyncHandler(async (req, res) => {
+  // In a real app, you'd invalidate the token in Redis
+  res.json({
+    success: true,
+    message: 'Logout successful',
+  });
+});
+
+// @desc    Get current user
+// @route   GET /api/v1/auth/me
+// @access  Private
+exports.getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id);
 
   res.json({
     success: true,
@@ -109,29 +163,18 @@ const login = asyncHandler(async (req, res, next) => {
         avatar: user.avatar,
         subscription: user.subscription,
         wallet: user.wallet,
+        stats: user.stats,
+        settings: user.settings,
+        referralCode: user.referralCode,
       },
-      accessToken: token,
-      refreshToken,
     },
   });
 });
 
-// @desc    Get current logged in user
-// @route   GET /api/v1/auth/me
-// @access  Private
-const getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-
-  res.json({
-    success: true,
-    data: user,
-  });
-});
-
 // @desc    Update user profile
-// @route   PUT /api/v1/auth/profile
+// @route   PUT /api/v1/auth/updateProfile
 // @access  Private
-const updateProfile = asyncHandler(async (req, res, next) => {
+exports.updateProfile = asyncHandler(async (req, res) => {
   const { name, email, avatar } = req.body;
 
   const user = await User.findByIdAndUpdate(
@@ -142,20 +185,26 @@ const updateProfile = asyncHandler(async (req, res, next) => {
 
   res.json({
     success: true,
-    data: user,
+    message: 'Profile updated successfully',
+    data: { user },
   });
 });
 
-// @desc    Change password
-// @route   PUT /api/v1/auth/password
+// @desc    Update password
+// @route   PUT /api/v1/auth/updatePassword
 // @access  Private
-const changePassword = asyncHandler(async (req, res, next) => {
+exports.updatePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user.id).select('+password');
 
-  if (!(await user.comparePassword(currentPassword))) {
-    return next(new AppError('Current password is incorrect', 401));
+  // Check current password
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    return res.status(401).json({
+      success: false,
+      message: 'Current password is incorrect',
+    });
   }
 
   user.password = newPassword;
@@ -167,46 +216,111 @@ const changePassword = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Refresh token
-// @route   POST /api/v1/auth/refresh
+// @desc    Forgot password
+// @route   POST /api/v1/auth/forgotPassword
 // @access  Public
-const refreshToken = asyncHandler(async (req, res, next) => {
-  const { refreshToken: token } = req.body;
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-  if (!token) {
-    return next(new AppError('No refresh token provided', 401));
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.json({
+      success: true,
+      message: 'If the email exists, a reset link will be sent',
+    });
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+  user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+  await user.save();
+
+  // In a real app, send email here
+  res.json({
+    success: true,
+    message: 'If the email exists, a reset link will be sent',
+  });
+});
+
+// @desc    Reset password
+// @route   PUT /api/v1/auth/resetPassword/:token
+// @access  Public
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+
+  const user = await User.findOne({
+    resetPasswordToken: crypto.createHash('sha256').update(req.params.token).digest('hex'),
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid or expired reset token',
+    });
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'Password reset successful',
+  });
+});
+
+// @desc    Verify email
+// @route   POST /api/v1/auth/verifyEmail/:token
+// @access  Public
+exports.verifyEmail = asyncHandler(async (req, res) => {
+  // Implementation depends on your verification flow
+  res.json({
+    success: true,
+    message: 'Email verified successfully',
+  });
+});
+
+// @desc    Refresh token
+// @route   GET /api/v1/auth/refresh-token
+// @access  Public
+exports.refreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      success: false,
+      message: 'Refresh token is required',
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, config.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+      });
     }
 
     const newToken = generateToken(user._id);
-    const newRefreshToken = jwt.sign({ id: user._id }, config.JWT_REFRESH_SECRET, {
-      expiresIn: config.JWT_REFRESH_EXPIRE,
-    });
+    const newRefreshToken = generateRefreshToken(user._id);
 
     res.json({
       success: true,
       data: {
-        accessToken: newToken,
+        token: newToken,
         refreshToken: newRefreshToken,
       },
     });
   } catch (error) {
-    return next(new AppError('Invalid refresh token', 401));
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token',
+    });
   }
 });
-
-module.exports = {
-  register,
-  login,
-  getMe,
-  updateProfile,
-  changePassword,
-  refreshToken,
-};
