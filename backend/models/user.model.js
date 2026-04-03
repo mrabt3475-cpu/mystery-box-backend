@@ -108,15 +108,36 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Generate referral code
-userSchema.methods.generateReferralCode = function() {
-  const crypto = require('crypto');
-  return crypto.randomBytes(4).toString('hex').toUpperCase();
-};
-
 // Check if account is locked
 userSchema.methods.isLocked = function() {
   return this.lockUntil && this.lockUntil > Date.now();
+};
+
+// Increment login attempts
+userSchema.methods.incrementLoginAttempts = async function() {
+  if (this.lockUntil && this.lockUntil < Date.now()) {
+    await this.updateOne({
+      $set: { loginAttempts: 1 },
+      $unset: { lockUntil: 1 }
+    });
+    return;
+  }
+
+  const updates = { $inc: { loginAttempts: 1 } };
+  
+  if (this.loginAttempts + 1 >= 5) {
+    updates.$set = { lockUntil: new Date(Date.now() + 15 * 60 * 1000) }; // 15 minutes
+  }
+
+  await this.updateOne(updates);
+};
+
+// Reset login attempts
+userSchema.methods.resetLoginAttempts = async function() {
+  await this.updateOne({
+    $set: { loginAttempts: 0 },
+    $unset: { lockUntil: 1 }
+  });
 };
 
 module.exports = mongoose.model('User', userSchema);
