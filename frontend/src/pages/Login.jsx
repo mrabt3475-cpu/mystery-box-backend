@@ -1,116 +1,127 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import api from '../services/api'
-import '../styles/premium.css'
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import TelegramLogin from '../components/TelegramLogin';
+import './Auth.css';
 
-export default function Login() {
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
+const Login = ({ setUser }) => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      const res = await api.post('/auth/login', form)
-      localStorage.setItem('token', res.data.token)
-      navigate('/')
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ')
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const handleTelegramSuccess = (user) => {
+    setUser(user);
+    navigate('/dashboard');
+  };
 
   return (
-    <div className="premium-bg min-h-screen flex items-center justify-center p-4">
-      {/* Particles */}
-      <div className="particles">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 15}s`,
-              animationDuration: `${15 + Math.random() * 10}s`,
-            }}
-          />
-        ))}
-      </div>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <Link to="/" className="auth-logo">
+              <span>🎁</span> PuzzleChain
+            </Link>
+            <h1>مرحباً снова!</h1>
+            <p>سجل دخولك للمتابعة</p>
+          </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-6xl font-bold mb-2 shimmer" style={{ letterSpacing: '8px }}>
-            ATHENA
-          </h1>
-          <p className="text-xl text-gray-400">سجل دخولك للمتابعة</p>
-        </div>
-
-        {/* Form */}
-        <div className="glass-card p-8 fade-in-up">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/50 text-red-400 p-4 rounded-xl text-sm">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm text-gray-400 mb-3">البريد الإلكتروني</label>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="input-group">
+              <label>البريد الإلكتروني</label>
               <input
                 type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:border-amber-500 transition text-lg"
-                placeholder="email@example.com"
+                name="email"
+                className="input"
+                placeholder="أدخل بريدك الإلكتروني"
+                value={formData.email}
+                onChange={handleChange}
                 required
               />
             </div>
 
-            <div>
-              <label className="block text-sm text-gray-400 mb-3">كلمة المرور</label>
+            <div className="input-group">
+              <label>كلمة المرور</label>
               <input
                 type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:border-amber-500 transition text-lg"
-                placeholder="••••••••"
+                name="password"
+                className="input"
+                placeholder="أدخل كلمة المرور"
+                value={formData.password}
+                onChange={handleChange}
                 required
               />
             </div>
 
-            <div className="flex justify-between items-center">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" className="w-5 h-5 rounded bg-black/30 border-white/20" />
-                <span className="text-gray-400">تذكرني</span>
-              </label>
-              <Link to="/forgot-password" className="text-amber-400 hover:text-amber-300 transition">
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
+            {error && <div className="error-message">{error}</div>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-premium w-full py-4 text-lg"
-            >
-              {loading ? 'جاري الدخول...' : 'دخول'}
+            <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+              {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
             </button>
           </form>
 
-          <div className="mt-8 text-center">
-            <span className="text-gray-400">ليس لديك حساب؟ </span>
-            <Link to="/register" className="text-amber-400 hover:text-amber-300 font-bold transition">
-              سجل الآن
-            </Link>
+
+          <div className="auth-divider">
+            <span>أو</span>
+          </div>
+
+          <TelegramLogin onSuccess={handleTelegramSuccess} />
+
+          <div className="auth-footer">
+            <p>
+              ليس لديك حساب؟ <Link to="/register">سجل الآن</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="auth-visual">
+        <div className="visual-content">
+          <h2>ابدأ المغامرة!</h2>
+          <p>افتح صناديق واستمتع بالجوائز الرائعة</p>
+          <div className="visual-boxes">
+            <span>🎁</span>
+            <span>💎</span>
+            <span>🏆</span>
+            <span>🎮</span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Login;
