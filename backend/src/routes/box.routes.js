@@ -1,23 +1,64 @@
-/* Box Routes
+// Box Routes
 const express = require('express');
+const router = express.Router();
+const { body } = require('express-validator');
+const { validate } = require('../../middleware/validation.middleware');
+const { protect, authorize } = require('../../middleware/auth.middleware');
+const boxController = require('../../controllers/box.controller');
 
-nimport authMiddleware from './middleware/auth.middleware');
-const BoxController = require('./controllers/box.controller');
+// @route   GET /api/v1/boxes
+// @desc    Get all boxes
+// @access  Public
+router.get('/', boxController.getBoxes);
 
-export const boxRouter = express.router();
+// @route   GET /api/v1/boxes/:id
+// @desc    Get box by ID
+// @access  Public
+router.get('/:id', boxController.getBox);
 
-// Get all boxes
-boxRouter.get('/', BoxController.getAllBoxs);
+// @route   POST /api/v1/boxes
+// @desc    Create new box
+// @access  Private (Channel Owner/Admin)
+router.post(
+  '/',
+  protect,
+  [
+    body('name').trim().notEmpty().withMessage('Box name is required'),
+    body('price').isNumeric().withMessage('Price must be a number'),
+    body('channel').isMongoId().withMessage('Valid channel ID is required'),
+  ],
+  validate,
+  boxController.createBox
+);
 
-// Get box by ID
-boxRouter.get('/:id', BoxController.getBoxById);
+// @route   PUT /api/v1/boxes/:id
+// @desc    Update box
+// @access  Private (Channel Owner/Admin)
+router.put('/:id', protect, boxController.updateBox);
 
-// Open box (free with points)
-boxRouter.post('/open', authMiddleware, BoxController.openBox);
 
-// Get box prices in points
-boxRouter.get('/prices', BoxController.getBoxPrices);
+// @route   DELETE /api/v1/boxes/:id
+// @desc    Delete box
+// @access  Private (Channel Owner/Admin)
+router.delete('/:id', protect, boxController.deleteBox);
 
-// Get user box history
-bxRouter.get('/history', authMiddleware, BoxController.getBoxHistory);
+// @route   POST /api/v1/boxes/:id/open
+// @desc    Open a box
+// @access  Private
+router.post(
+  '/:id/open',
+  protect,
+  boxController.openBox
+);
 
+// @route   GET /api/v1/boxes/:id/prizes
+// @desc    Get box prizes
+// @access  Public
+router.get('/:id/prizes', boxController.getBoxPrizes);
+
+// @route   GET /api/v1/boxes/featured
+// @desc    Get featured boxes
+// @access  Public
+router.get('/featured/list', boxController.getFeaturedBoxes);
+
+module.exports = router;
