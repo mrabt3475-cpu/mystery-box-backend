@@ -1,0 +1,487 @@
+/* Gift Points Styles */
+.gift-points-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.gift-header {
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.gift-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Stats */
+.gift-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.stat-card.sent .stat-icon { background: #fef3c7; }
+.stat-card.received .stat-icon { background: #d1fae5; }
+.stat-card.balance .stat-icon { background: #e0e7ff; }
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Tabs */
+.gift-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: white;
+  padding: 8px;
+  border-radius: 15px;
+}
+
+.gift-tabs .tab {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.gift-tabs .tab.active {
+  background: #6366f1;
+  color: white;
+}
+
+/* Send Gift Section */
+.send-gift-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.receiver-search,
+.amount-section,
+.message-section,
+.options-section {
+  margin-bottom: 25px;
+}
+
+.receiver-search label,
+.amount-section label,
+.message-section label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.receiver-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  margin-top: 15px;
+}
+
+.receiver-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.receiver-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.receiver-info {
+  flex: 1;
+}
+
+.receiver-name {
+  display: block;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.receiver-username {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.selected-badge {
+  width: 30px;
+  height: 30px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Quick Amounts */
+.quick-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.amount-btn {
+  padding: 12px 20px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.amount-btn:hover:not(:disabled) {
+  border-color: #6366f1;
+}
+
+.amount-btn.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
+.amount-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.custom-amount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-amount input {
+  flex: 1;
+  padding: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1.1rem;
+}
+
+.custom-amount input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* Message */
+.message-section textarea {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.message-section textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* Options */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: 20px;
+  height: 20px;
+  accent-color: #6366f1;
+}
+
+/* Gift Summary */
+.gift-summary {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-row.balance {
+  font-weight: bold;
+  color: #6366f1;
+}
+
+/* Send Button */
+.send-gift-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.send-gift-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+}
+
+.send-gift-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* History */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.history-item.sent {
+  border-color: #fef3c7;
+}
+
+.history-item.received {
+  border-color: #d1fae5;
+}
+
+.history-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.history-item.sent .history-icon {
+  background: #fef3c7;
+}
+
+.history-item.received .history-icon {
+  background: #d1fae5;
+}
+
+.history-info {
+  flex: 1;
+}
+
+.history-user {
+  display: block;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.history-message {
+  display: block;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.history-time {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.history-amount .negative {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.history-amount .positive {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+/* Empty State */
+.empty-history {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-history span {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+/* Confirm Modal */
+.confirm-gift {
+  text-align: center;
+}
+
+.confirm-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  overflow: hidden;
+}
+
+.confirm-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.confirm-username {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.confirm-amount {
+  background: #f0fdf4;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.confirm-amount .amount-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.confirm-amount .amount-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.confirm-message {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.confirm-message span {
+  display: block;
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.confirm-actions button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-actions button:first-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.confirm-actions .confirm-btn {
+  background: #22c55e;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .gift-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .gift-tabs {
+    flex-direction: column;
+  }
+}
