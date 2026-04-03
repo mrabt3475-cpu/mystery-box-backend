@@ -3,6 +3,7 @@ const Order = require('../models/Order.model');
 const Product = require('../models/Product.model');
 const User = require('../models/User.model');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
+const config = require('../../config/constants');
 
 // @desc    Get user orders
 // @route   GET /api/v1/orders
@@ -38,17 +39,12 @@ const getOrders = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/orders/:id
 // @access  Private
 const getOrder = asyncHandler(async (req, res, next) => {
-  const order = await Order.findById(req.params.id)
+  const order = await Order.findOne({ _id: req.params.id, user: req.user.id })
     .populate('items.product', 'name image description')
     .populate('channel', 'name logo');
 
   if (!order) {
     return next(new AppError('Order not found', 404));
-  }
-
-  // Check ownership
-  if (order.user.toString() !== req.user.id && req.user.role !== 'admin') {
-    return next(new AppError('Not authorized to view this order', 403));
   }
 
   res.json({
@@ -61,7 +57,7 @@ const getOrder = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/orders
 // @access  Private
 const createOrder = asyncHandler(async (req, res, next) => {
-  const { items, channel, paymentMethod, couponCode } = req.body;
+  const { items, channel, coupon, pointsToUse } = req.body;
 
   if (!items || items.length === 0) {
     return next(new AppError('No items in order', 400));
@@ -76,9 +72,11 @@ const createOrder = asyncHandler(async (req, res, next) => {
     if (!product) {
       return next(new AppError(`Product ${item.productId} not found`, 404));
     }
-
     if (product.status !== 'active') {
       return next(new AppError(`Product ${product.name} is not available`, 400));
+    }
+    if (product.stock === 0) {
+      return next(new AppError(`Product ${product.name} is out of stock`, 400));
     }
 
     orderItems.push({
@@ -92,13 +90,28 @@ const createOrder = asyncHandler(async (req, res, next) => {
     subtotal += product.price * (item.quantity || 1);
   }
 
-  // Apply coupon discount (simplified)
+  // Apply coupon discount
   let discount = 0;
-  if (couponCode) {
-    // Add coupon logic here
+  if (coupon) {
+    // Coupon logic would go here
+    discount = 0;
   }
 
-  const total = subtotal - discount;
+  // Apply points
+  let pointsUsed = 0;
+  if (pointsToUse && pointsToUse > 0) {
+    const user = await User.findById(req.user.id);
+    if (pointsToUse > user.wallet.points) {
+      return next(new AppError('Insufficient points', 400));
+    }
+    pointsUsed = pointsToUse;
+    discount += pointsUsed * 0.01; // 1 point = $0.01
+  }
+
+  const total = Math.max(0, subtotal - discount);
+
+  // Calculate points earned
+  const pointsEarned = Order.calculatePointsEarned(total);
 
   const order = await Order.create({
     user: req.user.id,
@@ -107,13 +120,25 @@ const createOrder = asyncHandler(async (req, res, next) => {
     subtotal,
     discount,
     total,
-    payment: {
-      method: paymentMethod,
-      status: 'pending',
-    },
+    pointsUsed,
+    pointsEarned,
     customer: {
       email: req.user.email,
       name: req.user.name,
+    },
+  });
+
+  // Update product stats
+  for (const item of orderItems) {
+    await Product.incrementPurchases(item.product, item.price * item.quantity);
+  }
+
+  // Update user points and stats
+  await User.findByIdAndUpdate(req.user.id, {
+    $inc: {
+      'wallet.points': pointsEarned - pointsUsed,
+      'stats.totalOrders': 1,
+      'stats.totalSpent': total,
     },
   });
 
@@ -123,37 +148,33 @@ const createOrder = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Update order status
-// @route   PUT /api/v1/orders/:id/status
-// @access  Private (Admin)
-const updateOrderStatus = asyncHandler(async (req, res, next) => {
-  const { status } = req.body;
-
-  const order = await Order.findById(req.params.id);
+// @desc    Cancel order
+// @route   PUT /api/v1/orders/:id/cancel
+// @access  Private
+const cancelOrder = asyncHandler(async (req, res, next) => {
+  const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
 
   if (!order) {
     return next(new AppError('Order not found', 404));
   }
 
-  order.status = status;
+  if (![config.ORDER_STATUS.PENDING, config.ORDER_STATUS.PROCESSING].includes(order.status)) {
+    return next(new AppError('Cannot cancel this order', 400));
+  }
+
+  order.status = config.ORDER_STATUS.CANCELLED;
   await order.save();
 
-  // Update product stats
-  if (status === 'completed') {
-    for (const item of order.items) {
-      await Product.incrementPurchases(item.product, item.price * item.quantity);
-    }
-
-    // Add points to user
-    const pointsEarned = Order.calculatePointsEarned(order.total);
-    await User.findByIdAndUpdate(order.user, {
-      $inc: { 'wallet.points': pointsEarned },
+  // Refund points if used
+  if (order.pointsUsed > 0) {
+    await User.findByIdAndUpdate(req.user.id, {
+      $inc: { 'wallet.points': order.pointsUsed },
     });
   }
 
   res.json({
     success: true,
-    data: order,
+    message: 'Order cancelled successfully',
   });
 });
 
@@ -161,5 +182,5 @@ module.exports = {
   getOrders,
   getOrder,
   createOrder,
-  updateOrderStatus,
+  cancelOrder,
 };
