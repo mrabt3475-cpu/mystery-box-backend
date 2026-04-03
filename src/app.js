@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
 import dotenv from 'dotenv';
 
 // Routes
@@ -19,12 +22,41 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// SECURITY FIX #7: CORS - Allow only specific origins
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    // In production, you should specify allowed origins
+    const allowedOrigins = [
+      process.env.CLIENT_URL,
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ].filter(Boolean);
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-internal-key'],
+};
+
+// Security Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(mongoSanitize()); // Prevent NoSQL Injection
+app.use(xss()); // Prevent XSS
+app.use(hpp()); // Prevent Parameter Pollution
+
+// Logging
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Body parser with size limit
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Health check
 app.get('/health', (req, res) => {

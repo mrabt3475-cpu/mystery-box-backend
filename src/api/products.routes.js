@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import Product from '../modules/product/product.model.js';
-import { authenticate } from '../../common/auth.middleware.js';
+import { authenticate, authorize } from '../../common/auth.middleware.js';
 
 const router = Router();
 
-// Get all products
+// Get all products - Public
 router.get('/', async (req, res) => {
   try {
     const { category, channel, search, page = 1, limit = 20 } = req.query;
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get product by ID
+// Get product by ID - Public
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -47,8 +47,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create product (admin)
-router.post('/', authenticate, async (req, res) => {
+// Create product - FIXED: Admin only
+router.post('/', authenticate, authorize('admin', 'owner'), async (req, res) => {
   try {
     const product = await Product.create(req.body);
     res.status(201).json({ success: true, data: product });
@@ -57,8 +57,8 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
-// Update product (admin)
-router.put('/:id', authenticate, async (req, res) => {
+// Update product - FIXED: Admin only
+router.put('/:id', authenticate, authorize('admin', 'owner'), async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, data: product });
@@ -67,8 +67,8 @@ router.put('/:id', authenticate, async (req, res) => {
   }
 });
 
-// Delete product (admin)
-router.delete('/:id', authenticate, async (req, res) => {
+// Delete product - FIXED: Admin only
+router.delete('/:id', authenticate, authorize('admin', 'owner'), async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Product deleted' });
