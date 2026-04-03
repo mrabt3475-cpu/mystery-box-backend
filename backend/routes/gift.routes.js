@@ -10,20 +10,30 @@ const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { validators } = require('../utils/validation');
 const { NotFoundError, ValidationError, ConflictError } = require('../utils/AppError');
 const { formatSuccess } = require('../utils/responseFormatter');
+const { logger } = require('../utils/logger');
 
-// Send gift points - WITH TRANSACTION
+// Send gift points - WITH VALIDATION AND TRANSACTION
 router.post('/send', auth, validators.gift, catchAsync(async (req, res) => {
   const { receiverId, amount, message, isAnonymous } = req.body;
   const senderId = req.user.id;
 
+  // Validate receiver exists
   const receiver = await User.findById(receiverId);
   if (!receiver) {
     throw new NotFoundError('المستلم');
   }
 
+  // Prevent self-gift
   if (senderId === receiverId) {
     throw new ConflictError('لا يمكنك إرسال هدية لنفسك');
   }
+
+  // Validate amount
+  if (!amount || amount < 1 || amount > 100000) {
+    throw new ValidationError('المبلغ يجب أن يكون بين 1 و 100000');
+  }
+
+  logger.info(`User ${senderId} sending ${amount} points to ${receiverId}`);
 
   const session = await mongoose.startSession();
   
@@ -37,6 +47,7 @@ router.post('/send', auth, validators.gift, catchAsync(async (req, res) => {
         throw new NotFoundError('المرسل');
       }
 
+      // Check balance BEFORE deducting
       if (sender.pointsBalance < amount) {
         throw new ValidationError('رصيدك غير كافٍ');
       }
@@ -81,11 +92,14 @@ router.post('/send', auth, validators.gift, catchAsync(async (req, res) => {
     
     session.endSession();
     
+    logger.info(`Gift sent successfully: ${amount} points from ${senderId} to ${receiverId}`);
+    
     res.json(formatSuccess(gift[0], '✅ تم إرسال الهدية بنجاح'));
     
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    logger.error(`Gift sending failed: ${error.message}`, { senderId, receiverId, amount });
     throw error;
   }
 }));

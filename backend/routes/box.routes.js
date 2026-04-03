@@ -10,7 +10,8 @@ const { auth } = require('../middleware/auth.middleware');
 const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { validators } = require('../utils/validation');
 const { NotFoundError, ValidationError, InsufficientFundsError } = require('../utils/AppError');
-const { formatSuccess, formatPaginated } = require('../utils/responseFormatter');
+const { formatSuccess } = require('../utils/responseFormatter');
+const { logger } = require('../utils/logger');
 
 // Get all boxes
 router.get('/', catchAsync(async (req, res) => {
@@ -32,11 +33,13 @@ router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
   res.json(formatSuccess(box));
 }));
 
-// Open box - WITH TRANSACTION
+// Open box - WITH TRANSACTION AND LOGGING
 router.post('/:id/open', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
   const boxId = req.params.id;
   const userId = req.user.id;
   const clientSeed = req.body.clientSeed || RewardsService.generateSeed();
+
+  logger.info(`User ${userId} attempting to open box ${boxId}`);
 
   const session = await mongoose.startSession();
   
@@ -56,15 +59,18 @@ router.post('/:id/open', auth, validators.isObjectId('id'), catchAsync(async (re
         throw new NotFoundError('المستخدم');
       }
 
+      // Check balance BEFORE deducting
       if (user.pointsBalance < box.cost) {
         throw new InsufficientFundsError();
       }
 
+      // Atomic deduction
       user.pointsBalance -= box.cost;
       user.stats.boxesOpened = (user.stats.boxesOpened || 0) + 1;
       user.stats.totalSpent = (user.stats.totalSpent || 0) + box.cost;
       await user.save({ session });
 
+      // Select prize
       const prize = await RewardsService.selectPrize(box);
 
       const opening = await BoxOpening.create([{
@@ -100,11 +106,14 @@ router.post('/:id/open', auth, validators.isObjectId('id'), catchAsync(async (re
     
     session.endSession();
     
-    res.json(formatSuccess(result, '🎉 تهانينا!'));
+    logger.info(`Box ${boxId} opened successfully by user ${userId}, prize: ${result.prize.name}`);
+    
+    res.json(formatSuccess(result, '🎉 تهانينا! لقد فزت بجائزة!'));
     
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+    logger.error(`Box opening failed: ${error.message}`, { userId, boxId });
     throw error;
   }
 }));
@@ -115,8 +124,14 @@ router.post('/', auth, catchAsync(async (req, res) => {
     throw new ValidationError('غير مصرح لك');
   }
   
+  const { name, cost, prizes } = req.body;
+  
+  if (!name || !cost || !prizes || !Array.isArray(prizes) || prizes.length === 0) {
+    throw new ValidationError('اسم الصندوق والتكلفة والجوائز مطلوبة');
+  }
+  
   const box = await Box.create(req.body);
-  res.status(201).json(formatSuccess(box, '✅ تم إنشاء الصندوق'));
+  res.status(201).json(formatSuccess(box, '✅ تم إنشاء الصندوق بنجاح'));
 }));
 
 // Admin: Update box
@@ -131,7 +146,7 @@ router.put('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res
     throw new NotFoundError('الصندوق');
   }
   
-  res.json(formatSuccess(box, '✅ تم تحديث الصندوق'));
+  res.json(formatSuccess(box, '✅ تم تحديث الصندوق بنجاح'));
 }));
 
 // Admin: Delete box
@@ -146,7 +161,7 @@ router.delete('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, 
     throw new NotFoundError('الصندوق');
   }
   
-  res.json(formatSuccess(null, '✅ تم حذف الصندوق'));
+  res.json(formatSuccess(null, '✅ تم حذف الصندوق بنجاح'));
 }));
 
 module.exports = router;

@@ -6,6 +6,7 @@ const { auth } = require('../middleware/auth.middleware');
 const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { NotFoundError, ValidationError } = require('../utils/AppError');
 const { formatSuccess } = require('../utils/responseFormatter');
+const { logger } = require('../utils/logger');
 
 // Get user's points with transactions
 router.get('/', auth, catchAsync(async (req, res) => {
@@ -26,7 +27,7 @@ router.get('/', auth, catchAsync(async (req, res) => {
   }));
 }));
 
-// Add points (Admin only)
+// Add points (Admin only) - WITH VALIDATION
 router.post('/add', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
@@ -34,8 +35,13 @@ router.post('/add', auth, catchAsync(async (req, res) => {
   
   const { userId, amount, type, description } = req.body;
   
-  if (!userId || !amount || amount <= 0) {
-    throw new ValidationError('بيانات غير صالحة');
+  // Validate inputs
+  if (!userId) {
+    throw new ValidationError('معرف المستخدم مطلوب');
+  }
+  
+  if (!amount || amount <= 0 || amount > 1000000) {
+    throw new ValidationError('المبلغ يجب أن يكون بين 1 و 1000000');
   }
   
   const user = await User.findById(userId);
@@ -55,10 +61,12 @@ router.post('/add', auth, catchAsync(async (req, res) => {
     balanceAfter: user.pointsBalance
   });
 
-  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم إضافة النقاط'));
+  logger.info(`Points added for user ${userId}, amount: ${amount}`);
+
+  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم إضافة النقاط بنجاح'));
 }));
 
-// Deduct points (Admin only)
+// Deduct points (Admin only) - WITH VALIDATION
 router.post('/deduct', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     throw new ValidationError('غير مصرح لك');
@@ -66,8 +74,13 @@ router.post('/deduct', auth, catchAsync(async (req, res) => {
   
   const { userId, amount, reason } = req.body;
   
-  if (!userId || !amount || amount <= 0) {
-    throw new ValidationError('بيانات غير صالحة');
+  // Validate inputs
+  if (!userId) {
+    throw new ValidationError('معرف المستخدم مطلوب');
+  }
+  
+  if (!amount || amount <= 0 || amount > 1000000) {
+    throw new ValidationError('المبلغ يجب أن يكون بين 1 و 1000000');
   }
   
   const user = await User.findById(userId);
@@ -90,7 +103,9 @@ router.post('/deduct', auth, catchAsync(async (req, res) => {
     balanceAfter: user.pointsBalance
   });
 
-  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم خصم النقاط'));
+  logger.info(`Points deducted for user ${userId}, amount: ${amount}`);
+
+  res.json(formatSuccess({ newBalance: user.pointsBalance }, '✅ تم خصم النقاط بنجاح'));
 }));
 
 module.exports = router;
