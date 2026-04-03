@@ -7,18 +7,17 @@ const router = Router();
 // Get all products
 router.get('/', async (req, res) => {
   try {
-    const { category, search, page = 1, limit = 20 } = req.query;
+    const { category, channel, search, page = 1, limit = 20 } = req.query;
     
     const query = { status: 'active' };
     if (category) query.category = category;
-    if (search) {
-      query.$text = { $search: search };
-    }
+    if (channel) query.channel = channel;
+    if (search) query.$text = { $search: search };
 
     const products = await Product.find(query)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .sort('-createdAt');
+      .sort('-isFeatured -createdAt');
 
     const total = await Product.countDocuments(query);
 
@@ -39,11 +38,9 @@ router.get('/:id', async (req, res) => {
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
-
     // Increment views
     product.stats.views += 1;
     await product.save();
-
     res.json({ success: true, data: product });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -60,21 +57,17 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
-// Update product
+// Update product (admin)
 router.put('/:id', authenticate, async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, data: product });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
 
-// Delete product
+// Delete product (admin)
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
