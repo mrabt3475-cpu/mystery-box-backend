@@ -1,6 +1,7 @@
-// Auth Middleware
+// Auth Middleware - SECURE
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
+const config = require('../config');
 const { UnauthorizedError, ForbiddenError } = require('../utils/AppError');
 
 const catchAsync = (fn) => (req, res, next) => {
@@ -18,8 +19,8 @@ const auth = catchAsync(async (req, res, next) => {
     throw new UnauthorizedError('يرجى تسجيل الدخول أولاً');
   }
 
-  const jwtSecret = process.env.JWT_SECRET || 'default-secret';
-  const decoded = jwt.verify(token, jwtSecret);
+  // Use config for JWT secret
+  const decoded = jwt.verify(token, config.jwtSecret);
 
   const user = await User.findById(decoded.id);
   if (!user || !user.isActive) {
@@ -45,4 +46,26 @@ const requireRole = (...roles) => {
   };
 };
 
-module.exports = { auth, requireRole };
+// Optional auth - attach user if token exists
+const optionalAuth = catchAsync(async (req, res, next) => {
+  let token;
+  if (req.headers.authorization?.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, config.jwtSecret);
+      const user = await User.findById(decoded.id);
+      if (user && user.isActive) {
+        req.user = { id: user._id, role: user.role, username: user.username };
+      }
+    } catch (err) {
+      // Token invalid - continue without user
+    }
+  }
+
+  next();
+});
+
+module.exports = { auth, requireRole, optionalAuth };
