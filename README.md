@@ -20,6 +20,9 @@ A full-stack mystery box platform with live streaming support.
 - ✅ Payment Integration (Stripe + TON Wallet)
 - ✅ Admin Dashboard
 - ✅ Analytics & Reporting
+- ✅ Referral System
+- ✅ Subscription Plans
+- ✅ Notifications
 
 ---
 
@@ -38,6 +41,7 @@ A full-stack mystery box platform with live streaming support.
 - **Build Tool:** Vite
 - **Styling:** Tailwind CSS
 - **State:** Zustand
+
 
 ---
 
@@ -60,6 +64,7 @@ cd mystery-box-backend
 cd backend
 npm install
 cp .env.example .env
+# Edit .env with your configuration
 
 # Frontend setup
 cd ../frontend
@@ -71,7 +76,7 @@ npm install
 ```bash
 # Backend
 cd backend
-npm run start:dev
+npm run start
 
 # Frontend
 cd frontend
@@ -83,7 +88,42 @@ npm run dev
 ## 🐳 Docker
 
 ```bash
+# Start all services
 docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+---
+
+## 📁 Project Structure
+
+```
+puzzlechain/
+├── backend/
+│   ├── src/
+│   │   ├── modules/        # Feature modules
+│   │   ├── common/         # Shared utilities
+│   │   └── main.ts          # Entry point
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── Dockerfile
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── pages/          # Page components
+│   │   └── App.jsx         # Main app
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
@@ -91,19 +131,22 @@ docker-compose up -d
 ## 📚 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register
+- `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login
+- `GET /api/auth/me` - Get current user
 
 ### Channels
 - `GET /api/channels` - List channels
 - `POST /api/channels` - Create channel
+- `GET /api/channels/:id` - Get channel details
 
 ### Products
 - `GET /api/products` - List products
 - `POST /api/products` - Create product
+- `GET /api/products/:id` - Get product details
 
 ### Orders
-- `GET /api/orders` - Get orders
+- `GET /api/orders` - Get user orders
 - `POST /api/orders` - Create order
 
 ### Payment
