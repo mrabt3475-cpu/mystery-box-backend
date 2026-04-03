@@ -42,7 +42,6 @@ A full-stack mystery box platform with live streaming support.
 - **Styling:** Tailwind CSS
 - **State:** Zustand
 
-
 ---
 
 ## 🏃 Getting Started
