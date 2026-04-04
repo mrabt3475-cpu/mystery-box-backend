@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 
@@ -21,7 +22,25 @@ const apiKeyRoutes = require('./routes/apiKey.routes');
 const { globalErrorHandler, notFoundHandler, errorLogger } = require('./middleware/errorHandler.middleware');
 const { sanitizeRequest, preventNoSQLInjection } = require('./middleware/sanitize.middleware');
 
+// Import performance optimizations
+const { createIndexes } = require('./config/databaseIndexes');
+const { cacheMiddleware } = require('./services/cache.service');
+
 const app = express();
+
+// =======================
+// PERFORMANCE MIDDLEWARE
+// =======================
+
+// Compression - reduce response size by ~70%
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
 
 // =======================
 // SECURITY MIDDLEWARE
@@ -52,7 +71,6 @@ const corsOptions = {
       ? process.env.ALLOWED_ORIGINS.split(',')
       : ['http://localhost:5173', 'http://localhost:3000'];
     
-    // Allow requests with no origin (mobile apps, postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -127,6 +145,10 @@ const connectDB = async () => {
     
     await mongoose.connect(mongoUri, options);
     console.log('✅ MongoDB connected successfully');
+    
+    // Create indexes on startup
+    await createIndexes();
+    
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
     process.exit(1);
@@ -134,7 +156,7 @@ const connectDB = async () => {
 };
 
 // =======================
-// API ROUTES
+// API ROUTES (with caching)
 // =======================
 
 // Health check
@@ -143,16 +165,21 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    memory: process.memoryUsage()
   });
 });
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/boxes', boxRoutes);
-app.use('/api/prizes', prizeRoutes);
-app.use('/api/products', productRoutes);
+
+// Cached routes (boxes, prizes, products - read-heavy)
+app.use('/api/boxes', cacheMiddleware('boxes', 60), boxRoutes);
+app.use('/api/prizes', cacheMiddleware('prizes', 60), prizeRoutes);
+app.use('/api/products', cacheMiddleware('products', 30), productRoutes);
+
+// Non-cached routes (mutations)
 app.use('/api/orders', orderRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/gifts', giftRoutes);
@@ -180,7 +207,8 @@ const startServer = async () => {
     console.log(`\n🚀 Server running on port ${PORT}`);
     console.log(`📱 Health check: http://localhost:${PORT}/health`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔒 Security: Enabled\n`);
+    console.log(`🔒 Security: Enabled`);
+    console.log(`⚡ Performance: Optimized\n`);
   });
 };
 
