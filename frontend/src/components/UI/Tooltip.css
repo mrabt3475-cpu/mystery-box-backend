@@ -1,0 +1,62 @@
+/* Tooltip Styles */
+
+.ui-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ui-tooltip {
+  position: absolute;
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  animation: fadeIn var(--transition-fast) ease;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+
+/* Positions */
+.ui-tooltip--top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+.ui-tooltip--bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+}
+
+.ui-tooltip--left {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%) translateX(-8px);
+}
+
+.ui-tooltip--right {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+}
+
+/* Variants */
+.ui-tooltip--dark {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.ui-tooltip--light {
+  background: white;
+  color: var(--color-text-inverse);
+}
+
+.ui-tooltip--primary {
+  background: var(--color-primary);
+  color: white;
+}

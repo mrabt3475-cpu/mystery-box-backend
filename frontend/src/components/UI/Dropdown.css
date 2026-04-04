@@ -1,0 +1,109 @@
+/* Dropdown Styles */
+
+.ui-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ui-dropdown {
+  position: absolute;
+  min-width: 180px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-dropdown);
+  padding: var(--spacing-2);
+  animation: fadeIn var(--transition-fast) ease;
+}
+
+/* Positions */
+.ui-dropdown--bottom-left {
+  top: 100%;
+  left: 0;
+  margin-top: var(--spacing-2);
+}
+
+.ui-dropdown--bottom-right {
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-2);
+}
+
+.ui-dropdown--top-left {
+  bottom: 100%;
+  left: 0;
+  margin-bottom: var(--spacing-2);
+}
+
+.ui-dropdown--top-right {
+  bottom: 100%;
+  right: 0;
+  margin-bottom: var(--spacing-2);
+}
+
+/* Align */
+.ui-dropdown--align-start {
+  transform-origin: left;
+}
+
+.ui-dropdown--align-end {
+  transform-origin: right;
+}
+
+.ui-dropdown--align-center {
+  transform-origin: center;
+}
+
+/* Items */
+.ui-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  text-align: start;
+}
+
+.ui-dropdown__item:hover:not(.disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.ui-dropdown__item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-dropdown__item.danger {
+  color: var(--color-error);
+}
+
+.ui-dropdown__item.danger:hover:not(.disabled) {
+  background: var(--color-error-bg);
+}
+
+.ui-dropdown__item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  color: var(--color-text-muted);
+}
+
+.ui-dropdown__item.danger .ui-dropdown__item-icon {
+  color: var(--color-error);
+}
+
+/* Divider */
+.ui-dropdown__divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--spacing-2) 0;
+}
