@@ -1,0 +1,34 @@
+/**
+ * 🎨 EmptyState Component
+ * 
+ * حالة فارغة مع أيقونة ورسالة
+ */
+
+import React from 'react';
+import './EmptyState.css';
+
+const EmptyState = ({
+  icon = '📭',
+  title = 'لا توجد بيانات',
+  description,
+  action,
+  className = '',
+  ...props
+}) => {
+  return (
+    <div className={`ui-empty-state ${className}`} {...props}>
+      <span className="ui-empty-state__icon">{icon}</span>
+      <h3 className="ui-empty-state__title">{title}</h3>
+      {description && (
+        <p className="ui-empty-state__description">{description}</p>
+      )}
+      {action && (
+        <div className="ui-empty-state__action">
+          {action}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EmptyState;

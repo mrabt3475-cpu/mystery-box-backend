@@ -1,0 +1,50 @@
+/* Layout Styles */
+
+/* ----------------------
+   Container
+   ---------------------- */
+.ui-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+.ui-container--sm { max-width: 640px; }
+.ui-container--md { max-width: 1024px; }
+.ui-container--lg { max-width: 1280px; }
+.ui-container--xl { max-width: 1536px; }
+.ui-container--full { max-width: 100%; }
+
+/* ----------------------
+   Flex
+   ---------------------- */
+.ui-flex {
+  display: flex;
+}
+
+.ui-flex--row { flex-direction: row; }
+.ui-flex--column { flex-direction: column; }
+
+.ui-flex--align-start { align-items: flex-start; }
+.ui-flex--align-center { align-items: center; }
+.ui-flex--align-end { align-items: flex-end; }
+.ui-flex--align-stretch { align-items: stretch; }
+
+.ui-flex--justify-start { justify-content: flex-start; }
+.ui-flex--justify-center { justify-content: center; }
+.ui-flex--justify-end { justify-content: flex-end; }
+.ui-flex--justify-between { justify-content: space-between; }
+.ui-flex--justify-around { justify-content: space-around; }
+
+/* ----------------------
+   Grid
+   ---------------------- */
+.ui-grid {
+  display: grid;
+}
+
+@media (max-width: 768px) {
+  .ui-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
