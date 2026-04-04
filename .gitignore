@@ -1,13 +1,14 @@
 # Dependencies
 node_modules/
 
-# Environment files - ALL variations (SECURITY)
+# Environment files - ALL variations (SECURITY - CRITICAL!)
 .env
 .env.local
 .env.*.local
 .env.example
 backend/.env
 backend/.env.local
+backend/.env.*.local
 backend/.env.example
 frontend/.env
 frontend/.env.local
@@ -51,3 +52,8 @@ pids/
 *.pem
 *.key
 secrets/
+
+
+# Backup files
+*.bak
+*.backup
