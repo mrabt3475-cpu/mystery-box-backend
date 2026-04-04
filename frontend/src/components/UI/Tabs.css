@@ -1,0 +1,119 @@
+/* Tabs Styles */
+
+.ui-tabs {
+  display: flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+/* ----------------------
+   Variants
+   ---------------------- */
+.ui-tabs--default {
+  background: var(--color-bg-secondary);
+}
+
+.ui-tabs--pills {
+  background: transparent;
+}
+
+.ui-tabs--pills .ui-tabs__tab {
+  background: transparent;
+  border-radius: var(--radius-full);
+}
+
+.ui-tabs--pills .ui-tabs__tab.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.ui-tabs--underline {
+  background: transparent;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0;
+  gap: 0;
+}
+
+.ui-tabs--underline .ui-tabs__tab {
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.ui-tabs--underline .ui-tabs__tab.active {
+  border-bottom-color: var(--color-primary);
+}
+
+.ui-tabs--glass {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ----------------------
+   Sizes
+   ---------------------- */
+.ui-tabs--sm .ui-tabs__tab {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-sm);
+}
+
+.ui-tabs--md .ui-tabs__tab {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+}
+
+.ui-tabs--lg .ui-tabs__tab {
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-lg);
+}
+
+/* ----------------------
+   Tab
+   ---------------------- */
+.ui-tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background: var(--color-bg-tertiary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.ui-tabs__tab:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.ui-tabs__tab.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.ui-tabs__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-tabs__badge {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ----------------------
+   Tab Panel
+   ---------------------- */
+.ui-tab-panel {
+  animation: fadeIn var(--transition-base) ease;
+}
