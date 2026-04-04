@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
@@ -20,6 +21,7 @@ const apiKeyRoutes = require('./routes/apiKey.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const channelGroupRoutes = require('./routes/channelGroup.routes');
 const customizationRoutes = require('./routes/customization.routes');
+const uploadRoutes = require('./routes/upload.routes');
 
 // Import middleware
 const { globalErrorHandler, notFoundHandler, errorLogger } = require('./middleware/errorHandler.middleware');
@@ -31,9 +33,9 @@ const { cacheMiddleware } = require('./services/cache.service');
 
 const app = express();
 
-// =======================
+// ========================
 // PERFORMANCE MIDDLEWARE
-// =======================
+// ========================
 
 // Compression
 app.use(compression({
@@ -41,9 +43,12 @@ app.use(compression({
   threshold: 1024
 }));
 
-// =======================
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ========================
 // SECURITY MIDDLEWARE
-// =======================
+// ========================
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -51,11 +56,11 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],
       connectSrc: ["'self'", "https:", "wss:"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
+      mediaSrc: ["'self'", "data:", "https:"],
       frameSrc: ["'none'"],
     },
   },
@@ -125,9 +130,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// =======================
+// ========================
 // DATABASE CONNECTION
-// =======================
+// ========================
 
 const connectDB = async () => {
   try {
@@ -152,9 +157,10 @@ const connectDB = async () => {
   }
 };
 
-// =======================
+
+// ========================
 // API ROUTES
-// =======================
+// ========================
 
 // Health check
 app.get('/health', (req, res) => {
@@ -177,24 +183,28 @@ app.use('/api/gifts', giftRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/api-keys', apiKeyRoutes);
 
-// NEW: Settings, Channel Groups, Customization
+// Settings, Channel Groups, Customization
 app.use('/api/settings', settingsRoutes);
 app.use('/api/channel-groups', channelGroupRoutes);
 app.use('/api/customizations', customizationRoutes);
 
-// =======================
+// Upload route
+app.use('/api/upload', uploadRoutes);
+
+// ========================
 // ERROR HANDLING
-// =======================
+// ========================
 
 app.use(errorLogger);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
-// =======================
+// ========================
 // SERVER STARTUP
-// =======================
+// ========================
 
 const PORT = process.env.PORT || 3000;
+
 
 const startServer = async () => {
   await connectDB();
