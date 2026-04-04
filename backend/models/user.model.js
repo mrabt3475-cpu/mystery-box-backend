@@ -1,143 +1,106 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  telegramId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
   username: {
     type: String,
-    unique: true,
     required: true,
+    unique: true,
     trim: true,
     minlength: 3,
-    maxlength: 30
-  },
-  name: {
-    type: String,
-    required: true,
-    trim: true
+    maxlength: 30,
+    index: true
   },
   email: {
     type: String,
-    unique: true,
     sparse: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    index: true
   },
   password: {
     type: String,
     required: true,
     minlength: 6
   },
-  avatar: {
+  name: {
     type: String,
-    default: ''
+    required: true,
+    trim: true,
+    maxlength: 50
   },
-  phone: {
-    type: String,
-    default: ''
-  },
-  pointsBalance: {
-    type: Number,
-    default: 0
-  },
-  lifetimePoints: {
-    type: Number,
-    default: 0
-  },
+  avatar: { type: String, default: null },
+  phone: String,
   role: {
     type: String,
-    enum: ['user', 'admin', 'moderator'],
-    default: 'user'
-  },
-  isVerified: {
-    type: Boolean,
-    default: false
+    enum: ['user', 'moderator', 'admin'],
+    default: 'user',
+    index: true
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
+    index: true
   },
-  lastLogin: {
-    type: Date,
-    default: null
-  },
-  loginAttempts: {
-    type: Number,
-    default: 0
-  },
-  lockUntil: {
-    type: Date,
-    default: null
-  },
-  referralCode: {
-    type: String,
-    unique: true
-  },
-  referredBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  pointsBalance: { type: Number, default: 0, min: 0 },
+  lifetimePoints: { type: Number, default: 0, min: 0 },
+  referralCode: { type: String, unique: true, index: true },
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   preferences: {
-    language: { type: String, default: 'ar' },
     notifications: { type: Boolean, default: true },
+    language: { type: String, default: 'ar' },
     theme: { type: String, default: 'dark' }
   },
   stats: {
     boxesOpened: { type: Number, default: 0 },
     totalSpent: { type: Number, default: 0 },
-    totalEarned: { type: Number, default: 0 }
-  }
-}, {
-  timestamps: true
-});
+    totalWon: { type: Number, default: 0 },
+    giftsSent: { type: Number, default: 0 },
+    giftsReceived: { type: Number, default: 0 }
+  },
+  loginAttempts: { type: Number, default: 0 },
+  lockUntil: { type: Date, default: null },
+  lastLogin: { type: Date, default: null }
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-// Hash password before saving
+// Indexes
+userSchema.index({ createdAt: -1 });
+userSchema.index({ pointsBalance: -1 });
+userSchema.index({ 'stats.boxesOpened': -1 });
+
+// Hash password
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  const bcrypt = require('bcryptjs');
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  const bcrypt = require('bcryptjs');
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Check if account is locked
 userSchema.methods.isLocked = function() {
   return this.lockUntil && this.lockUntil > Date.now();
 };
 
-// Increment login attempts
 userSchema.methods.incrementLoginAttempts = async function() {
   if (this.lockUntil && this.lockUntil < Date.now()) {
-    await this.updateOne({
-      $set: { loginAttempts: 1 },
-      $unset: { lockUntil: 1 }
-    });
+    await this.updateOne({ $set: { loginAttempts: 1 }, $unset: { lockUntil: 1 } });
     return;
   }
-
   const updates = { $inc: { loginAttempts: 1 } };
-  
   if (this.loginAttempts + 1 >= 5) {
     updates.$set = { lockUntil: new Date(Date.now() + 15 * 60 * 1000) };
   }
-
   await this.updateOne(updates);
 };
 
-// Reset login attempts
 userSchema.methods.resetLoginAttempts = async function() {
-  await this.updateOne({
-    $set: { loginAttempts: 0 },
-    $unset: { lockUntil: 1 }
-  });
+  await this.updateOne({ $set: { loginAttempts: 0 }, $unset: { lockUntil: 1 } });
 };
+
+userSchema.virtual('referralLink').get(function() {
+  return `https://t.me/yourbot?ref=${this.referralCode}`;
+});
 
 module.exports = mongoose.model('User', userSchema);
