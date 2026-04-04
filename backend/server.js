@@ -17,6 +17,9 @@ const pointsRoutes = require('./routes/points.routes');
 const giftRoutes = require('./routes/gift.routes');
 const serviceRoutes = require('./routes/service.routes');
 const apiKeyRoutes = require('./routes/apiKey.routes');
+const settingsRoutes = require('./routes/settings.routes');
+const channelGroupRoutes = require('./routes/channelGroup.routes');
+const customizationRoutes = require('./routes/customization.routes');
 
 // Import middleware
 const { globalErrorHandler, notFoundHandler, errorLogger } = require('./middleware/errorHandler.middleware');
@@ -32,21 +35,16 @@ const app = express();
 // PERFORMANCE MIDDLEWARE
 // =======================
 
-// Compression - reduce response size by ~70%
+// Compression
 app.use(compression({
   level: 6,
-  threshold: 1024,
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) return false;
-    return compression.filter(req, res);
-  }
+  threshold: 1024
 }));
 
 // =======================
 // SECURITY MIDDLEWARE
 // =======================
 
-// Helmet with improved security
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -64,7 +62,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS configuration - SECURE
+// CORS
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -83,9 +81,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting - SECURE
+// Rate limiting
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: { success: false, error: 'تجاوزت الحد المسموح من الطلبات' },
   standardHeaders: true,
@@ -112,7 +110,7 @@ app.use('/api/points/add', sensitiveLimiter);
 app.use('/api/points/deduct', sensitiveLimiter);
 app.use('/api/gifts/send', sensitiveLimiter);
 
-// Body parsing with limits
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -146,7 +144,6 @@ const connectDB = async () => {
     await mongoose.connect(mongoUri, options);
     console.log('✅ MongoDB connected successfully');
     
-    // Create indexes on startup
     await createIndexes();
     
   } catch (error) {
@@ -156,7 +153,7 @@ const connectDB = async () => {
 };
 
 // =======================
-// API ROUTES (with caching)
+// API ROUTES
 // =======================
 
 // Health check
@@ -164,27 +161,26 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    memory: process.memoryUsage()
+    uptime: process.uptime()
   });
 });
 
-// API Routes
+// Main routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-
-// Cached routes (boxes, prizes, products - read-heavy)
 app.use('/api/boxes', cacheMiddleware('boxes', 60), boxRoutes);
 app.use('/api/prizes', cacheMiddleware('prizes', 60), prizeRoutes);
 app.use('/api/products', cacheMiddleware('products', 30), productRoutes);
-
-// Non-cached routes (mutations)
 app.use('/api/orders', orderRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/gifts', giftRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/api-keys', apiKeyRoutes);
+
+// NEW: Settings, Channel Groups, Customization
+app.use('/api/settings', settingsRoutes);
+app.use('/api/channel-groups', channelGroupRoutes);
+app.use('/api/customizations', customizationRoutes);
 
 // =======================
 // ERROR HANDLING
@@ -207,12 +203,9 @@ const startServer = async () => {
     console.log(`\n🚀 Server running on port ${PORT}`);
     console.log(`📱 Health check: http://localhost:${PORT}/health`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔒 Security: Enabled`);
-    console.log(`⚡ Performance: Optimized\n`);
   });
 };
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
   process.exit(1);
