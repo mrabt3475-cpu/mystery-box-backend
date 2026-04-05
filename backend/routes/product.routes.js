@@ -4,6 +4,8 @@ const Product = require('../models/Product.model');
 const Order = require('../models/Order.model');
 const User = require('../models/user.model');
 const PointsTransaction = require('../models/pointsTransaction.model');
+const searchService = require('../services/search.service');
+const pricingService = require('../services/pricing.service');
 const { auth } = require('../middleware/auth.middleware');
 const { catchAsync } = require('../middleware/errorHandler.middleware');
 const { validators } = require('../utils/validation');
@@ -11,9 +13,41 @@ const { NotFoundError, ValidationError } = require('../utils/AppError');
 const { formatSuccess, formatPaginated } = require('../utils/responseFormatter');
 const { logger } = require('../utils/logger');
 
-// Get all products with pagination
+// Get all products with advanced filters
 router.get('/', catchAsync(async (req, res) => {
-  const { page = 1, limit = 20, category, search } = req.query;
+  const { 
+    page = 1, 
+    limit = 20, 
+    category, 
+    search,
+    minPrice,
+    maxPrice,
+    inStock,
+    sort,
+    tags
+  } = req.query;
+
+  // Use enhanced search if any advanced filters
+  if (search || minPrice || maxPrice || inStock === 'true' || tags) {
+    const result = await searchService.searchProducts({
+      query: search,
+      category,
+      minPrice: minPrice ? parseFloat(minPrice) : null,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : null,
+      inStock: inStock === 'true',
+      sortBy: sort,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      tags: tags ? tags.split(',') : []
+    });
+    
+    return res.json(formatPaginated(
+      result.products, 
+      { page: parseInt(page), limit: parseInt(limit), total: result.pagination.total }
+    ));
+  }
+
+  // Original simple query
   const query = { isActive: true };
   
   if (category) query.category = category;
@@ -34,7 +68,7 @@ router.get('/', catchAsync(async (req, res) => {
   res.json(formatPaginated(products, { page: parseInt(page), limit: parseInt(limit), total }));
 }));
 
-// Get single product
+// Get single product with pricing
 router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
   const product = await Product.findById(req.params.id);
   
@@ -42,7 +76,17 @@ router.get('/:id', validators.isObjectId('id'), catchAsync(async (req, res) => {
     throw new NotFoundError('المنتج');
   }
   
-  res.json(formatSuccess(product));
+  // Add pricing info
+  const productWithPricing = {
+    ...product.toObject(),
+    profitMargin: pricingService.calculateProfitMargin(product.price, product.costPrice),
+    hasDiscount: product.originalPrice && product.originalPrice > product.price,
+    discountPercent: product.originalPrice 
+      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      : 0
+  };
+  
+  res.json(formatSuccess(productWithPricing));
 }));
 
 // Create order - WITH PROPER VALIDATION
@@ -72,6 +116,9 @@ router.post('/order', auth, catchAsync(async (req, res) => {
     }
     if (!product.isActive) {
       throw new ValidationError(`المنتج ${product.name} غير متاح`);
+    }
+    if (product.stock < item.quantity) {
+      throw new ValidationError(`المخزون غير كافٍ للمنتج ${product.name}`);
     }
     total += product.price * item.quantity;
   }
@@ -103,6 +150,13 @@ router.post('/order', auth, catchAsync(async (req, res) => {
     logger.info(`Order created for user ${req.user.id}, amount: ${total} points`);
   }
 
+  // Update stock
+  for (const item of items) {
+    await Product.findByIdAndUpdate(item.product, {
+      $inc: { stock: -item.quantity }
+    });
+  }
+
   const order = await Order.create({
     user: req.user.id,
     items: items.map(item => ({
@@ -132,7 +186,7 @@ router.get('/orders/my', auth, catchAsync(async (req, res) => {
 // Admin: Create product
 router.post('/', auth, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
-    throw new ValidationError('غير مصرح لك');
+    throw new ValidationError('غير مصرح');
   }
   
   const { name, price, description } = req.body;
@@ -142,16 +196,20 @@ router.post('/', auth, catchAsync(async (req, res) => {
   }
   
   const product = await Product.create(req.body);
-  res.status(201).json(formatSuccess(product, '✅ تم إنشاء المنتج'));
+  res.status(201).json(formatSuccess(product, '✅ تم إضافة المنتج'));
 }));
 
 // Admin: Update product
 router.put('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
-    throw new ValidationError('غير مصرح لك');
+    throw new ValidationError('غير مصرح');
   }
   
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
   
   if (!product) {
     throw new NotFoundError('المنتج');
@@ -163,16 +221,40 @@ router.put('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res
 // Admin: Delete product
 router.delete('/:id', auth, validators.isObjectId('id'), catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
-    throw new ValidationError('غير مصرح لك');
+    throw new ValidationError('غير مصرح');
   }
   
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    { isActive: false },
+    { new: true }
+  );
   
   if (!product) {
     throw new NotFoundError('المنتج');
   }
   
   res.json(formatSuccess(null, '✅ تم حذف المنتج'));
+}));
+
+// Admin: Bulk import products
+router.post('/bulk-import', auth, catchAsync(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    throw new ValidationError('غير مصرح');
+  }
+  
+  const { products } = req.body;
+  
+  if (!Array.isArray(products) || products.length === 0) {
+    throw new ValidationError('قائمة المنتجات فارغة');
+  }
+
+  const inserted = await Product.insertMany(products);
+  
+  res.status(201).json(formatSuccess({
+    count: inserted.length,
+    products: inserted
+  }, `✅ تم استيراد ${inserted.length} منتج`));
 }));
 
 module.exports = router;
