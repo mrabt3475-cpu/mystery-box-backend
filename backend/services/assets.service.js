@@ -1,17 +1,11 @@
 /**
- * 🎮 Character Assets Service - Improved Version
- * خدمة إدارة أصول الشخصيات ثلاثية الأبعاد
- * 
- * Features:
- * - Database persistence
- * - Input validation
- * - Error handling
- * - Rate limiting
- * - Audit logging
+ * 🎮 Character Assets Service - MongoDB Version
+ * خدمة إدارة أصول الشخصيات
  */
 
+const Asset = require('../models/Asset');
+const Character = require('../models/Character.model');
 const path = require('path');
-const { Asset, Character } = require('../models');
 
 // Allowed extensions for security
 const ALLOWED_EXTENSIONS = {
@@ -30,16 +24,18 @@ const ALLOWED_DOMAINS = [
   'cdn.jsdelivr.net',
   'unpkg.com',
   'cdn.jsdelivr.org',
-  'fastly.jsdelivr.net'
+  'fastly.jsdelivr.net',
+  'huggingface.co',
+  'models.readyplayer.me'
 ];
 
 // Rate limiting storage
 const rateLimitStore = new Map();
-const RATE_LIMIT = 10; // Max requests per minute
+const RATE_LIMIT = 10;
 const RATE_WINDOW = 60000;
 
 /**
- * Check rate limit for a user
+ * Check rate limit
  */
 const checkRateLimit = (userId) => {
   const now = Date.now();
@@ -53,27 +49,20 @@ const checkRateLimit = (userId) => {
   recentRequests.push(now);
   rateLimitStore.set(userId, recentRequests);
   
-  // Cleanup old entries
   if (rateLimitStore.size > 1000) {
     rateLimitStore.clear();
   }
 };
 
 /**
- * Validate URL format and domain
+ * Validate URL
  */
 const isValidUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
   
   try {
     const parsed = new URL(url);
-    
-    // Check protocol
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
-      return false;
-    }
-    
-    // Check domain
+    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
     return ALLOWED_DOMAINS.some(domain => parsed.hostname.includes(domain));
   } catch {
     return false;
@@ -81,7 +70,7 @@ const isValidUrl = (url) => {
 };
 
 /**
- * Validate file extension
+ * Validate extension
  */
 const isValidExtension = (url, type) => {
   const ext = path.extname(url).toLowerCase();
@@ -97,57 +86,63 @@ const sanitizeInput = (input) => {
 };
 
 /**
- * Import 3D model for a character
+ * Import 3D model
  */
 const importModel = async (characterId, modelUrl, options = {}, userId = null) => {
-  // Validate required fields
   if (!characterId || !modelUrl) {
     throw new Error('Character ID and model URL are required');
   }
   
-  // Sanitize inputs
   const sanitizedCharacterId = sanitizeInput(characterId);
   const sanitizedUrl = sanitizeInput(modelUrl);
   
-  // Validate URL
   if (!isValidUrl(sanitizedUrl)) {
-    throw new Error('Invalid URL or domain not allowed. Please use a trusted CDN.');
+    throw new Error('Invalid URL or domain not allowed');
   }
   
-  // Validate extension
   if (!isValidExtension(sanitizedUrl, 'model')) {
     throw new Error('Invalid model format. Allowed: GLB, GLTF, FBX, OBJ');
   }
   
-  // Check rate limit
   if (userId) checkRateLimit(userId);
   
   // Check if character exists
-  const character = await Character.findOne({ where: { id: sanitizedCharacterId } });
+  const character = await Character.findOne({ id: sanitizedCharacterId });
   if (!character) {
     throw new Error('Character not found');
   }
   
   // Find or create asset
-  let asset = await Asset.findOne({ where: { characterId: sanitizedCharacterId } });
+  let asset = await Asset.findOne({ characterId: sanitizedCharacterId });
+  
+  const updateData = {
+    modelUrl: sanitizedUrl,
+    source: 'external',
+    format: options.format || path.extname(sanitizedUrl).slice(1),
+    scale: options.scale || { x: 1, y: 1, z: 1 },
+    position: options.position || { x: 0, y: 0, z: 0 },
+    rotation: options.rotation || { x: 0, y: 0, z: 0 },
+    lastUpdated: new Date()
+  };
   
   if (!asset) {
-    asset = await Asset.create({
-      characterId: sanitizedCharacterId,
-      modelUrl: sanitizedUrl,
-      source: 'external',
-      format: options.format || path.extname(sanitizedUrl).slice(1),
-      scale: JSON.stringify(options.scale || { x: 1, y: 1, z: 1 })
-    });
+    asset = new Asset({ characterId: sanitizedCharacterId, ...updateData });
   } else {
-    await asset.update({
-      modelUrl: sanitizedUrl,
-      source: 'external',
-      format: options.format || path.extname(sanitizedUrl).slice(1),
-      scale: JSON.stringify(options.scale || { x: 1, y: 1, z: 1 }),
-      lastUpdated: new Date()
-    });
+    asset.set(updateData);
   }
+  
+  await asset.save();
+  
+  // Also update character
+  await Character.updateOne(
+    { id: sanitizedCharacterId },
+    { 
+      modelUrl: sanitizedUrl,
+      modelFormat: updateData.format,
+      modelScale: updateData.scale,
+      source: 'external'
+    }
+  );
   
   return {
     success: true,
@@ -159,7 +154,7 @@ const importModel = async (characterId, modelUrl, options = {}, userId = null) =
 };
 
 /**
- * Import texture for a character
+ * Import texture
  */
 const importTexture = async (characterId, textureUrl, userId = null) => {
   if (!characterId || !textureUrl) {
@@ -174,24 +169,20 @@ const importTexture = async (characterId, textureUrl, userId = null) => {
   }
   
   if (!isValidExtension(sanitizedUrl, 'texture')) {
-    throw new Error('Invalid texture format. Allowed: PNG, JPG, WebP, GIF');
+    throw new Error('Invalid texture format');
   }
   
   if (userId) checkRateLimit(userId);
   
-  let asset = await Asset.findOne({ where: { characterId: sanitizedCharacterId } });
+  let asset = await Asset.findOne({ characterId: sanitizedCharacterId });
   
   if (!asset) {
-    asset = await Asset.create({
-      characterId: sanitizedCharacterId,
-      textureUrl: sanitizedUrl
-    });
+    asset = new Asset({ characterId: sanitizedCharacterId, textureUrl: sanitizedUrl });
   } else {
-    await asset.update({
-      textureUrl: sanitizedUrl,
-      lastUpdated: new Date()
-    });
+    asset.textureUrl = sanitizedUrl;
   }
+  
+  await asset.save();
   
   return {
     success: true,
@@ -202,7 +193,7 @@ const importTexture = async (characterId, textureUrl, userId = null) => {
 };
 
 /**
- * Import preview image for a character
+ * Import preview
  */
 const importPreview = async (characterId, previewUrl, userId = null) => {
   if (!characterId || !previewUrl) {
@@ -217,24 +208,20 @@ const importPreview = async (characterId, previewUrl, userId = null) => {
   }
   
   if (!isValidExtension(sanitizedUrl, 'preview')) {
-    throw new Error('Invalid preview format. Allowed: PNG, JPG, WebP, GIF');
+    throw new Error('Invalid preview format');
   }
   
   if (userId) checkRateLimit(userId);
   
-  let asset = await Asset.findOne({ where: { characterId: sanitizedCharacterId } });
+  let asset = await Asset.findOne({ characterId: sanitizedCharacterId });
   
   if (!asset) {
-    asset = await Asset.create({
-      characterId: sanitizedCharacterId,
-      previewUrl: sanitizedUrl
-    });
+    asset = new Asset({ characterId: sanitizedCharacterId, previewUrl: sanitizedUrl });
   } else {
-    await asset.update({
-      previewUrl: sanitizedUrl,
-      lastUpdated: new Date()
-    });
+    asset.previewUrl = sanitizedUrl;
   }
+  
+  await asset.save();
   
   return {
     success: true,
@@ -245,18 +232,14 @@ const importPreview = async (characterId, previewUrl, userId = null) => {
 };
 
 /**
- * Get asset for a specific character
+ * Get asset
  */
 const getAsset = async (characterId) => {
   if (!characterId) {
     throw new Error('Character ID is required');
   }
   
-  const asset = await Asset.findOne({ 
-    where: { characterId: sanitizeInput(characterId) },
-    include: [{ model: Character, attributes: ['id', 'name', 'nameEn', 'rarity', 'icon'] }]
-  });
-  
+  const asset = await Asset.findOne({ characterId: sanitizeInput(characterId) });
   return asset ? asset.toJSON() : null;
 };
 
@@ -264,32 +247,24 @@ const getAsset = async (characterId) => {
  * Get all assets
  */
 const getAllAssets = async (limit = 50, offset = 0) => {
-  const assets = await Asset.findAll({
-    include: [{ model: Character, attributes: ['id', 'name', 'nameEn', 'rarity', 'icon'] }],
-    limit: Math.min(limit, 100),
-    offset,
-    order: [['lastUpdated', 'DESC']]
-  });
+  const assets = await Asset.find()
+    .sort({ lastUpdated: -1 })
+    .skip(offset)
+    .limit(Math.min(limit, 100));
   
   return assets.map(a => a.toJSON());
 };
 
 /**
- * Get characters with 3D models
+ * Get characters with models
  */
 const getCharactersWithModels = async () => {
-  const assets = await Asset.findAll({
-    where: {
-      modelUrl: { [require('sequelize').Op.ne]: null }
-    },
-    include: [{ model: Character, attributes: ['id', 'name', 'nameEn', 'rarity', 'icon'] }]
-  });
-  
+  const assets = await Asset.find({ modelUrl: { $ne: null } });
   return assets.map(a => a.toJSON());
 };
 
 /**
- * Remove asset for a character
+ * Remove asset
  */
 const removeAsset = async (characterId, userId = null) => {
   if (!characterId) {
@@ -297,13 +272,19 @@ const removeAsset = async (characterId, userId = null) => {
   }
   
   const sanitizedCharacterId = sanitizeInput(characterId);
-  const asset = await Asset.findOne({ where: { characterId: sanitizedCharacterId } });
+  const asset = await Asset.findOne({ characterId: sanitizedCharacterId });
   
   if (!asset) {
     throw new Error('Asset not found');
   }
   
-  await asset.destroy();
+  await asset.deleteOne();
+  
+  // Also update character
+  await Character.updateOne(
+    { id: sanitizedCharacterId },
+    { modelUrl: null, textureUrl: null, previewUrl: null, source: 'local' }
+  );
   
   return {
     success: true,
@@ -313,7 +294,7 @@ const removeAsset = async (characterId, userId = null) => {
 };
 
 /**
- * Upload file (for future file upload support)
+ * Upload file (for file upload support)
  */
 const uploadFile = async (characterId, fileData, type, userId = null) => {
   if (!characterId || !fileData || !type) {
@@ -327,26 +308,25 @@ const uploadFile = async (characterId, fileData, type, userId = null) => {
     throw new Error('Invalid file type');
   }
   
+  // In production, this would upload to S3/cloud storage
   // For now, return a placeholder
-  // In production, this would handle file upload to S3/cloud storage
-  const asset = await Asset.findOne({ where: { characterId: sanitizeInput(characterId) } });
-  
-  const urlField = type + 'Url';
   const localUrl = `local://${characterId}_${type}.${type === 'model' ? 'glb' : 'png'}`;
   
+  let asset = await Asset.findOne({ characterId: sanitizeInput(characterId) });
+  const urlField = type + 'Url';
+  
   if (!asset) {
-    await Asset.create({
+    asset = new Asset({
       characterId: sanitizeInput(characterId),
       [urlField]: localUrl,
       source: 'local'
     });
   } else {
-    await asset.update({
-      [urlField]: localUrl,
-      source: 'local',
-      lastUpdated: new Date()
-    });
+    asset[urlField] = localUrl;
+    asset.source = 'local';
   }
+  
+  await asset.save();
   
   return {
     success: true,
@@ -358,22 +338,10 @@ const uploadFile = async (characterId, fileData, type, userId = null) => {
 };
 
 /**
- * Get asset statistics
+ * Get stats
  */
 const getAssetStats = async () => {
-  const total = await Asset.count();
-  const withModels = await Asset.count({ where: { modelUrl: { [require('sequelize').Op.ne]: null } } });
-  const withTextures = await Asset.count({ where: { textureUrl: { [require('sequelize').Op.ne]: null } } });
-  const withPreviews = await Asset.count({ where: { previewUrl: { [require('sequelize').Op.ne]: null } } });
-  
-  return {
-    total,
-    withModels,
-    withTextures,
-    withPreviews,
-    external: await Asset.count({ where: { source: 'external' } }),
-    local: await Asset.count({ where: { source: 'local' } })
-  };
+  return await Asset.getStats();
 };
 
 module.exports = {
