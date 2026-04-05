@@ -23,6 +23,9 @@ import GiftPoints from './pages/gift/GiftPoints';
 import ApiKeys from './pages/ApiKeys';
 import NotFound from './pages/NotFound';
 
+// Developer Routes
+import DeveloperRoutes from './routes/developer';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -178,6 +181,9 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
+
+              {/* Developer Routes */}
+              <Route path="/developer/*" element={<DeveloperRoutes />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
