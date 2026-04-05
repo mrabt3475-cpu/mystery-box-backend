@@ -1,0 +1,257 @@
+/* Character Styles */
+
+.character {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.character:hover {
+  transform: scale(1.1);
+}
+
+/* ----------------------
+   Sprite
+   ---------------------- */
+.character__sprite {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--char-primary) 0%, var(--char-secondary) 100%);
+  box-shadow: 0 0 20px var(--char-primary);
+}
+
+.character__emoji {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: character-idle 2s ease-in-out infinite;
+}
+
+.character__glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--char-accent);
+  opacity: 0.3;
+  filter: blur(20px);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ----------------------
+   Sizes
+   ---------------------- */
+.character--xs .character__sprite {
+  width: 32px;
+  height: 32px;
+}
+
+.character--xs .character__emoji {
+  font-size: 1rem;
+}
+
+.character--sm .character__sprite {
+  width: 48px;
+  height: 48px;
+}
+
+.character--sm .character__emoji {
+  font-size: 1.5rem;
+}
+
+.character--md .character__sprite {
+  width: 64px;
+  height: 64px;
+}
+
+.character--md .character__emoji {
+  font-size: 2rem;
+}
+
+.character--lg .character__sprite {
+  width: 96px;
+  height: 96px;
+}
+
+.character--lg .character__emoji {
+  font-size: 3rem;
+}
+
+.character--xl .character__sprite {
+  width: 128px;
+  height: 128px;
+}
+
+.character--xl .character__emoji {
+  font-size: 4rem;
+}
+
+/* ----------------------
+   Animations
+   ---------------------- */
+.character--idle .character__emoji {
+  animation: character-idle 2s ease-in-out infinite;
+}
+
+.character--attack .character__emoji {
+  animation: character-attack 0.5s ease-in-out;
+}
+
+.character--defend .character__emoji {
+  animation: character-defend 1s ease-in-out;
+}
+
+.character--victory .character__emoji {
+  animation: character-victory 1s ease-in-out;
+}
+
+.character--defeat .character__emoji {
+  animation: character-defeat 1s ease-in-out;
+}
+
+/* Keyframes */
+@keyframes character-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes character-attack {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-10px) rotate(-10deg); }
+  75% { transform: translateX(10px) rotate(10deg); }
+}
+
+@keyframes character-defend {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+}
+
+@keyframes character-victory {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(360deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+@keyframes character-defeat {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(20px) rotate(90deg); opacity: 0.5; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.5; }
+}
+
+/* ----------------------
+   Name
+   ---------------------- */
+.character__name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ========================
+   Character Selector
+   ======================== */
+.character-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-3);
+}
+
+.character-selector__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.character-selector__item:hover {
+  border-color: var(--char-primary);
+  transform: translateY(-2px);
+}
+
+.character-selector__item.selected {
+  border-color: var(--char-primary);
+  background: var(--char-primary);
+  box-shadow: 0 0 20px var(--char-primary);
+}
+
+.character-selector__emoji {
+  font-size: 2rem;
+}
+
+.character-selector__name {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+}
+
+/* ========================
+   Character Avatar
+   ======================== */
+.character-avatar {
+  position: relative;
+  display: inline-flex;
+}
+
+.character-avatar__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--char-primary) 0%, var(--char-secondary) 100%);
+  border: 3px solid var(--char-primary);
+  box-shadow: 0 0 15px var(--char-primary);
+}
+
+.character-avatar__emoji {
+  font-size: 1.5rem;
+}
+
+.character-avatar__level {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  padding: 2px 6px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: white;
+}
+
+.character-avatar--xs .character-avatar__frame {
+  width: 32px;
+  height: 32px;
+}
+
+.character-avatar--sm .character-avatar__frame {
+  width: 48px;
+  height: 48px;
+}
+
+.character-avatar--md .character-avatar__frame {
+  width: 64px;
+  height: 64px;
+}
+
+.character-avatar--lg .character-avatar__frame {
+  width: 96px;
+  height: 96px;
+}
+
+.character-avatar--lg .character-avatar__emoji {
+  font-size: 2.5rem;
+}

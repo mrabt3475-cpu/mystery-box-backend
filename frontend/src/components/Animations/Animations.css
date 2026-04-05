@@ -1,0 +1,246 @@
+/* Animation Styles */
+
+/* ========================
+   Fade In
+   ======================== */
+.animation-fade-in {
+  animation: fadeIn var(--transition-slow) ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ========================
+   Fade In Up
+   ======================== */
+.animation-fade-in-up {
+  animation: fadeInUp var(--transition-slow) ease forwards;
+  opacity: 0;
+  transform: translateY(var(--distance, 20px));
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(var(--distance, 20px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================
+   Fade In Down
+   ======================== */
+.animation-fade-in-down {
+  animation: fadeInDown var(--transition-slow) ease forwards;
+  opacity: 0;
+  transform: translateY(calc(var(--distance, 20px) * -1));
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--distance, 20px) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================
+   Slide In Left
+   ======================== */
+.animation-slide-in-left {
+  animation: slideInLeft var(--transition-slow) ease forwards;
+  opacity: 0;
+  transform: translateX(calc(var(--distance, 30px) * -1));
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--distance, 30px) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========================
+   Slide In Right
+   ======================== */
+.animation-slide-in-right {
+  animation: slideInRight var(--transition-slow) ease forwards;
+  opacity: 0;
+  transform: translateX(var(--distance, 30px));
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(var(--distance, 30px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========================
+   Scale In
+   ======================== */
+.animation-scale-in {
+  animation: scaleIn var(--transition-base) ease forwards;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========================
+   Bounce
+   ======================== */
+.animation-bounce {
+  animation: bounce var(--transition-base) ease forwards;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ========================
+   Shake
+   ======================== */
+.animation-shake {
+  animation: shake var(--transition-base) ease forwards;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* ========================
+   Pulse
+   ======================== */
+.animation-pulse {
+  animation: pulse var(--transition-slow) ease forwards;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ========================
+   Spin
+   ======================== */
+.animation-spin {
+  animation: spin 1s linear forwards;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================
+   Float
+   ======================== */
+.animation-float {
+  animation: float var(--transition-slower) ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ========================
+   Glow
+   ======================== */
+.animation-glow {
+  animation: glow var(--transition-slow) ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px var(--glow-color, var(--color-primary));
+  }
+  50% { 
+    box-shadow: 0 0 30px var(--glow-color, var(--color-primary)), 0 0 60px var(--glow-color, var(--color-primary));
+  }
+}
+
+/* ========================
+   Stagger Container
+   ======================== */
+.stagger-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.stagger-item {
+  animation: fadeInUp var(--transition-slow) ease forwards;
+  opacity: 0;
+}
+
+/* ========================
+   Scroll Reveal
+   ======================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all var(--transition-slow) ease;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================
+   Infinite Loop Animations
+   ======================== */
+.infinite-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.infinite-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.infinite-spin {
+  animation: spin 2s linear infinite;
+}
+
+.infinite-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.infinite-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.infinite-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
