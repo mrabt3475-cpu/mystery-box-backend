@@ -1,7 +1,8 @@
-// Anti-Fraud System
-// ==================
+// Anti-Fraud System - Fixed Version
+// ====================================
 
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { logger } = require('../../../utils/logger');
 
 class AntiFraudSystem {
   constructor() {
@@ -12,8 +13,8 @@ class AntiFraudSystem {
       { name: 'unusual_amount', minAmount: 1000, risk: 40 },
       { name: 'multiple_accounts', threshold: 3, timeWindow: 3600000, risk: 50 },
       { name: 'vpn_detected', risk: 20 },
-      { name: 'new_account_high_bet', accountAge: 86400000, risk: 35 },
-      { name: 'rapid_deposits', threshold: 5, timeWindow: 300000, risk: 45 },
+      { name: 'new_account_high_bet', accountAge: 86400000, betAmount: 100, risk: 35 },
+      { name: 'rapid_deposits', threshold: 5, timeWindow: 30000, risk: 45 },
     ]
   }
 
@@ -72,7 +73,9 @@ class AntiFraudSystem {
     const activities = this.suspiciousActivities.get(userId) || []
     const now = Date.now()
     const oneMinuteAgo = now - 60000
-    const recentBets = activities.filter(a => a.action === 'bet' && a.timestamp > oneMinuteAgo)
+    const recentBets = activities.filter(a => 
+      a.action === 'bet' && a.timestamp > oneMinuteAgo
+    )
     return { flagged: recentBets.length >= 10, count: recentBets.length }
   }
 
@@ -83,8 +86,10 @@ class AntiFraudSystem {
   async checkRapidDeposits(userId) {
     const activities = this.suspiciousActivities.get(userId) || []
     const now = Date.now()
-    const fiveMinutesAgo = now - 300000
-    const recentDeposits = activities.filter(a => a.action === 'deposit' && a.timestamp > fiveMinutesAgo)
+    const fiveMinutesAgo = now - 30000
+    const recentDeposits = activities.filter(a => 
+      a.action === 'deposit' && a.timestamp > fiveMinutesAgo
+    )
     return { flagged: recentDeposits.length >= 5, count: recentDeposits.length }
   }
 
@@ -99,16 +104,36 @@ class AntiFraudSystem {
     activities.push({ action, timestamp: Date.now(), ...metadata })
     if (activities.length > 100) activities.shift()
     this.suspiciousActivities.set(userId, activities)
+    
+    logger.info(`[ACTIVITY] User: ${userId}, Action: ${action}`)
   }
 
   async blockUser(userId, reason, duration = null) {
-    const block = { userId, reason, blockedAt: new Date(), duration, blockedUntil: duration ? new Date(Date.now() + duration) : null }
-    console.log(`[FRAUD] User blocked: ${userId}, reason: ${reason}`)
+    const block = {
+      userId,
+      reason,
+      blockedAt: new Date(),
+      duration,
+      blockedUntil: duration ? new Date(Date.now() + duration) : null
+    }
+    
+    logger.warn(`[FRAUD] User blocked: ${userId}, reason: ${reason}`)
+    
     return block
   }
 
   getUserRiskInfo(userId) {
     return this.riskScores.get(userId) || { score: 0, flags: [], lastUpdated: null }
+  }
+
+  // Generate secure random for any fraud detection needs
+  generateSecureToken() {
+    return crypto.randomBytes(32).toString('hex')
+  }
+
+  // Hash sensitive data for logging
+  hashData(data) {
+    return crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex')
   }
 }
 

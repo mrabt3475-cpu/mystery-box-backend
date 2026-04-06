@@ -1,13 +1,20 @@
-// Enhanced Payment Verification System
-// =====================================
+// Enhanced Payment Verification System - Fixed Version
+// ==========================================================
 
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { logger } = require('../../../utils/logger');
 
 class PaymentVerification {
   constructor() {
     this.webhookSecrets = new Map()
     this.transactionLogs = new Map()
     this.pendingTransactions = new Map()
+  }
+
+  // Secure random number generation using crypto
+  generateSecureRandom() {
+    const buffer = crypto.randomBytes(4);
+    return buffer.readUInt32BE() / 0xffffffff;
   }
 
   generateTransactionId(prefix = 'TXN') {
@@ -19,8 +26,16 @@ class PaymentVerification {
   createPendingTransaction(userId, amount, currency, method, metadata = {}) {
     const transactionId = this.generateTransactionId()
     const transaction = {
-      transactionId, userId, amount, currency, method,
-      status: 'pending', createdAt: new Date(), metadata, attempts: 0, maxAttempts: 3
+      transactionId,
+      userId,
+      amount,
+      currency,
+      method,
+      status: 'pending',
+      createdAt: new Date(),
+      metadata,
+      attempts: 0,
+      maxAttempts: 3
     }
     this.pendingTransactions.set(transactionId, transaction)
     this.logTransaction(transaction)
@@ -29,7 +44,7 @@ class PaymentVerification {
 
   verifyWebhookSignature(payload, signature, secret) {
     if (!signature) return false
-    const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex')
+    const expectedSignature = crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex')
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))
   }
 
@@ -78,9 +93,13 @@ class PaymentVerification {
     return transaction
   }
 
+  // Secure mock verification using crypto instead of Math.random
   async mockProviderVerification(transaction) {
     return new Promise((resolve) => {
-      setTimeout(() => { resolve(Math.random() > 0.1) }, 100)
+      setTimeout(() => {
+        const randomValue = this.generateSecureRandom()
+        resolve(randomValue > 0.1)
+      }, 100)
     })
   }
 
@@ -93,11 +112,12 @@ class PaymentVerification {
     logs.push({ ...transaction, loggedAt: new Date() })
     if (logs.length > 1000) logs.shift()
     this.transactionLogs.set(transaction.userId, logs)
-    console.log(`[PAYMENT] ${transaction.transactionId}: ${transaction.status}`)
+    
+    logger.info(`[PAYMENT] ${transaction.transactionId}: ${transaction.status}`)
   }
 
   async logFraudAttempt(userId, type, data) {
-    console.error(`[FRAUD ATTEMPT] User: ${userId}, Type: ${type}`, data)
+    logger.error(`[FRAUD ATTEMPT] User: ${userId}, Type: ${type}`, data)
     const attempts = this.transactionLogs.get(`fraud_${userId}`) || []
     attempts.push({ type, data, timestamp: new Date() })
     this.transactionLogs.set(`fraud_${userId}`, attempts)
@@ -114,7 +134,11 @@ class PaymentVerification {
 
   calculateRevenue(userId, startDate, endDate) {
     const logs = this.transactionLogs.get(userId) || []
-    return logs.filter(t => t.status === 'completed' && t.createdAt >= startDate && t.createdAt <= endDate).reduce((sum, t) => sum + t.amount, 0)
+    return logs.filter(t => 
+      t.status === 'completed' && 
+      t.createdAt >= startDate && 
+      t.createdAt <= endDate
+    ).reduce((sum, t) => sum + t.amount, 0)
   }
 }
 
